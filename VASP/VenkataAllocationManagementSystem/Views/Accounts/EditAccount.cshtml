@@ -1,0 +1,33 @@
+@model VenkataAllocationManagementSystem.Models.Account
+
+@{
+    ViewData["Title"] = "Edit Account";
+}
+
+<h2>Update Account</h2>
+
+@using (Html.BeginForm("UpdateAccount", "Accounts", FormMethod.Post))
+{
+    <input type="hidden" asp-for="AccountId" />
+    <div class="form-group">
+        <label asp-for="AccountName"></label>
+        <input asp-for="AccountName" class="form-control" />
+        <span asp-validation-for="AccountName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <input asp-for="Description" class="form-control" />
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-group form-check">
+        <input asp-for="IsActive" class="form-check-input" />
+        <label asp-for="IsActive" class="form-check-label"></label>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="AccountManagement" class="btn btn-primary">Cancel</a>
+
+    @section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+}
+

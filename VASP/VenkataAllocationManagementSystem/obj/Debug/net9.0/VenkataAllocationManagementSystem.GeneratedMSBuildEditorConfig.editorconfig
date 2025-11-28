@@ -1,0 +1,221 @@
+is_global = true
+build_property.TargetFramework = net9.0
+build_property.TargetFramework = net9.0
+build_property.TargetPlatformMinVersion = 
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = VenkataAllocationManagementSystem
+build_property.RootNamespace = VenkataAllocationManagementSystem
+build_property.ProjectDir = C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 9.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 9.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Areas/Identity/Pages/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Access/AccessDenied.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjZXNzXEFjY2Vzc0RlbmllZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Access/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjZXNzXExvZ2luLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Access/Logout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjZXNzXExvZ291dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Accounts/AccountManagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudHNcQWNjb3VudE1hbmFnZW1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Accounts/CreateAccount.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudHNcQ3JlYXRlQWNjb3VudC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Accounts/EditAccount.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudHNcRWRpdEFjY291bnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Accounts/ViewAccount.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudHNcVmlld0FjY291bnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Allocations/AllocationManagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWxsb2NhdGlvbnNcQWxsb2NhdGlvbk1hbmFnZW1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Allocations/CreateAllocation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWxsb2NhdGlvbnNcQ3JlYXRlQWxsb2NhdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Allocations/EditAllocation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWxsb2NhdGlvbnNcRWRpdEFsbG9jYXRpb24uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Allocations/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWxsb2NhdGlvbnNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Allocations/ViewAllocation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWxsb2NhdGlvbnNcVmlld0FsbG9jYXRpb24uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Associates/AssociateManagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXNzb2NpYXRlc1xBc3NvY2lhdGVNYW5hZ2VtZW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Associates/CreateAssociate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXNzb2NpYXRlc1xDcmVhdGVBc3NvY2lhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Associates/EditAssociate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXNzb2NpYXRlc1xFZGl0QXNzb2NpYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Associates/ViewAssociate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXNzb2NpYXRlc1xWaWV3QXNzb2NpYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Management/PortfolioManagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFuYWdlbWVudFxQb3J0Zm9saW9NYW5hZ2VtZW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Portfolio/AssociateBurnDownRpt.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUG9ydGZvbGlvXEFzc29jaWF0ZUJ1cm5Eb3duUnB0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Portfolio/PortfolioDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUG9ydGZvbGlvXFBvcnRmb2xpb0Rhc2hib2FyZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Projects/CreateProject.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcQ3JlYXRlUHJvamVjdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Projects/EditProject.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcRWRpdFByb2plY3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Projects/ProjectManagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcUHJvamVjdE1hbmFnZW1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Projects/ViewProject.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcVmlld1Byb2plY3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Shared/_AccountsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BY2NvdW50c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Shared/_LoginPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Mb2dpblBhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Timesheets/CreateMultipleTimesheets.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGltZXNoZWV0c1xDcmVhdGVNdWx0aXBsZVRpbWVzaGVldHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Timesheets/CreateMyTimesheets.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGltZXNoZWV0c1xDcmVhdGVNeVRpbWVzaGVldHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Timesheets/CreateTimesheets.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGltZXNoZWV0c1xDcmVhdGVUaW1lc2hlZXRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Timesheets/EditTimesheet.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGltZXNoZWV0c1xFZGl0VGltZXNoZWV0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Timesheets/TimesheetRow.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGltZXNoZWV0c1xUaW1lc2hlZXRSb3cuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Timesheets/ViewMyTimesheets.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGltZXNoZWV0c1xWaWV3TXlUaW1lc2hlZXRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Timesheets/ViewTeamMemberTimesheets.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGltZXNoZWV0c1xWaWV3VGVhbU1lbWJlclRpbWVzaGVldHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Timesheets/ViewTimesheet.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGltZXNoZWV0c1xWaWV3VGltZXNoZWV0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Timesheets/_MultipleTimesheetLinesPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGltZXNoZWV0c1xfTXVsdGlwbGVUaW1lc2hlZXRMaW5lc1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Timesheets/_TimesheetLinesPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGltZXNoZWV0c1xfVGltZXNoZWV0TGluZXNQYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/UserProfile/MyProfile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclByb2ZpbGVcTXlQcm9maWxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Users/CreateUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcQ3JlYXRlVXNlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Users/EditUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcRWRpdFVzZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Users/UserManagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcVXNlck1hbmFnZW1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Users/ViewUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcVmlld1VzZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-gr2opyg5vs

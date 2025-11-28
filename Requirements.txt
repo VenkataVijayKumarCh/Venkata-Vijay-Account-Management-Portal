@@ -1,0 +1,14 @@
+01) Add default values to dropdownlist wherever possible				Completed
+02) Implement Enum / Constants to remove hard-coded values / keys			Completed
+03) Allocations confined to 100% only during a particular day
+04) Implement Multiple allocations creation
+05) Session Implementations
+06) User Auth Info and Authorization
+07) Allocations should be marked as completed when Project is completed
+08) Menu Items of all Portfolio Management
+09) Logout Functionality								Completed
+10) My Profile
+11) Password Encryption
+12) Mandatory to select the User Roles							Completed
+13) Change Password functionality
+14) Unique Users and Associates

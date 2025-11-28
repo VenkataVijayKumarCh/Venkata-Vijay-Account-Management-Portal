@@ -1,0 +1,229 @@
+@model VenkataAllocationManagementSystem.ViewModels.TimesheetsViewModel
+
+@{
+    ViewBag.Title = "Submit Timesheets for Associates";
+    // var weekDates = Model.WeekDates; // List<DateTime> for the selected period
+}
+
+<h2>Submit Timesheets for Associates</h2>
+
+@using (Html.BeginForm("CreateMultipleTimesheets", "Timesheets", FormMethod.Post))
+{
+    <div class="form-group" style="padding:5px 0px 5px 0px;">
+        <label>Select Timesheet Period</label>
+        @Html.DropDownListFor(m => m.TimesheetPeriodId, 
+                        new SelectList(Model.TimesheetPeriods, dataValueField: "TimesheetPeriodId", dataTextField: "WeekStartDate"), 
+                        "Select Timesheet Period", 
+                        new { @class = "form-control", id = "PeriodId" })
+        @Html.ValidationMessageFor(m => m.TimesheetPeriodId)
+    </div>
+    // "WeekStartDate" + " - " + "WeekEndDate"
+    <div class="form-group" style="padding:5px 0px 5px 0px;">
+        <label>Select Project</label>
+        @Html.DropDownListFor(m => m.ProjectId, 
+                        new SelectList(@Model.Projects, "ProjectId", "ProjectName"), 
+                        optionLabel: "Select Project", 
+                        htmlAttributes: new { @class = "form-control", id = "ProjectId" })
+        @Html.ValidationMessageFor(m => m.ProjectId)        
+    </div>
+
+     <div class="form-group" style="padding:5px 0px 5px 0px;">
+        <button type="submit" class="btn btn-primary" id="btnLoadTimesheetlineItems" name="action" value="load">Load Timesheet Table for your Team Members</button>
+    </div>
+   
+    @if (Model.AssociateTimesheetRows != null)
+        {
+            // @Html.RenderPartialAsync("_TimesheetLinesPartial", Model)
+            @await Html.PartialAsync("_MultipleTimesheetLinesPartial", Model)
+        }
+
+
+    @section Scripts {
+        @* <script>
+            function updateTotals() {
+                document.querySelectorAll("#timesheetGrid tbody tr").forEach(function(row) {
+                    let total = 0;
+                    row.querySelectorAll('.hours-input').forEach(function(input) {
+                        let val = parseFloat(input.value);
+                        if (!isNaN(val)) total += val;
+                    });
+                    row.querySelector('.total-hours').value = total;
+                });
+            }
+            document.addEventListener("DOMContentLoaded", function () {
+                updateTotals();
+                document.querySelectorAll('.hours-input').forEach(function(input) {
+                    input.addEventListener('input', updateTotals);
+                });
+            });
+
+            function updateTotalHours() {
+                let total = 0;
+                document.querySelectorAll('input[name$=".HoursWorked"]').forEach(function(input) {
+                    let val = parseFloat(input.value);
+                    if (!isNaN(val)) total += val;
+                });
+                // document.getElementById('totalHours').textContent = total;
+                document.getElementById('totalHours').value = total;
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                updateTotalHours();
+                document.querySelectorAll('input[name$=".HoursWorked"]').forEach(function(input) {
+                    input.addEventListener('input', updateTotalHours);
+                });
+            });
+
+            function deleteRow(btn) {
+                var row = btn.closest('tr');
+                row.parentNode.removeChild(row);
+            }
+
+            function addRow() {
+                // You can implement a modal or dropdown to select an associate and then append a new row for that associate.
+                alert('Add row functionality: Implement as per your requirements.');
+            }
+        </script>
+
+        <script>
+            // Disable the button on form submit
+            document.addEventListener("DOMContentLoaded", function () {
+                var form = document.querySelector('form');
+                var btn = document.getElementById('btnLoadTimesheetlineItems');
+                if (form && btn) {
+                    form.addEventListener('submit', function () {
+                        btn.disabled = true;
+                        btn.hidden = true;
+                    });
+                }
+
+                // Enable/show the Load button when either select changes to a non-empty value.
+                function enableLoadButtonIfSelectionPresent() {
+                    if (!btn) return;
+                    var periodSelected = period && period.value && period.value.trim() !== "";
+                    var projectSelected = project && project.value && project.value.trim() !== "";
+                    // Enable if either select has a value (change this to require both if you prefer)
+                    if (periodSelected || projectSelected) {
+                        btn.disabled = false;
+                        btn.hidden = false;
+                    } else {
+                        // If you want the button to be disabled when both are empty, uncomment:
+                        // btn.disabled = true;
+                        // btn.hidden = false;
+                    }
+                }
+
+                if (period) period.addEventListener('change', enableLoadButtonIfSelectionPresent);
+                if (project) project.addEventListener('change', enableLoadButtonIfSelectionPresent);
+
+                // run an initial check (useful if the page is rendered with a selection already)
+                enableLoadButtonIfSelectionPresent();
+            });
+        </script> *@
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const form = document.querySelector('form');
+                const btn = document.getElementById('btnLoadTimesheetlineItems');
+                const period = document.getElementById('PeriodId');
+                const project = document.getElementById('ProjectId');
+                const table = document.getElementById('timesheetGrid');
+
+                // Compute total for a single row
+                function computeRowTotal(row) {
+                    if (!row) return;
+                    // find inputs that represent hours (name contains "Hours") but exclude any "Total" inputs
+                    const hourInputs = Array.from(row.querySelectorAll('input[name*="Hours"]'))
+                        .filter(i => !/Total/i.test(i.name));
+                    let total = 0;
+                    hourInputs.forEach(function (input) {
+                        const val = parseFloat(input.value);
+                        if (!isNaN(val)) total += val;
+                    });
+
+                    // prefer an element with class 'total-hours' in the row, otherwise try inputs with name containing 'Total'
+                    let totalEl = row.querySelector('.total-hours') || row.querySelector('input[name*="Total"]');
+                    if (totalEl) {
+                        totalEl.value = total;
+                    } else {
+                        // fallback: set first element with .total-hours-text (if you prefer spans)
+                        const span = row.querySelector('.total-hours-text');
+                        if (span) span.textContent = total;
+                    }
+                }
+
+                // Update all rows
+                function updateTotals() {
+                    const rows = document.querySelectorAll('#timesheetGrid tbody tr');
+                    rows.forEach(row => computeRowTotal(row));
+                }
+
+                // Delegate input events on the table so dynamic rows are supported
+                if (table) {
+                    table.addEventListener('input', function (e) {
+                        const input = e.target;
+                        if (!input || !input.name) return;
+                        // Only react to hour inputs (name contains 'Hours')
+                        if (input.name.indexOf('Hours') === -1) return;
+                        const row = input.closest('tr');
+                        computeRowTotal(row);
+                    });
+                }
+
+                // Initial population
+                updateTotals();
+
+                // Disable + hide the button on submit to prevent double-submits
+                if (form && btn) {
+                    form.addEventListener('submit', function () {
+                        btn.disabled = true;
+                        btn.hidden = true;
+                    });
+                }
+
+                // Enable/show the Load button when either select changes to a non-empty value.
+                function enableLoadButtonIfSelectionPresent() {
+                    if (!btn) return;
+                    const periodSelected = period && period.value && period.value.trim() !== "";
+                    const projectSelected = project && project.value && project.value.trim() !== "";
+                    // Use OR to enable when either is selected; change to (periodSelected && projectSelected) if you want both required.
+                    if (periodSelected || projectSelected) {
+                        btn.disabled = false;
+                        btn.hidden = false;
+                    } /* else {
+                        // optionally disable when both empty:
+                        // btn.disabled = true;
+                        // btn.hidden = false;
+                    } */
+                }
+
+                if (period) period.addEventListener('change', enableLoadButtonIfSelectionPresent);
+                if (project) project.addEventListener('change', enableLoadButtonIfSelectionPresent);
+
+                // run an initial check (useful if the page is rendered with selections already)
+                enableLoadButtonIfSelectionPresent();
+
+                // Delete row function
+                window.deleteRow = function (btn) {
+                    const row = btn.closest('tr');
+                    if (row) {
+                        row.parentNode.removeChild(row);
+                        window.reindexRows();
+                    }
+                };
+
+                // reindexing function can be added here if needed when rows are deleted                
+                window.reindexRows = function () {
+                    const rows = document.querySelectorAll('#timesheetGrid tbody tr');
+                    rows.forEach((row, index) => {
+                        // Update any relevant data attributes or hidden inputs with the new index
+                        row.querySelectorAll('[name]').forEach(input => {
+                            const name = input.name.replace(/\[\d+\]/, `[${index}]`);
+                            input.name = name;
+                        });
+                    });
+                };
+            });
+        </script>
+    }
+}

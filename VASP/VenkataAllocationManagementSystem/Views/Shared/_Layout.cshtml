@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(string.IsNullOrEmpty(ViewData["Title"] as string) ? "Login Page" : ViewData["Title"]) - Venkata Allocation Management System</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/VenkataAllocationManagementSystem.styles.css" asp-append-version="true" />
+</head>
+<body class="centered-body">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                @* asp-controller="Home" asp-action="Index" VenkataAllocationManagementSystem*@
+                <a class="navbar-brand" asp-area="" asp-controller="Management" asp-action="PortfolioManagement">
+                    <img src="@Url.Content("~/images/vams-blue.png")" />
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <partial name="_LoginPartial" />
+                     @if(@User.Identity!.IsAuthenticated == false)
+                        {
+                            <section>
+                                <div>
+                                    <h1>Venkata Allocation Management System</h1>
+                                </div>
+                            </section>
+                        }
+                    <ul class="navbar-nav flex-grow-1 menu">                         
+                        @if(@User.Identity!.IsAuthenticated)
+                        {
+                            @if (@User.IsInRole("Manager"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                                </li>
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Management" asp-action="PortfolioManagement">Management Dashboard</a>
+                                <ul class="submenu">
+                                    <li><a href="@Url.Action(action:"AccountManagement", controller: "Accounts")">Accounts</a></li>
+                                    <li><a href="@Url.Action(action:"ProjectManagement", controller: "Projects")">Projects</a></li>
+                                    <li><a href="@Url.Action(action:"AssociateManagement", controller: "Associates")">Associates</a></li>
+                                    <li><a href="@Url.Action(action:"AllocationManagement", controller: "Allocations")">Allocations</a></li>
+                                </ul>
+                            </li>
+                            @if(@User.IsInRole(role: "Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Users" asp-action="UserManagement">User Administration</a>
+                                </li>
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Timesheets" asp-action="ViewMyTimesheets">Timesheets</a>
+                                <ul class="submenu">                                    
+                                    <li><a href="@Url.Action(action:"ViewTeamMemberTimesheets", controller: "Timesheets")">Team Member's Timesheets</a></li>
+                                </ul>                                    
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Portfolio" asp-action="PortfolioDashboard">Portfolio Dashboard</a>
+                                <ul class="submenu">
+                                    <li><a href="@Url.Action(action:"AssociateBurnDownRpt", controller: "Portfolio")">Associate Burn Down</a></li>                                    
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="UserProfile" asp-action="MyProfile">My Profile</a>
+                            </li>
+                        }                     
+                    </ul>                    
+                </div>
+            </div>
+            @if(@User.Identity.IsAuthenticated)
+            {
+                <div style="padding: 0px 20px 0px 0px">
+                    <form asp-controller="Access" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">Logout</button>
+                    </form>
+                </div>
+            }            
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - Venkata Allocation Management System - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

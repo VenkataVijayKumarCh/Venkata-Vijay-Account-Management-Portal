@@ -1,0 +1,108 @@
+@model VenkataAllocationManagementSystem.ViewModels.TimesheetsViewModel
+
+@if (Model == null && !Model!.AssociateTimesheetRows!.Any())
+{
+    <div class="alert alert-info">No timesheet lines to display. Please select a Timesheet Period and Project.</div>
+}
+else
+{
+    @Html.HiddenFor(m => m.TimesheetStartDate)
+    @Html.HiddenFor(m => m.TimesheetEndDate)
+
+    <table class="table table-bordered" id="timesheetGrid">
+        <thead>
+            <tr>
+                <th></th>
+                @for (int index = 0; index < Model.AssociateTimesheetRows![0].TimesheetLineItems!.Count; index++)
+                {
+                    <th>
+                        @Model.AssociateTimesheetRows[0].TimesheetLineItems![index].WorkDate.DayOfWeek.ToString()
+                    </th>
+                }
+                <th colspan="2"></th>
+            </tr>
+            <tr>
+                <th>Associate</th>                
+                @for (int i = 0; i < Model.AssociateTimesheetRows[0].TimesheetLineItems!.Count; i++)
+                {                    
+                    <th>
+                        @Html.HiddenFor(m => m.AssociateTimesheetRows![0].TimesheetLineItems![i].WorkDate)
+                        @Model.AssociateTimesheetRows[0].TimesheetLineItems![i].WorkDate.ToShortDateString()
+                    </th>
+                }
+                <th>Total Hours</th>            
+                <th>Action</th>
+            </tr>
+        </thead>
+        @* <tbody>
+            @for (int index = 0; index < Model.Associates!.Count; index++)
+            {
+                <tr> 
+                    <td>
+                        @Html.DropDownListFor(m => m.AssociateTimesheetRows!.AssociateId, 
+                            new SelectList(@Model.Associates, "AssociateId", "FullName"), 
+                            optionLabel: "Select Associate", 
+                            htmlAttributes: new { @class = "form-control", id = "AssociateId" })
+                        @Html.ValidationMessageFor(m => m.AssociateTimesheetRows!.AssociateId)
+                    </td>
+                    @for (int iLineItems = 0; iLineItems < Model.TimesheetLineItems!.Count; iLineItems++)
+                    {
+                                        
+                        <td>
+                            @Html.TextBoxFor(m => m.TimesheetLineItems![iLineItems].HoursWorked, new { @class = "form-control", type = "number", step = "0.25", min = "0", max = "24" })
+                            @Html.ValidationMessageFor(m => m.TimesheetLineItems![iLineItems].HoursWorked)
+                        </td>                    
+                    }
+                    <td>
+                        @Html.TextBoxFor(m => m.TotalHours, new { @class = "form-control", id = "totalHours", type = "number", step = "0.25", min = "0", max = "63", @readonly = "readonly" })
+                        @Html.ValidationMessageFor(m => m.TotalHours)
+                    </td>
+                </tr>                
+            }
+            <tr>
+                <td colspan="9">
+                    @Html.TextBoxFor(m => m.Description, new { @class = "form-control", placeholder = "Enter Description" })
+                    @Html.ValidationMessageFor(m => m.Description)
+                </td>
+            </tr>
+        </tbody> *@
+        <tbody>
+            @for (int index = 0; index < Model.Associates!.Count; index++)
+            {
+                <tr> 
+                    <td>
+                        @Html.DropDownListFor(m => m.AssociateTimesheetRows![index]!.AssociateId, 
+                            new SelectList(@Model.Associates, "AssociateId", "FullName"), 
+                            optionLabel: "Select Associate", 
+                            htmlAttributes: new { @class = "form-control", id = "AssociateId" })
+                        @Html.ValidationMessageFor(m => m.AssociateTimesheetRows![index]!.AssociateId)
+                        @Html.HiddenFor(m => m.AssociateTimesheetRows![index]!.AssociateId, new { @class = "form-control" })
+                    </td>
+                    @for (int iLineItems = 0; iLineItems < Model.AssociateTimesheetRows![index]!.TimesheetLineItems!.Count; iLineItems++)
+                    {
+                        @Html.HiddenFor(m => m.AssociateTimesheetRows![index]!.TimesheetLineItems![iLineItems].WorkDate)
+                        <td>
+                            @Html.TextBoxFor(m => m.AssociateTimesheetRows![index]!.TimesheetLineItems![iLineItems].HoursWorked, new { @class = "form-control", type = "number", step = "0.25", min = "0", max = "24" })
+                            @Html.ValidationMessageFor(m => m.AssociateTimesheetRows![index]!.TimesheetLineItems![iLineItems].HoursWorked)
+                        </td>                    
+                    }
+                    <td>
+                        @Html.TextBoxFor(m => m.TotalHours, new { @class = "form-control", id = "totalHours", type = "number", step = "0.25", min = "0", max = "63", @readonly = "readonly" })
+                        @Html.ValidationMessageFor(m => m.TotalHours)
+                    </td>
+                    <td style="text-align:center;">
+                                <button type="button" class="btn btn-danger" onclick="deleteRow(this)">Delete</button>
+                    </td>
+                </tr>                
+            }
+            <tr>
+                <td colspan="9">
+                    @Html.TextBoxFor(m => m.Description, new { @class = "form-control", placeholder = "Enter Description" })
+                    @Html.ValidationMessageFor(m => m.Description)
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <button type="button" class="btn btn-success" onclick="addRow()">Add Row</button>
+    <button type="submit" class="btn btn-primary" name="action" value="submitAll">Submit All Timesheets</button>
+}

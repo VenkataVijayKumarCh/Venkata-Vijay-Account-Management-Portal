@@ -1,0 +1,20 @@
+﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@* <script>
+    $(document).ready(function () {
+        $("#allocationForm").submit(function (e) {
+            const projectEnd = new Date($("#ProjectEndDate").val());
+            const allocationEnd = new Date($("#AllocationEndDate").val());
+            alert("Project End Date: " + projectEnd + ", Allocation End Date: " + allocationEnd);
+
+            if (allocationEnd > projectEnd) {
+            e.preventDefault(); // Stop form submission
+            alert("Allocation End Date cannot be after Project End Date.")
+            @* $("#dateError").text("Allocation End Date cannot be after Project End Date.");
+            } else {
+            $("#dateError").text(""); // Clear error
+            } 
+        });
+    });
+</script> *@

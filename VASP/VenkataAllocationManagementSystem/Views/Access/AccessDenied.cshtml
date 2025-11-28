@@ -1,0 +1,17 @@
+﻿@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Access Denied Page";
+}
+
+<div class="text-center center">
+    @if(User.Identity!.IsAuthenticated)
+        {
+            @if(User.Identity != null & User.Identity!.IsAuthenticated)
+            {
+                string? loginUserName = User.FindFirst(ClaimTypes.GivenName)?.ToString().Split(": ")[1] + ", " + User.FindFirst(ClaimTypes.Surname)?.ToString().Split(": ")[1];
+
+                <p>Hi @loginUserName! You don't have privileges to access this Page. Please contact Administrator to get required privileges.</p>
+            }
+        }    
+</div>

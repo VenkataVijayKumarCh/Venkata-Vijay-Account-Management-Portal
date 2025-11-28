@@ -1,0 +1,251 @@
+@model VenkataAllocationManagementSystem.ViewModels.PortfolioDashboardViewModel
+@using System.Text.Json
+@using System.Data.SqlTypes
+
+<h2>Portfolio Dashboard</h2>
+
+@* <div style="width:300px; height:150px; align-items:center;">
+    <canvas id="projectAllocChart" ></canvas>
+</div>
+
+<div style="width:300px; height:150px; align-items:center;">
+    <canvas id="submissionPie"></canvas>
+</div> *@
+
+@using (Html.BeginForm("PortfolioDashboard", "Portfolio", FormMethod.Post))
+{
+    @if(Model.Projects != null && @Model.Projects.Count() != 0)
+    {   
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <label for="ProjectId" class="form-label mb-0" style="font-weight:bold">Select Project</label>
+
+            @if (Model.Projects != null && Model.Projects.Any())
+            {
+                @Html.DropDownListFor(p => p.ProjectId,
+                    new SelectList(Model.Projects, "ProjectId", "ProjectName"),
+                    "-- Select Project --",
+                    htmlAttributes: new { @class = "form-control", id = "ProjectId", style = "width: 400px;" })
+
+                <button type="submit" class="btn btn-primary" id="btnLoadProjectPortfolioDashboard"
+                        style="width: 250px;" name="action" value="load">
+                    Load Portfolio Dashboards
+                </button>
+            }
+            else
+            {
+                <span class="text-danger">No projects available. Please create a project first.</span>
+            }
+        </div>
+
+        <span asp-validation-for="@Model.ProjectId" class="text-danger"></span>
+
+
+        @* <div class="row mb-3">
+            <div class="col-12 col-md-6" style="width:400px">
+               
+                    <div class="form-group">   
+                        <label>Select Project</label>
+                        @* <select asp-for="Project.AccountId" asp-items="@Model.Accounts"  class="form-control" /> 
+
+                            @if(@Model.Projects != null && @Model.Projects.Any())
+                            {
+                                @Html.DropDownListFor(p => p.ProjectId, 
+                                    new SelectList(@Model.Projects, "ProjectId", "ProjectName"),  
+                                    "-- Select Project --",
+                                    htmlAttributes: new { @class = "form-control", id = "ProjectId"})
+                            }
+                            else
+                            {
+                                <span class="text-danger">No projects available. Please create a project first.</span>
+                            }
+
+                        <span asp-validation-for="@Model.ProjectId" class="text-danger"></span>
+                        
+                
+                    </div>
+               
+            </div>
+            <div class="col-12 col-md-6" style="width: 400px;">
+            
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" id="btnLoadProjectPortfolioDashboard" name="action" value="load">Load Portfolio Dashboards</button>
+                         <label>&nbsp;</label><br />
+                        <a asp-action="ExportProjectAllocationsCsv" asp-controller="Portfolio" asp-route-projectId="@Model.ProjectId" class="btn btn-success">Export Project Allocations CSV</a> 
+                    </div>
+               
+            </div>
+        </div> *@
+        
+    }
+
+    @if(Model.ProjectId != 0)
+    {
+        <input type="hidden" asp-for="ProjectId" />
+        <div class="row mb-3">
+        <div class="col-12 col-md-6">
+            <div class="card p-2 chart-fixed-size">
+            <h6 class="text-center mb-2">Allocated Hours by Project</h6>
+            <div style="width:100%; height:calc(100% - 32px);">
+                <canvas id="projectAllocChart" width="600" height="300" style="width:100%; height:100%;"></canvas>
+            </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card p-2 chart-fixed-size">
+            <h6 class="text-center mb-2">Timesheet Submission Status</h6>
+                <div style="width:100%; height:calc(100% - 32px);">
+                    <canvas id="submissionPie" width="600" height="300" style="width:100%; height:100%;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@* </div> *@
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card p-2">
+            <h6 class="text-center mb-2">Timesheet Compliance Report - Project & TS Reporting Period</h6>
+                <div style="width: 100%; max-width: 100%; height:450px;">
+                    <canvas id="complianceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+
+    
+}   
+
+
+@* <table class="table">
+    <thead>
+        <tr><th>Associate</th><th>Billable</th><th>Available</th><th>Util %</th></tr>
+    </thead>
+    <tbody>
+        @foreach(var u in Model.Utilization)
+        {
+            <tr>
+                <td>@u.AssociateName</td>
+                <td>@u.BillableHours</td>
+                <td>@u.AvailableHours</td>
+                <td>@Math.Round(u.UtilizationPercent, 1)%</td>
+            </tr>
+        }
+    </tbody>
+</table> *@
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @* <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script> *@
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+    <script>
+        Chart.register(ChartDataLabels);
+        const projLabels = @Html.Raw(JsonSerializer.Serialize(Model.ProjectAllocations.Select(p=>p.ProjectName)));
+        const projData = @Html.Raw(JsonSerializer.Serialize(Model.ProjectAllocations.Select(p=>p.AllocatedHours)));
+
+        const ctx = document.getElementById('projectAllocChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: projLabels,
+                datasets: [{
+                    label: 'Allocated Hours',
+                    data: projData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                }]
+            },
+            options: { responsive: true, 
+                plugins: {
+                    @* legend: {
+                        position: 'right' 
+                    }, *@
+                    datalabels: {
+                        anchor: 'center',
+                        align: 'bottom',
+                        formatter: Math.round,
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+            maintainAspectRatio: false}
+        });
+
+        const statusLabels = @Html.Raw(JsonSerializer.Serialize(Model.SubmissionStatuses.Select(s => s.Status)));
+        const statusData = @Html.Raw(JsonSerializer.Serialize(Model.SubmissionStatuses.Select(s => s.Count)));
+
+        const ctx2 = document.getElementById('submissionPie').getContext('2d');
+        new Chart(ctx2, {
+            type: 'pie',
+            data: {
+                labels: statusLabels,
+                datasets: [{ data: statusData, backgroundColor: ['#36a2eb','#ff6384','#ffcd56','#4bc0c0'] }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    @* legend: {
+                        position: 'right' 
+                    }, *@
+                    datalabels: {
+                        anchor: 'center',
+                        align: 'bottom',
+                        formatter: Math.round,
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+                maintainAspectRatio: false                
+            }
+        });
+    </script>
+
+    <script>
+        Chart.register(ChartDataLabels);
+        const labelsProjectName = @Html.Raw(JsonSerializer.Serialize(Model.TimesheetCompliance.Select(m => m.ProjectName)));
+        const labelsWeekStartDate = @Html.Raw(JsonSerializer.Serialize(Model.TimesheetCompliance.Select(m => m.WeekStartDate)));
+        const submitted = @Html.Raw(JsonSerializer.Serialize(Model.TimesheetCompliance.Select(m => m.Submitted)));
+        const approved = @Html.Raw(JsonSerializer.Serialize(Model.TimesheetCompliance.Select(m => m.Approved)));
+        const rejected = @Html.Raw(JsonSerializer.Serialize(Model.TimesheetCompliance.Select(m => m.Rejected)));
+        const notSubmitted = @Html.Raw(JsonSerializer.Serialize(Model.TimesheetCompliance.Select(m => m.NotSubmitted)));
+
+        new Chart(document.getElementById('complianceChart'), {
+            type: 'bar',
+            data: {
+                @* labels: labelsProjectName.map((project, index) => `${project} - ${labelsWeekStartDate[index]}`), *@
+                labels: labelsWeekStartDate,
+                datasets: [
+                    { label: 'Submitted', data: submitted, backgroundColor: '#4e73df' },
+                    { label: 'Approved', data: approved, backgroundColor: '#1cc88a' },
+                    { label: 'Rejected', data: rejected, backgroundColor: '#e74a3b' },
+                    { label: 'Not Submitted', data: notSubmitted, backgroundColor: '#f6c23e' }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    @* title: { display: true, text: 'Timesheet Compliance per Project' }, *@
+                    legend: {
+                        position: 'bottom' 
+                    },
+                    datalabels: {
+                        anchor: 'center',
+                        align: 'bottom',
+                        formatter: Math.round,
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    x: { stacked: false },
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+
+}

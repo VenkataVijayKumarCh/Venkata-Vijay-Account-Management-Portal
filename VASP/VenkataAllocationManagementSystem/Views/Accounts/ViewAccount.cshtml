@@ -1,0 +1,66 @@
+@model VenkataAllocationManagementSystem.ViewModels.AccountManagementViewModel
+
+@{
+    ViewData["Title"] = "Account Details";
+}
+
+<h2>Account Details</h2>
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Account Name</dt>
+        <dd class="col-sm-10">@Model.Account?.AccountName</dd>
+        <dt class="col-sm-2">Description</dt>
+        <dd class="col-sm-10">@Model.Account?.Description</dd>
+        <dt class="col-sm-2">Is Active</dt>
+        <dd class="col-sm-10">@Model.Account?.IsActive</dd>
+    </dl>
+    <a asp-controller="Accounts" asp-action="EditAccount" asp-route-AccountId="@Model.Account!.AccountId" class="btn btn-warning btn-sm">Edit</a>                          
+    <a asp-controller="Accounts" asp-action="AccountManagement" class="btn btn-primary">Back to List</a>
+</div>
+<section>
+    <h2>Projects under @Model.Account?.AccountName</h2>
+    <p>
+        <a class="btn btn-primary" asp-controller="Projects" asp-action="Create">Create New Project</a>
+    </p>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (@Model.Projects == null || @Model.Projects.Count() == 0)
+            {
+                <tr>
+                    <td colspan="3">No projects found.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var project in @Model.Projects)
+                {
+                    <tr>
+                        <td>@project.ProjectName</td>
+                        <td>
+                            @if (@project.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactive</span>
+                            }
+                        <td>
+                            <a asp-action="ViewProject" asp-controller="Projects" asp-route-projectId="@project.ProjectId" class="btn btn-info btn-sm">View</a>
+                            <a asp-action="EditProject" asp-controller="Projects" asp-route-projectId="@project.ProjectId" class="btn btn-warning btn-sm">Edit</a>
+                            <a asp-action="DeleteProject" asp-controller="Projects" asp-route-projectId="@project.ProjectId" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Are you sure you want to delete this project?');">Delete</a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</section>

@@ -1,0 +1,80 @@
+@model VenkataAllocationManagementSystem.ViewModels.AssociateManagementViewModel
+
+@{
+    ViewData["Title"] = "Associate Details";
+}
+
+<h2>Associate Details</h2>
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Associate Name</dt>
+        <dd class="col-sm-10">@Model.Associate?.FullName</dd>
+        <dt class="col-sm-2">Email Address</dt>
+        <dd class="col-sm-10">@Model.Associate?.Email</dd>
+        <dt class="col-sm-2">Contact Number</dt>
+        <dd class="col-sm-10">@Model.Associate?.ContactNumber</dd>
+        <dt class="col-sm-2">Employee ID</dt>
+        <dd class="col-sm-10">@Model.Associate?.AssociateEmployeeId</dd>
+        <dt class="col-sm-2">Associate Type</dt>
+        <dd class="col-sm-10">@Model.AssociateType</dd>
+        <dt class="col-sm-2">Associate Status</dt>
+        <dd class="col-sm-10 badge bg-success width:20px">@Model.AssociateStatusName</dd>
+        <dt class="col-sm-2">Joining Date</dt>
+        <dd class="col-sm-10">@Model.Associate?.JoiningDate</dd>
+        <dt class="col-sm-2">Termination Date</dt>
+        <dd class="col-sm-10">@Model.Associate?.TerminationDate</dd>
+    </dl>
+    <a asp-controller="Associates" asp-action="EditAssociate" asp-route-AssociateId="@Model.Associate!.AssociateId" class="btn btn-warning btn-sm">Edit</a>
+    <a asp-controller="Associates" asp-action="AssociateManagement" class="btn btn-primary">Back to List</a>
+</div>
+@* <section>
+    <h2>Associates</h2>
+    <p>
+        <a class="btn btn-primary" asp-controller="Associates" asp-action="Create">Create New Associate</a>
+    </p>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Employee ID</th>
+                <th>Email</th>
+                <th>Contact Number</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (@Model.Associates == null || @Model.Associates.Count == 0)
+            {
+                <tr>
+                    <td colspan="5">No associates found.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var associate in @Model.Associates)
+                {
+                    <tr>
+                        <td>@associate.FullName</td>
+                        <td>@associate.AssociateEmployeeId</td>
+                        <td>@associate.Email</td>
+                        <td>@associate.ContactNumber</td>
+                         @if(@associate.IsActive)
+                        {
+                            <td>Active</td>
+                        }
+                        else
+                        {
+                            <td>Inactive</td>
+                        } 
+                        <td>
+                            <a asp-controller="Associates" asp-action="Edit" asp-route-id="@associate.AssociateId">Edit</a> |
+                            <a asp-controller="Associates" asp-action="Details" asp-route-id="@associate.AssociateId">Details</a> |
+                            <a asp-controller="Associates" asp-action="Delete" asp-route-id="@associate.AssociateId">Delete</a>
+                        </td>
+                    </tr>
+                }            
+            }
+        </tbody>
+    </table>
+</section> *@

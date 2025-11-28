@@ -1,0 +1,53 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Core Launch (web, 5081)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/VenkataAllocationManagementSystem/bin/Debug/net9.0/VenkataAllocationManagementSystem.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/VenkataAllocationManagementSystem",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(http?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:5081"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/VenkataAllocationManagementSystem/Views"
+            }
+        },
+        {
+            "name": ".NET Core Launch (web)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/VenkataAllocationManagementSystem/bin/Debug/net9.0/VenkataAllocationManagementSystem.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/VenkataAllocationManagementSystem",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(http?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/VenkataAllocationManagementSystem/Views"
+            }
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome against localhost",
+            "url": "http://localhost:5081/User/Login",
+            "webRoot": "${workspaceFolder}"
+        }
+    ]
+}

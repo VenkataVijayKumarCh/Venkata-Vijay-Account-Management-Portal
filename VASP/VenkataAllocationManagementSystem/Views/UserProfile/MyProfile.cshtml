@@ -1,0 +1,53 @@
+@using VenkataAllocationManagementSystem.ViewModels
+@model VenkataAllocationManagementSystem.ViewModels.UserProfileViewModel
+
+<h2>My Profile</h2>
+
+@using (Html.BeginForm("MyProfile", "Profile", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="@Model.UserId" />
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.UserName)
+        @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", @readonly = "readonly" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.FirstName)
+        @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control", @readonly = "readonly" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.LastName)
+        @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", @readonly = "readonly" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.UserEmail)
+        @Html.TextBoxFor(m => m.UserEmail, new { @class = "form-control", @readonly = "readonly" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.UserRoles)
+        @Html.TextBoxFor(m => m.UserRoles, new { @class = "form-control", @readonly = "readonly" })
+    </div>
+
+    @* <div class="form-group">
+        @Html.LabelFor(m => m.Department)
+        @Html.TextBoxFor(m => m.Department, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        @Html.Label("Last Login")
+        <input type="text" class="form-control" value="@Model.LastLogin.ToString("g")" readonly />
+    </div> *@
+
+    @* <button type="submit" class="btn btn-primary">Update Profile</button>
+    <a asp-controller="Projects" asp-action="ProjectManagement" class="btn btn-secondary">Back to List</a> *@
+}
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-success">@ViewBag.Message</div>
+}

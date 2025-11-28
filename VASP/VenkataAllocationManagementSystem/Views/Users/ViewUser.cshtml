@@ -1,0 +1,68 @@
+@* @model VenkataAllocationManagementSystem.Models.Project; *@
+@model VenkataAllocationManagementSystem.ViewModels.UserManagementViewModel
+
+@{
+    ViewData["Title"] = "View User Details";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div>
+    <dl class="row">        
+        @if(@Model.User != null)
+        {
+            <dt class="col-sm-2">User Name</dt>
+            <dd class="col-sm-10">@Model.User.UserName</dd>
+            <dt class="col-sm-2">First Name</dt>
+            <dd class="col-sm-10">@Model.User.FirstName</dd>
+            <dt class="col-sm-2">Last Name</dt>
+            <dd class="col-sm-10">@Model.User.LastName</dd>
+            <dt class="col-sm-2">Email Address</dt>
+            <dd class="col-sm-10">@Model.User.UserEmail</dd>
+            <dt class="col-sm-2">Created Date</dt>
+            <dd class="col-sm-10">@Model.User.CreatedAt.ToShortDateString()</dd>            
+            <dt class="col-sm-2">Status</dt>
+            <dd class="col-sm-10">
+                @if (@Model.User.IsActive)
+                {
+                    <span class="badge bg-success">Active</span>                       
+                }                
+                else
+                {
+                    <span class="badge bg-secondary">Inactive</span>
+                }
+            </dd>
+            <dt class="col-sm-2">Roles</dt>
+            @* <dd class="col-sm-10">
+                <ul class="list-group">
+                    @foreach (var role in Model.AvailableRoles)
+                    {
+                        var isSelected = Model.SelectedRoles.Contains(role.RoleId);
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            @role.RoleName
+                            @if (isSelected)
+                            {
+                                <span class="badge bg-success">Assigned</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Not Assigned</span>
+                            }
+                        </li>
+                    }
+                </ul>
+            </dd> *@
+            <dd class="col-sm-10">                
+                @foreach (var role in Model.AvailableRoles!)
+                {
+                    //var isSelected = Model.SelectedRoles.Contains(role.RoleId);
+                    <div>
+                    <input type="checkbox" name="SelectedRoles" value="@role.RoleId" class="form-check-input" @(Model.SelectedRoles!.Contains(role.RoleId) ? "checked" : "") />                        
+                        @role.RoleName
+                    </div>
+                }                
+            </dd>
+        }
+    </dl>
+    <a asp-controller="Users" asp-action="UserManagement" class="btn btn-secondary">Back to List</a>
+</div>

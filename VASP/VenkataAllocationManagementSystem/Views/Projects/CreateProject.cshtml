@@ -1,0 +1,81 @@
+@* @model VenkataAllocationManagementSystem.Models.Project; *@
+@model VenkataAllocationManagementSystem.ViewModels.ProjectManagementViewModel
+
+@{
+    ViewData["Title"] = "Create New Project";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+    
+@using (Html.BeginForm("SaveProject", "Projects", FormMethod.Post))
+{
+    @if(@Model.Accounts != null && @Model.Accounts.Count() != 0)
+    {    
+        <div class="form-group">   
+            <label asp-for="Project.AccountId">Account Name</label>     
+            @* <select asp-for="Project.AccountId" asp-items="@Model.Accounts"  class="form-control" /> *@
+
+                @if(@Model.Accounts != null && @Model.Accounts.Any())
+                {
+                    @Html.DropDownListFor(p => p.Project!.AccountId, 
+                        new SelectList(@Model.Accounts, "AccountId", "AccountName"),  
+                        "-- Select Account --",
+                        htmlAttributes: new { @class = "form-control", id = "AccountId"})
+                }
+                else
+                {
+                    <span class="text-danger">No accounts available. Please create an account first.</span>
+                }
+            
+            <span asp-validation-for="Project.AccountId" class="text-danger"></span>
+        </div>
+    }
+    <div class="form-group">
+        <label asp-for="Project.ProjectName"></label>
+        <input asp-for="Project.ProjectName" class="form-control" />
+        <span asp-validation-for="Project.ProjectName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Project.ProjectDescription"></label>
+        <input asp-for="Project.ProjectDescription" class="form-control" />
+        <span asp-validation-for="Project.ProjectDescription" class="text-danger"></span>
+    </div>
+    @* <div class="form-group form-check">
+        <input asp-for="IsActive" class="form-check-input" />
+        <label asp-for="IsActive" class="form-check-label"></label>
+    </div> *@
+    <div class="form-group">
+        <label asp-for="Project.StartDate">Start Date</label>
+        <input asp-for="Project.StartDate" class="form-control" />
+        <span asp-validation-for="Project.StartDate" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Project.EndDate">End Date</label>
+        <input asp-for="Project.EndDate" class="form-control" />
+        <span asp-validation-for="Project.EndDate" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Project.SOWNo">Contract No</label>
+        <input asp-for="Project.SOWNo" class="form-control" />
+        <span asp-validation-for="Project.SOWNo" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Project.SOWValue">Contract Value</label>
+        <input asp-for="Project.SOWValue" class="form-control" />
+        <span asp-validation-for="Project.SOWValue" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Project.PurchaseOrder">Purchase Order</label>
+        <input asp-for="Project.PurchaseOrder" class="form-control" />
+        @* <span asp-validation-for="Project.SOWValue" class="text-danger"></span> *@
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-action="ProjectManagement" class="btn btn-secondary">Cancel</a>
+
+
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+}

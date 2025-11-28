@@ -1,0 +1,106 @@
+@* Create a view to display all Project Info or Single Project Info along with Account Name and Description. Also need Create Project button as well *@
+@model VenkataAllocationManagementSystem.ViewModels.ProjectManagementViewModel
+
+@{
+    ViewData["Title"] = "Project Information";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div>
+    <dl class="row">        
+        @if(@Model.Project != null)
+        {
+            <dt class="col-sm-2">Account Name</dt>
+            <dd class="col-sm-10">@Model.AccountName</dd>
+            <dt class="col-sm-2">Project Name</dt>
+            <dd class="col-sm-10">@Model.Project.ProjectName</dd>
+            <dt class="col-sm-2">Project Description</dt>
+            <dd class="col-sm-10">@Model.Project.ProjectDescription</dd>
+            <dt class="col-sm-2">Start Date</dt>
+            <dd class="col-sm-10">@Model.Project.StartDate.ToShortDateString()</dd>
+            <dt class="col-sm-2">End Date</dt>
+            <dd class="col-sm-10">@Model.Project.EndDate.ToShortDateString()</dd>
+            <dt class="col-sm-2">Contract No</dt>
+            <dd class="col-sm-10">@Model.Project.SOWNo</dd>
+            <dt class="col-sm-2">Contract Value</dt>
+            <dd class="col-sm-10">@Model.Project.SOWValue.ToString("C", new System.Globalization.CultureInfo("en-US"))</dd>
+            <dt class="col-sm-2">Status</dt>
+            <dd class="col-sm-10">
+                @if (@Model.Project.IsActive)
+                {
+                    <span class="badge bg-success">Active</span>                       
+                }
+                else if (@Model.Project.IsActive = false && @Model.Project.EndDate > DateOnly.FromDateTime(DateTime.Today))
+                {
+                    <span class="badge bg-success">Completed</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Inactive</span>
+                }
+            </dd>
+        }
+    </dl>
+    @if (@Model.Project!.IsActive)
+                {
+        <a asp-controller="Projects" asp-action="EditProject" asp-route-projectId="@Model.Project!.ProjectId" class="btn btn-warning btn-sm">Edit</a>
+    }
+    else
+    {
+        <a asp-action="EditProject" asp-controller="Projects" asp-route-projectId="@Model.Project!.ProjectId" class="btn btn-secondary btn-sm disabled" aria-disabled="true" title="Cannot edit an inactive project">Edit</a>
+    }    
+    <a asp-controller="Projects" asp-action="ProjectManagement" class="btn btn-primary">Back to List</a>
+</div>
+<div>
+    <h3>Resources Allocated to this Project - @Model.Project?.ProjectName</h3>
+    @if (@Model.Allocations != null && @Model.Allocations.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    @* <th>Allocation ID</th> *@
+                    <th>Employee Name</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Allocation Status</th>
+                    <th>Allocation Percentage</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var allocation in @Model.Allocations)
+                {
+                    <tr>
+                        @* <td>@allocation.AllocationId</td> *@
+                        <td>
+                            @Model.Associates?.FirstOrDefault(a => a.AssociateId == allocation.AssociateId)?.FullName                        
+                        </td>
+                        <td>@allocation.StartDate.ToShortDateString()</td>
+                        <td>@allocation.EndDate.ToShortDateString()</td>
+                        <td>
+                            @if (allocation.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Completed</span>
+                            }
+                        </td>
+                        <td>@allocation.AllocationPercentage</td>
+                        <td>
+                            <a asp-controller="Allocations" asp-action="EditAllocation" asp-route-AllocationId="@allocation.AllocationId" class="btn btn-warning btn-sm">Edit</a> |
+                            @* <a asp-controller="Allocations" asp-action="Details" asp-route-AllocationId="@allocation.AllocationId">Details</a> |  *@
+                            <a asp-controller="Allocations" asp-action="CompleteAllocation" asp-route-AllocationId="@allocation.AllocationId" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Are you sure you want to complete this allocation?');">Complete</a>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No allocations found for this project.</p>
+    }
+</div>

@@ -1,0 +1,89 @@
+/* _content/VenkataAllocationManagementSystem/Views/Shared/_Layout.cshtml.rz.scp.css */
+/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+a.navbar-brand[b-gr2opyg5vs] {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+a[b-gr2opyg5vs] {
+  color: #0077cc;
+}
+
+.btn-primary[b-gr2opyg5vs] {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active[b-gr2opyg5vs], .nav-pills .show > .nav-link[b-gr2opyg5vs] {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.border-top[b-gr2opyg5vs] {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom[b-gr2opyg5vs] {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow[b-gr2opyg5vs] {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy[b-gr2opyg5vs] {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+.footer[b-gr2opyg5vs] {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+}
+
+.menu[b-gr2opyg5vs] {
+  list-style: none;
+  padding: 0;
+  margin: 0;  
+  display: flex;
+}
+/* background-color: #333; */
+
+.menu > li[b-gr2opyg5vs] {
+  position: relative;
+  padding: 15px 20px;
+  color: white;
+  cursor: pointer;
+}
+
+.menu > li:hover[b-gr2opyg5vs] {
+  background-color: #ffffff;
+}
+
+.submenu[b-gr2opyg5vs] {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #ffffff;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  min-width: 160px;
+}
+
+.submenu li[b-gr2opyg5vs] {
+  padding: 10px;
+  color: white;
+}
+
+.menu > li:hover .submenu[b-gr2opyg5vs] {
+  display: block;
+}

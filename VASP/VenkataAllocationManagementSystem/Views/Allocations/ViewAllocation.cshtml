@@ -1,0 +1,105 @@
+@model VenkataAllocationManagementSystem.ViewModels.AllocationManagementViewModel
+
+@{
+    ViewData["Title"] = "Allocation Details";
+}
+
+<h1>@ViewData["Title"]</h1>
+ 
+<div>
+    @* <h4>Allocation</h4> *@
+    <hr />
+    <fieldset>
+        <legend>Account & Project Details</legend>
+        <table class="table">
+            <tr><td>Associate Name</td><td>@Model.AssociateName</td></tr>
+            <tr><td>Account Name</td><td>@Model.AccountName</td></tr>
+            <tr><td>Project Name</td><td>@Model.ProjectName</td></tr>            
+        </table>
+    </fieldset>
+    <br />
+    <fieldset>
+        <legend>Allocation Details</legend>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Allocation Status</th>
+                    <th>Allocation Percentage</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var allocation in @Model.AllocationsInfo)
+                {
+                    <tr>
+                        <td>@allocation.StartDate.ToShortDateString()</td>
+                        <td>@allocation.EndDate.ToShortDateString()</td>
+                        <td>
+                            @if (allocation.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Completed</span>
+                            }
+                        </td>
+                        <td>@allocation.AllocationPercentage</td>
+                        <td>
+                            <a asp-controller="Allocations" asp-action="EditAllocation" asp-route-AllocationId="@allocation.AllocationId" class="btn btn-warning btn-sm">Edit</a> |
+                            @* <a asp-controller="Allocations" asp-action="Details" asp-route-AllocationId="@allocation.AllocationId">Details</a> |  *@
+                            <a asp-controller="Allocations" asp-action="CompleteAllocation" asp-route-AllocationId="@allocation.AllocationId" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Are you sure you want to complete this allocation?');">Complete</a>
+                    </tr>
+                }
+            </tbody>
+        </table> 
+    </fieldset>           
+</div> 
+<br/>
+<fieldset>
+    <legend>Allocation Rates</legend>
+    <div title="Allocation Rates">
+        <table class="table table-bordered" id="allocationRateGrid">
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Rate Start Date</th>
+                    <th style="text-align:center;">Rate End Date</th>
+                    <th style="text-align:center;">Bill Rate</th>
+                </tr>
+            </thead>    
+            <tbody>  
+                    @if(@Model.AllocationRates != null && @Model.AllocationRates.Any())
+                    {
+                        @foreach(var rate in @Model.AllocationRates)
+                        {
+                            <tr>
+                                <td class="text-center">
+                                    <label type="date" >@rate.AllocationRateStartDate.ToString("MM/dd/yyyy")</label>
+                                </td>
+                                <td class="text-center">
+                                    <label type="date" >@rate.AllocationRateEndDate.ToString("MM/dd/yyyy")</label>
+                                </td>
+                                <td class="text-center">
+                                    <label type="number" >@rate.AllocationBillRate</label>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" style="text-align:center;">No Allocation Rates Available</td>
+                        </tr>
+                    }
+            </tbody>
+        </table>
+    </div>
+</fieldset>
+<br/>
+<div>
+    <a asp-controller="Allocations" asp-action="EditAllocation" asp-route-AllocationId="@Model.AllocationsInfo[0].AllocationId" class="btn btn-warning btn-sm">Edit</a>    
+    <a asp-controller="Allocations" asp-action="AllocationManagement" class="btn btn-primary">Back to List</a>
+</div> 

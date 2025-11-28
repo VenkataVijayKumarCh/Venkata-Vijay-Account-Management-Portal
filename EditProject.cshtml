@@ -1,0 +1,57 @@
+@model VenkataAllocationManagementSystem.Models.Project
+
+@{
+    ViewData["Title"] = "Update Project Information";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@using (Html.BeginForm("UpdateProject", "Projects", FormMethod.Post))
+{
+    <input type="hidden" asp-for="ProjectId" />
+    <input type="hidden" asp-for="AccountId" />
+    <div class="form-group">
+        <label class="col-sm-2">Account Name</label>
+        <label class="col-sm-10">@ViewBag.AccountName</label>
+    </div>
+    <div class="form-group">
+        <label asp-for="ProjectName"></label>
+        <input asp-for="ProjectName" class="form-control" />
+        <span asp-validation-for="ProjectName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ProjectDescription"></label>
+        <input asp-for="ProjectDescription" class="form-control" />
+        <span asp-validation-for="ProjectDescription" class="text-danger"></span>
+    </div>
+    <div class="form-group form-check">
+        <input asp-for="IsActive" class="form-check-input" />
+        <label asp-for="IsActive" class="form-check-label"></label>
+    </div>
+    <div class="form-group">
+        <label asp-for="StartDate">Start Date</label>
+        <input asp-for="StartDate" class="form-control" />
+        <span asp-validation-for="StartDate" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="EndDate">End Date</label>
+        <input asp-for="EndDate" class="form-control" />
+        <span asp-validation-for="EndDate" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="SOWNo">Contract No</label>
+        <input asp-for="SOWNo" class="form-control" />
+        <span asp-validation-for="SOWNo" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="SOWValue">Contract Value</label>
+        <input asp-for="SOWValue" class="form-control" />
+        <span asp-validation-for="SOWValue" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="ProjectManagement" class="btn btn-primary">Cancel</a>
+
+    @section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+}

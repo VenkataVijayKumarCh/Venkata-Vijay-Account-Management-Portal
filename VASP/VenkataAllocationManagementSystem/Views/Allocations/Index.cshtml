@@ -1,0 +1,42 @@
+@model IEnumerable<VenkataAllocationManagementSystem.Models.Allocation>
+
+@{
+    ViewData["Title"] = "Allocations";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Create New Allocation</a> |
+    <a asp-controller="Management" asp-action="Index">Back to Dashboard</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Associate</th>
+            <th>Project</th>
+            <th>Account</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @* @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Associate?.FullName</td>
+            <td>@item.Project?.ProjectName</td>
+            <td>@item.Project?.Account?.AccountName</td> 
+            <td>@item.StartDate.ToShortDateString()</td>
+            <td>@item.EndDate.ToShortDateString()</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.AllocationId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.AllocationId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.AllocationId">Delete</a>
+            </td>
+        </tr>
+    } *@
+    </tbody>
+</table>

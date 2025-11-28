@@ -1,0 +1,102 @@
+@using VenkataAllocationManagementSystem.ViewModels
+@model VenkataAllocationManagementSystem.ViewModels.PortfolioDashboardViewModel
+
+@using (Html.BeginForm("AssociateBurnDownRpt", "Portfolio", FormMethod.Post))
+{
+    @if(Model.Projects != null && @Model.Projects.Count() != 0)
+    {   
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <label for="ProjectId" class="form-label mb-0" style="font-weight:bold">Select Project</label>
+
+            @if (Model.Projects != null && Model.Projects.Any())
+            {
+                @Html.DropDownListFor(p => p.ProjectId,
+                    new SelectList(Model.Projects, "ProjectId", "ProjectName"),
+                    "-- Select Project --",
+                    htmlAttributes: new { @class = "form-control", id = "ProjectId", style = "width: 400px;" })                
+            }
+            else
+            {
+                <span class="text-danger">No projects available. Please create a project first.</span>
+            }
+            @if (Model.Associates != null && Model.Associates.Any())
+            {
+                @Html.DropDownListFor(p => p.AssociateId,
+                    new SelectList(Model.Associates, "AssociateId", "FullName"),
+                    "-- Select Associate --",
+                    htmlAttributes: new { @class = "form-control", id = "AssociateId", style = "width: 400px;" })                
+            }
+            @* else
+            {
+                <span class="text-danger">No Associates available. Please create an associate first.</span>
+            } *@
+            <button type="submit" class="btn btn-primary" id="btnLoadAssociateBurnDown"
+                    style="width: 250px;" name="action" value="load">
+                Load Portfolio Dashboards
+            </button>
+        </div>
+        @* <span asp-validation-for="@Model.ProjectId" class="text-danger"></span>
+        <span asp-validation-for="@Model.AssociateId" class="text-danger"></span> *@
+    }
+
+    @if(Model.BurndownData != null && Model.BurndownData.Count() > 0)
+    {
+        <div>
+            <dl class="row">
+                @* <dt class="col-sm-2">Account Name</dt>
+                <dd class="col-sm-10">@Model.AccountName</dd> *@
+                <dt class="col-sm-2">Project Name</dt>
+                <dd class="col-sm-10">@Model.BurndownData[0].Project!.ProjectName</dd>                    
+                <dt class="col-sm-2">Start Date</dt>
+                <dd class="col-sm-10">@Model.BurndownData[0].Project!.StartDate.ToShortDateString()</dd>
+                <dt class="col-sm-2">End Date</dt>
+                <dd class="col-sm-10">@Model.BurndownData[0].Project!.EndDate.ToShortDateString()</dd>                    
+                <dt class="col-sm-2">Status</dt>
+                <dd class="col-sm-10">
+                    @if (@Model.BurndownData[0].Project!.IsActive)
+                    {
+                        <span class="badge bg-success">Active</span>                       
+                    }
+                    else if (@Model.BurndownData[0].Project!.IsActive = false && @Model.BurndownData[0].Project!.EndDate > DateOnly.FromDateTime(DateTime.Today))
+                    {
+                        <span class="badge bg-success">Completed</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Inactive</span>
+                    }
+                </dd>                
+            </dl>
+        </div>
+        <div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        @* <th>Allocation ID</th> *@
+                        <th>Associate Name</th>
+                        @foreach (var tsp in @Model.TimesheetPeriods!)
+                        {
+                            <th>@tsp.WeekStartDate.ToString("MM/dd")</th>
+                        }
+                        <th>Total Hours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (BurndownDataDto ts in @Model.BurndownData)
+                    {
+                        <tr>
+                            <td >@ts.Associate!.FullName</td>
+                            @foreach (var timesheet in ts.Timesheets!)
+                            {
+                                <td style="text-align:center;">@timesheet.TotalHours</td>
+                            }                            
+                            <td style="text-align:center;">
+                                @Model.BurndownData.Where(assoc => assoc.Associate!.AssociateId == ts.Associate!.AssociateId).Sum(x => x.Timesheets!.Sum(ts => ts.TotalHours))
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}

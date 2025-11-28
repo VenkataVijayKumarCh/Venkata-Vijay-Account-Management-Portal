@@ -1,0 +1,136 @@
+@model VenkataAllocationManagementSystem.ViewModels.TimesheetsViewModel
+
+@{
+    ViewBag.Title = "Submit Timesheets for Associates";
+}
+
+<h2>Select Timesheet Period</h2>
+
+@using (Html.BeginForm("CreateMyTimesheets", "Timesheets", FormMethod.Post))
+{
+    // @Html.HiddenFor(m => m.TimesheetPeriodId)
+    
+
+    @if (Model.TimesheetPeriods!.Any())
+    {
+        <div class="form-group" style="padding:5px 0px 5px 0px;">
+            <label>Select Timesheet Period</label>
+            @Html.DropDownListFor(m => m.TimesheetPeriodId, new SelectList(Model.TimesheetPeriods, "TimesheetPeriodId", dataTextField: "WeekStartDate"), "Select Period", new { @class = "form-control", @id = "ddlPeriod" })
+        </div>
+    }
+    @if (Model.Projects!.Any())
+    {
+        <div class="form-group" style="padding:5px 0px 5px 0px;">
+            <label>Select Project</label>
+            @Html.DropDownListFor(m => m.ProjectId, new SelectList(Model.Projects, "ProjectId", dataTextField: "ProjectName"), "Select Project", new { @class = "form-control", @id = "ddlProject" })
+        </div>
+    }
+
+    <div class="form-group" style="padding:5px 0px 5px 0px;">
+        <button type="submit" class="btn btn-primary" id="btnLoadTimesheetlineItems" name="action" value="load">Load Timesheet Table</button>
+    </div>
+
+    @* <div id="timesheetLinesContainer"> *@
+    @if (Model.TimesheetLineItems != null)
+        {
+            // @Html.RenderPartialAsync("_TimesheetLinesPartial", Model)
+            @await Html.PartialAsync("_TimesheetLinesPartial", Model)
+        }
+    @* </div>     *@
+}    
+
+@section Scripts {
+
+    <script>
+        function updateTotalHours() {
+            let total = 0;
+            document.querySelectorAll('input[name$=".HoursWorked"]').forEach(function(input) {
+                let val = parseFloat(input.value);
+                if (!isNaN(val)) total += val;
+            });
+            // document.getElementById('totalHours').textContent = total;
+            document.getElementById('totalHours').value = total;
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            updateTotalHours();
+            document.querySelectorAll('input[name$=".HoursWorked"]').forEach(function(input) {
+                input.addEventListener('input', updateTotalHours);
+            });
+        });
+    </script>
+
+
+    <script>
+        // ...existing code...
+
+        // Disable the button on form submit
+        document.addEventListener("DOMContentLoaded", function () {
+            var form = document.querySelector('form');
+            var btn = document.getElementById('btnLoadTimesheetlineItems');
+            if (form && btn) {
+                form.addEventListener('submit', function () {
+                    btn.disabled = true;
+                    btn.hidden = true;
+                });
+            }
+        });
+    </script>
+
+    @* <script>
+        function loadTimesheetLines() {
+            var periodId = $('#ddlPeriod').val();
+            var projectId = $('#ddlProject').val();
+
+            // Validate selections
+            if (!periodId || !projectId) {
+                $('#timesheetLinesContainer').html('<div class="alert alert-warning">Please select both Timesheet Period and Project.</div>');
+                return;
+            }
+            alert("Hi I came here");
+            // Show spinner
+            $('#loadingSpinner').show();
+
+            $.get('@Url.Action("GetTimesheetLines")', { timesheetPeriodId: periodId, projectId: projectId })
+                .done(function (data) {
+                    alert(data);
+                    $('#timesheetLinesContainer').html(data);
+                })
+                .fail(function () {
+                    $('#timesheetLinesContainer').html('<div class="alert alert-danger">Failed to load timesheet lines. Please try again.</div>');
+                })
+                .always(function () {
+                    $('#loadingSpinner').hide();
+                });
+        }
+
+        // Trigger on dropdown change
+        $('#ddlPeriod, #ddlProject').change(loadTimesheetLines);
+
+        // Optional: trigger on page load if default values exist
+        $(document).ready(function () {
+            if ($('#ddlPeriod').val()) { // && $('#ddlProject').val()) {
+                loadTimesheetLines();
+            }
+        });
+    </script> *@
+
+    <script>
+        function handleCancel() {            
+            const referrer = document.referrer;
+            if (referrer.includes("ViewTeamMemberTimesheets")) {
+                window.location.href = '@Url.Action("ViewTeamMemberTimesheets", "Timesheets")';
+            }
+            else if (referrer.includes("CreateMyTimesheets")) {
+                window.location.href = '@Url.Action("ViewMyTimesheets", "Timesheets")';
+            } 
+            else if (referrer.includes("CreateMultipleTimesheets")) {
+                window.location.href = '@Url.Action("ViewTeamMemberTimesheets", "Timesheets")';
+            } 
+            else {
+                window.location.href = '@Url.Action("ViewMyTimesheets", "Timesheets")';
+            }
+        }
+    </script>
+
+}

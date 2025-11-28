@@ -1,0 +1,350 @@
+@using VenkataAllocationManagementSystem.ViewModels
+@* @using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor *@
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Management Dashboard";
+}
+
+@* <h1>@ViewData["Title"]</h1> *@
+<section>
+    <h2>Welcome to the Management Dashboard</h2>
+    <p>This dashboard provides an overview of accounts, projects, associates, and allocations.</p>
+</section>
+@* <section>
+
+    @* @{
+        string username = HttpContextAccessor.HttpContext?.Session.GetString("FirstName") 
+        + ", " + HttpContextAccessor.HttpContext?.Session.GetString("LastName");
+        int? userId = HttpContextAccessor.HttpContext?.Session.GetInt32("UserId");
+    } 
+
+    @if(@User.Identity != null & @User.Identity.IsAuthenticated)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userName = User.FindFirst(ClaimTypes.Name)?.Value;
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;
+        string? loginUserName = User.FindFirst(ClaimTypes.GivenName)?.ToString().Split(": ")[1] + ", " + User.FindFirst(ClaimTypes.Surname)?.ToString().Split(": ")[1];
+
+        <p>Welcome, @loginUserName!</p>
+        <p>Your User ID is: @userName</p>
+        <p></p>
+    }
+
+</section> *@
+<section> 
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Accounts</h5>
+                    <p class="card-text display-6">
+                        <a asp-action="AccountManagement" asp-controller="Accounts" class="btn btn-primary">
+                            @if (@Model.Accounts == null)
+                            {
+                                <span>0</span>
+                            }
+                            else
+                            {
+                                <span>@Model.Accounts.Count</span>
+                            }
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Projects</h5>
+                    <p class="card-text display-6">
+                        <a asp-action="ProjectManagement" asp-controller="Projects" class="btn btn-primary">
+                            @if (@Model.Projects == null)
+                            {
+                                <span>0</span>
+                            }
+                            else
+                            {
+                                <span>@Model.Projects.Count</span>
+                            }
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Associates</h5>
+                    <p class="card-text display-6">
+                        <a asp-action="AssociateManagement" asp-controller="Associates" class="btn btn-primary">
+                            @if (@Model.Associates == null)
+                            {
+                                <span>0</span>
+                            }
+                            else
+                            {
+                                <span>@Model.Associates.Count</span>
+                            }
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Allocations</h5>
+                    <p class="card-text display-6">
+                        <a asp-action="AllocationManagement" asp-controller="Allocations" class="btn btn-primary">
+                            @if (@Model.Allocations == null)
+                            {
+                                <span>0</span>
+                            }
+                            else
+                            {
+                                <span>@Model.Allocations.Count</span>
+                            }
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Timesheets</h5>
+                    <p class="card-text display-6">
+                        @* <a asp-action="TimesheetManagement" asp-controller="Timesheets" class="btn btn-primary"> *@
+                        <a asp-action="ViewMyTimesheets" asp-controller="Timesheets" class="btn btn-primary">
+                            @if (@Model.Timesheets == null)
+                            {
+                                <span>No Timesheets</span>
+                            }
+                            else
+                            {
+                                <span>@Model.Timesheets.Count</span>
+                            }
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total Hours Logged</h5>
+                    <p class="card-text display-6">
+                        @* <a asp-action="TimesheetManagement" asp-controller="Timesheets" class="btn btn-primary"> *@
+                        <a asp-action="ViewMyTimesheets" asp-controller="Timesheets" class="btn btn-primary">
+                            @if (@Model.Timesheets == null)
+                            {
+                                <span>No Timesheets</span>
+                            }
+                            else
+                            {
+                                decimal totalHours = 0;
+                                @foreach(Timesheet ts in Model.Timesheets)
+                                {
+                                    totalHours += (decimal)ts.TotalHours!;
+                                }
+                                <span>@totalHours</span>
+                            }
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total Approved Hours</h5>
+                    <p class="card-text display-6">
+                        @* <a asp-action="TimesheetManagement" asp-controller="Timesheets" class="btn btn-primary"> *@
+                        <a asp-action="ViewMyTimesheets" asp-controller="Timesheets" class="btn btn-primary">
+                            @if (@Model.Timesheets == null)
+                            {
+                                <span>No Timesheets</span>
+                            }
+                            else
+                            {
+                                decimal totalHours = 0;
+                                @foreach(Timesheet ts in Model.Timesheets)
+                                {
+                                    if (ts.Status == "Approved")
+                                        totalHours += (decimal)ts.TotalHours!;
+                                }
+                                <span>@totalHours</span>
+                            }
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total Rejected Hours</h5>
+                    <p class="card-text display-6">
+                        @* <a asp-action="TimesheetManagement" asp-controller="Timesheets" class="btn btn-primary"> *@
+                        <a asp-action="ViewMyTimesheets" asp-controller="Timesheets" class="btn btn-primary">
+                            @if (@Model.Timesheets == null)
+                            {
+                                <span>No Timesheets</span>
+                            }
+                            else
+                            {
+                                decimal totalHours = 0;
+                                @foreach(Timesheet ts in Model.Timesheets)
+                                {
+                                    if (ts.Status == "Rejected")
+                                        totalHours += (decimal)ts.TotalHours!;
+                                }
+                                <span>@totalHours</span>
+                            }
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Revenue Generated</h5>
+                    <p class="card-text display-6">
+                        @* <a asp-action="TimesheetManagement" asp-controller="Timesheets" class="btn btn-primary"> *@
+                        <a asp-action="PortfolioDashboard" asp-controller="Portfolio" class="btn btn-primary">
+                            @if (@Model.Timesheets == null)
+                            {
+                                <span>No Revenue Generated</span>
+                            }
+                            else
+                            {
+                                <span>@Model.RevenueGenerated.ToString("C")</span>
+                            }
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* <section>
+    <h2>Accounts</h2>
+    <p>
+        <a class="btn btn-primary" asp-controller="Accounts" asp-action="Create">Create New Account</a>
+    </p>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (@Model.Accounts == null || @Model.Accounts.Count == 0)
+            {
+                <tr>
+                    <td colspan="3">No accounts found.</td>
+                </tr>
+            }
+            else
+            {   
+                @foreach (var account in @Model.Accounts)
+                {
+                    <tr>
+                        <td>@account.AccountName</td>
+                        <td>@account.Description</td>
+                        <td>
+                            <a asp-controller="Accounts" asp-action="Edit" asp-route-id="@account.AccountId">Edit</a> |
+                            <a asp-controller="Accounts" asp-action="Details" asp-route-id="@account.AccountId">Details</a> |
+                            <a asp-controller="Accounts" asp-action="Delete" asp-route-id="@account.AccountId">Delete</a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</section>  *@
+
+@* <section>
+    <h2>Projects</h2>
+    <p>
+        <a class="btn btn-primary" asp-controller="Projects" asp-action="Create">Create New Project</a>
+    </p>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Account</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (@Model.Projects == null || @Model.Projects.Count == 0)
+            {
+                <tr>
+                    <td colspan="3">No projects found.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var project in @Model.Projects)
+                {
+                    <tr>
+                        <td>@project.Name</td>
+                        <td>@project.Account?.AccountName</td>
+                        <td>
+                            <a asp-controller="Projects" asp-action="Edit" asp-route-id="@project.ProjectId">Edit</a> |
+                            <a asp-controller="Projects" asp-action="Details" asp-route-id="@project.ProjectId">Details</a> |
+                            <a asp-controller="Projects" asp-action="Delete" asp-route-id="@project.ProjectId">Delete</a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</section> *@
+
+@* <section>
+    <h2>Allocations</h2>
+    <p>
+        <a class="btn btn-primary" asp-controller="Allocations" asp-action="Create">Create New Allocation</a>
+    </p>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Associate</th>
+                <th>Project</th>
+                <th>Account</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var allocation in Model.Allocations)
+            {
+                <tr>
+                    <td>@allocation.Associate?.FullName</td>
+                    <td>@allocation.Project?.Name</td>
+                    <td>@allocation.Project?.Account?.AccountName</td>
+                    <td>@allocation.StartDate.ToShortDateString()</td>
+                    <td>@allocation.EndDate.ToShortDateString()</td>
+                    <td>
+                        <a asp-controller="Allocations" asp-action="Edit" asp-route-id="@allocation.AllocationId">Edit</a> |
+                        <a asp-controller="Allocations" asp-action="Details" asp-route-id="@allocation.AllocationId">Details</a> |
+                        <a asp-controller="Allocations" asp-action="Delete" asp-route-id="@allocation.AllocationId">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section> *@

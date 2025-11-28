@@ -1,0 +1,84 @@
+@model VenkataAllocationManagementSystem.ViewModels.AssociateManagementViewModel
+@using VenkataAllocationManagementSystem.Models
+
+@{
+    ViewData["Title"] = "Associate Management Dashboard";
+}
+
+@* <h1>@ViewData["Title"]</h1> *@
+<section>
+    <h2>Welcome to the Associate Management Dashboard</h2>
+    <p>This dashboard provides an overview of all the Associates of Softility.</p>
+</section>
+
+<section>
+    @* <h2>Associates</h2> *@
+    <p>
+        <a class="btn btn-primary" asp-controller="Associates" asp-action="CreateAssociate">Create New Associate</a>
+    </p>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Email Address</th>
+                <th>Employee ID</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (@Model.Associates == null || @Model.Associates.Count() == 0)
+            {
+                <tr>
+                    <td colspan="4">No Associates found.</td>
+                </tr>
+            }
+            else
+            {   
+                @foreach (var associate in @Model.Associates)
+                {
+                    <tr>
+                        @* <td>@account.AccountId</td> *@
+                        <td>@associate.FullName</td>
+                        <td>@associate.Email</td>
+                        <td>@associate.AssociateEmployeeId</td>
+                        <td>
+                            @switch ((@AssociateStatusEnum) associate.AssociateStatusId)
+                            {
+                                case AssociateStatusEnum.Active:
+                                    <span class="badge bg-success">Active</span>
+                                    break;
+                                case AssociateStatusEnum.Resigned:
+                                    <span class="badge bg-warning text-dark">Resigned</span>
+                                    break;
+                                case @AssociateStatusEnum.Inactive:
+                                    <span class="badge bg-secondary">Inactive</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-light text-muted">Unknown</span>
+                                    break;
+                            }
+                        </td>                   
+                        <td>
+                            <a asp-controller="Associates" asp-action="ViewAssociate" asp-route-AssociateId="@associate.AssociateId" class="btn btn-info btn-sm">View</a>
+                            <a asp-controller="Associates" asp-action="EditAssociate" asp-route-AssociateId="@associate.AssociateId" class="btn btn-warning btn-sm">Edit</a>                          
+                            @if (associate.AssociateStatusId == (int)AssociateStatusEnum.Active)
+                            {
+                                <a asp-controller="Associates" asp-action="DeleteAssociate" asp-route-AssociateId="@associate.AssociateId" class="btn btn-secondary btn-sm"
+                                    onclick="return confirm('Are you sure you want to resign this associate?');">Inactivate</a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Associates" asp-action="DeleteAssociate" asp-route-AssociateId="@associate.AssociateId" class="btn btn-success btn-sm"
+                                    onclick="return confirm('Are you sure you want to activate this associate?');">Activate</a>
+                            }
+                            @* <a asp-controller="Associates" asp-action="DeleteAssociate" asp-route-AssociateId="@associate.AssociateId" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Are you sure you want to delete this account?');">Delete</a> *@
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+</section>

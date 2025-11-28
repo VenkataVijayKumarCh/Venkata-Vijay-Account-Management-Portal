@@ -1,0 +1,61 @@
+@using Microsoft.AspNetCore.Components.Web
+@model VenkataAllocationManagementSystem.Models.User
+
+@using (Html.BeginForm("AppLogin", "Access", FormMethod.Post))
+{
+    <fieldset>
+        @* <legend>Venkata Allocation Management System - Login Page</legend> *@
+        
+
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+
+        @if (ViewBag.Message != null)
+        {
+            <p style="border: 1px solid red; padding: 10px; background-color: #f8d7da; color: red">
+                @ViewBag.Message
+            </p>
+        }
+        <section>
+            <p>Welcome to Venkata Allocation Management System.</p>
+            <p>Please login to the system to maintain Associate's Allocations</p>
+        </section>
+        <section>
+            @* <div class="text-center">
+                <table>
+                    <tr>
+                        
+                        <td>@Html.LabelFor(a => a.UserEmail)</td>
+                        <td>@Html.TextBoxFor(a => a.UserEmail)</td>
+                        <td>@Html.ValidationMessageFor(a => a.UserEmail)</td>
+                    </tr>
+                    <tr>
+                        <td>@Html.LabelFor(a => a.Password)</td>
+                        <td>@Html.PasswordFor(a => a.Password)</td>
+                        <td>@Html.ValidationMessageFor(a => a.Password)</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><input type="submit" value="Login"  /></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>  *@
+            <div class="form-group customize">
+                <label asp-for="@Model.UserEmail">User Email</label>
+                <input asp-for="@Model.UserEmail" class="form-control" />
+                <span asp-validation-for="@Model.UserEmail" class="text-danger"></span>
+            </div>
+            <div class="form-group customize">
+                <label asp-for="@Model.Password"></label>
+                <input asp-for="@Model.Password" class="form-control" type="password"/>
+                <span asp-validation-for="@Model.Password" class="text-danger"></span>
+            </div>            
+        </section>  
+        <section>
+            <div class="form-group customize"><br />
+                <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+        </section>             
+    </fieldset>
+}

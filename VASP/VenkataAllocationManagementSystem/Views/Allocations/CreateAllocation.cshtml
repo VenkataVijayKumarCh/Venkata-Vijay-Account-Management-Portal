@@ -1,0 +1,292 @@
+@model VenkataAllocationManagementSystem.ViewModels.AllocationManagementViewModel
+
+@{
+    ViewData["Title"] = "Create Allocation";
+}
+
+@* 
+<script type="text/javascript" lang="javascript">
+
+                LoadProjects()
+                    {
+                        alert('hi i came here to first step');
+                        var selectedAccountId = $('#ddlAccounts').val();
+                        if (selectedAccountId > 0) {
+                            $.ajax({
+                                url: '@Url.Action("GetProjectsByAccount", "Allocations")',
+                                type: 'GET',
+                                data: { accountId: selectedAccountId },
+                                success: function (data) {
+                                    $('#ddlProjects').empty();
+                                    $('#ddlProjects').append($('<option></option>').val('').text('Select a Project')); // Add default option
+                                    $.each(data, function (index, item) {
+                                        $('#ddlProjects').append($('<option></option>').val(item.Value).text(item.Text));
+                                    });
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error("Error loading projects: " + error);
+                                }
+                            });
+                        } else {
+                            $('#ddlProjects').empty(); // Clear projects if no account selected
+                            $('#ddlProjects').append($('<option></option>').val('').text('Select a Project'));
+                        }
+                    }
+
+</script> *@
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const dropdown = document.getElementById("ddlProjects");
+        const startDateInput = document.getElementById("hdnProjectStartDate");
+        const endDateInput = document.getElementById("hdnProjectEndDate");
+
+        dropdown.addEventListener("change", function () {
+            const projectId = this.value;
+            if (projectId) {
+                fetch(`/Allocations/GetProjectDetailsBySelectedProjectId?projectId=${projectId}`)
+                    .then(response => response.text())
+                    .then(data => {
+                        if (data) {                           
+                            startDateInput.value = data.split(';')[0];
+                            endDateInput.value = data.split(';')[1];
+                        } else {
+                            alert("No Data received");
+                            startDateInput.value = "";
+                            endDateInput.value = "";
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching project dates:", error);
+                        startDateInput.value = "";
+                        endDateInput.value = "";
+                    });
+            } else {
+                startDateInput.value = "";
+                endDateInput.value = "";
+            }
+        });
+    });
+</script>
+
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Allocation</h4>
+<hr />
+
+
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="CreateAllocation" asp-controller="Allocations">
+            <input type="hidden" asp-for="@Model.ProjectStartDate" id="hdnProjectStartDate" />
+            <input type="hidden" asp-for="@Model.ProjectEndDate" id="hdnProjectEndDate" />
+            <div class="col-md-6">
+                <div class="form-group">   
+                    <label asp-for="@Model.AssociateId">Associate Name</label>
+                    @if(@Model.Accounts != null && @Model.Accounts.Any())
+                    {
+                        @Html.DropDownListFor(a => a.AssociateId, 
+                            new SelectList(@Model.Associates, "AssociateId", "FullName"),  
+                            "-- Select Associate --",
+                            htmlAttributes: new { @class = "form-control", id = "ddlAssociates"})
+                    }
+                    else
+                    {
+                        <span class="text-danger">No associates available. Please create an associate first.</span>
+                    }
+                    <span asp-validation-for="@Model.AssociateId" class="text-danger"></span>
+                </div>
+                <div class="form-group">   
+                    <label asp-for="@Model.AccountId">Account</label>
+                    @if(@Model.Accounts != null && @Model.Accounts.Any())
+                    {
+                        @Html.DropDownListFor(a => a.AccountId, 
+                            new SelectList(@Model.Accounts, "AccountId", "AccountName"),  
+                            "-- Select Account --",
+                            htmlAttributes: new { @class = "form-control", id = "ddlAccounts"})
+
+                            // , onchange="alert('hi');LoadProjects();"
+                    }
+                    else
+                    {
+                        <span class="text-danger">No accounts available. Please create an account first.</span>
+                    }
+                    <span asp-validation-for="@Model.AccountId" class="text-danger"></span>
+                </div>
+                <div class="form-group">   
+                    <label asp-for="@Model.ProjectId">Project</label>
+                    @if(@Model.Projects != null && @Model.Projects.Any())
+                    {
+                        @Html.DropDownListFor(a => a.ProjectId, 
+                            new SelectList(@Model.Projects, "ProjectId", "ProjectName"),  
+                            "-- Select Project --",
+                            htmlAttributes: new { @class = "form-control", id = "ddlProjects"})
+                    }
+                    else
+                    {
+                        <span class="text-danger">No projects available. Please create a project first.</span>
+                    }
+                    <span asp-validation-for="@Model.ProjectId" class="text-danger"></span>
+                </div>     
+                <div class="form-group">
+                    <label asp-for="StartDate" class="control-label">Start Date</label>
+                    <input asp-for="@Model.StartDate" class="form-control datepicker" type="date" />
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="EndDate" class="control-label">End Date</label>
+                    <input asp-for="@Model.EndDate" class="form-control datepicker" type="date" id="AllocationEndDate"/>                
+                    <span asp-validation-for="EndDate" class="text-danger"></span>                    
+                </div>
+                <div class="form-group">   
+                    <label asp-for="BillabilityTypeId">Billability Type</label>     
+                    
+                        @if(@Model.BillabilityTypes != null && @Model.BillabilityTypes.Any())
+                        {
+                            @Html.DropDownListFor(b => b.BillabilityTypeId, 
+                                new SelectList(@Model.BillabilityTypes, "BillabilityTypeId", "BillabilityTypeName"),  
+                                "-- Select Billability Type --",
+                                htmlAttributes: new { @class = "form-control", id = "BillabilityTypeId"})
+                        }
+                        else
+                        {
+                            <span class="text-danger">No Billability Types available. Please create a Billability Type first.</span>
+                        }
+
+                    <span asp-validation-for="BillabilityTypeId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="AllocationPercentage" class="control-label">Allocation Percentage</label>
+                    <input asp-for="@Model.AllocationPercentage" class="form-control" type="number" step="0.01" min="0" max="100" />
+                    <span asp-validation-for="AllocationPercentage" class="text-danger"></span>
+                </div>
+                
+            </div>
+
+
+             <div class="form-group">
+    
+        <table class="table table-bordered" id="allocationRateGrid">
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Rate Start Date</th>
+                    <th style="text-align:center;">Rate End Date</th>
+                    <th style="text-align:center;">Bill Rate</th>            
+                    <th style="text-align:center;">Action</th>
+                </tr>
+            </thead>    
+            <tbody>                
+                    @for (int index = 0; index < (Model.AllocationRates?.Count ?? 1); index++)
+                    {
+                        <tr>
+                            <td>
+                                <input type="date" name="AllocationRates[@index].AllocationRateStartDate" class="form-control"
+                                    asp-for="AllocationRates[@index].AllocationRateStartDate" />
+                            </td>
+                            <td>
+                                <input type="date" name="AllocationRates[@index].AllocationRateEndDate" class="form-control"
+                                    asp-for="AllocationRates[@index].AllocationRateEndDate" />
+                            </td>
+                            <td>
+                                <input name="AllocationRates[@index].AllocationBillRate" class="form-control"
+                                    asp-for="AllocationRates[@index].AllocationBillRate" step="0.01" min="0"/>
+                            </td>
+                            <td style="text-align:center;">
+                                <button type="button" class="btn btn-danger" onclick="deleteRow(this)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+            </tbody>
+        </table>
+
+    <div class="form-group">
+        <button type="button" class="btn btn-success" onclick="addRow()">Add Addln Rates</button>
+        <button type="submit" class="btn btn-primary"> Save</button>
+        <a asp-action="AllocationManagement" class="btn btn-secondary">Cancel</a>        
+    </div>
+
+
+<script>
+function getCurrentRowCount() {
+    var table = document.getElementById("allocationRateGrid");
+    return table.getElementsByTagName('tbody')[0].getElementsByTagName('tr').length;
+}
+
+function addRow() {
+    var table = document.getElementById("allocationRateGrid").getElementsByTagName('tbody')[0];
+    var rowIndex = getCurrentRowCount(); // Get current number of rows
+    var newRow = table.insertRow();
+    newRow.innerHTML = `
+        <td>
+            <input type="date" name="AllocationRates[${rowIndex}].AllocationRateStartDate" 
+                   class="form-control datepicker" />
+        </td>
+        <td>
+            <input type="date" name="AllocationRates[${rowIndex}].AllocationRateEndDate" 
+                   class="form-control datepicker" />
+        </td>
+        <td>
+            <input type="number" name="AllocationRates[${rowIndex}].AllocationBillRate" 
+                   class="form-control" step="0.01" min="0" />
+        </td>
+        <td style="text-align:center;">
+            <button type="button" class="btn btn-danger" onclick="deleteRow(this)">Delete</button>
+        </td>
+    `;
+}
+
+function deleteRow(btn) {
+    var row = btn.closest('tr');
+    row.parentNode.removeChild(row);
+    reindexRows(); // Reindex remaining rows after deletion
+}
+
+function reindexRows() {
+    var table = document.getElementById("allocationRateGrid");
+    var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    
+    for(var i = 0; i < rows.length; i++) {
+        var inputs = rows[i].getElementsByTagName('input');
+        for(var j = 0; j < inputs.length; j++) {
+            var input = inputs[j];
+            var name = input.getAttribute('name');
+            if(name) {
+                // Replace the index in the name attribute
+                input.setAttribute('name', name.replace(/\[\d+\]/, `[${i}]`));
+            }
+        }
+    }
+}
+</script>
+
+@* <script>
+function addRow() {
+    var table = document.getElementById("allocationRateGrid").getElementsByTagName('tbody')[0];
+    var newRow = table.insertRow();
+    newRow.innerHTML = `
+        <td><input asp-for="@Model.AllocationRate?.AllocationRateStartDate" class="form-control datepicker" type="date" /></td>
+        <td><input asp-for="@Model.AllocationRate?.AllocationRateEndDate" class="form-control datepicker" type="date" /></td>
+        <td><input asp-for="@Model.AllocationRate?.AllocationBillRate" class="form-control" step="0.01" min="0" /></td>
+        <td style="text-align:center;">
+            <button type="button" class="btn btn-danger" onclick="deleteRow(this)">Delete</button>
+        </td>
+    `;
+}
+
+function deleteRow(btn) {
+    var row = btn.closest('tr');
+    row.parentNode.removeChild(row);
+}
+</script> *@
+    
+    </div>
+
+        </form>
+    </div>
+</div>
+
+@* @section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} *@

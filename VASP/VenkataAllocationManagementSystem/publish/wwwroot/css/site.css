@@ -1,0 +1,142 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+.form-group.customize {
+  width: 500px;
+  padding: 5px 0px 5px 0px;
+}
+
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: small;
+}
+
+.centered-body {
+    width: 1500px;               /* Standard width for desktop apps */
+    height: 1150px;              /* Optional fixed height */
+    margin: 0 auto;             /* Horizontally center */
+    position: relative;
+    top: 50%;
+    transform: translateY(0.5%); /* Vertically center */
+    background-color: #FDFAF1;  /* Optional background */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+
+th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.center {
+  margin: auto;
+  width: 50%;
+  border: 3px solid green;
+  padding: 100px;
+  height: 300px;
+  vertical-align: middle;
+  display: flex;
+  justify-content: center;
+}
+
+/* header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: #FDFAF1;
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0 5px;
+  
+}
+
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background-color: #FDFAF1;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+} */
+
+/* main {
+  padding: 80px 20px 60px; /* Top and bottom padding to avoid overlap */
+/*  height: 2000px; /* Just for demo: enough height to scroll */
+/* } */
+
+fieldset legend {
+  font-size: 1.2em; /* Relative to the parent's font size */
+  /* Or use absolute units like px: */
+  /* font-size: 18px; */
+  font-weight: bold;
+}
+
+fieldset {
+    border: 1px solid #336699; /* 2px width, solid style, navy blue color */
+    border-style: dashed;
+    padding: 10px 10px 10px 10px; /* Space between border and content */
+    border-radius: 10px; /* Applies rounded corners with a 10px radius */
+}
+
+/* add to wwwroot/css/site.css or inside a <style> in the view */
+.chart-fixed-size {
+  width: 600px;
+  height: 300px;
+  max-width: 100%; /* allow shrinking on narrow screens */
+  margin: 0 auto;
+  display: block;
+}
+@media (max-width: 767px) {
+  .chart-fixed-size {
+    width: 100%;
+    height: 360px;
+  }
+}
+.chart-fixed-size-tsc {
+  width: 1920px;
+  height: 300px;
+  max-width: 100%; /* allow shrinking on narrow screens */
+  margin: 0 auto;
+  display: block;
+}
+
+#complianceChart {
+  width: 100% !important;
+  height: 100% !important;
+}

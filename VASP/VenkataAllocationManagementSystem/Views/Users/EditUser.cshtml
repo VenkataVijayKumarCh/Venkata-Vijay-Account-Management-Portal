@@ -1,0 +1,82 @@
+@model VenkataAllocationManagementSystem.ViewModels.UserManagementViewModel
+
+@{
+    ViewData["Title"] = "Modify Existing User Details";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("userForm").addEventListener("submit", function (e) {
+            const selectedRoles = document.querySelectorAll('input[name="SelectedRoles"]:checked');
+            if (selectedRoles.length === 0) {
+                alert('Please select at least one role.');
+                e.preventDefault(); // Stop form submission
+            }
+        });
+    });
+</script>
+
+@using (Html.BeginForm("UpdateUser", "Users", FormMethod.Post, new {Id = "userForm"}))
+{
+    <input type="hidden" asp-for="@Model.User!.UserId" />
+    <input type="hidden" asp-for="@Model.User!.CreatedAt" />
+    <input type="hidden" asp-for="@Model.User!.Password" />
+    <div class="form-group">
+        <label asp-for="@Model.User!.UserName">Employee Number</label>
+        <input asp-for="@Model.User!.UserName" class="form-control" />
+        <span asp-validation-for="@Model.User!.UserName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.User!.FirstName"></label>
+        <input asp-for="@Model.User!.FirstName" class="form-control" />
+        <span asp-validation-for="@Model.User!.FirstName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.User!.LastName"></label>
+        <input asp-for="@Model.User!.LastName" class="form-control" />
+        <span asp-validation-for="@Model.User!.LastName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="@Model.User!.UserEmail"></label>
+        <input asp-for="@Model.User!.UserEmail" class="form-control" readonly/>
+        <span asp-validation-for="@Model.User!.UserEmail" class="text-danger"></span>
+    </div>
+    <div class="form-group form-check">
+        <input asp-for="@Model.User!.IsActive" class="form-check-input" />
+        <label asp-for="@Model.User!.IsActive" class="form-check-label"></label>
+    </div>
+    @* <div class="form-group">
+        <label asp-for="@Model.User!.Password"></label>
+        <input asp-for="@Model.User!.Password" class="form-control" type="password"/>
+        <span asp-validation-for="@Model.User!.Password" class="text-danger"></span>
+    </div> *@
+    
+    @if (@Model.AvailableRoles!.Any())
+    {
+        <div class="form-group">
+            <label>Select Roles</label>
+                @foreach (var role in Model.AvailableRoles!)
+                {
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input type="checkbox" name="SelectedRoles" value="@role.RoleId" class="form-check-input" @(Model.SelectedRoles!.Contains(role.RoleId) ? "checked" : "") />
+                        @role.RoleName
+                        </label>
+                    </div>
+                }
+            @Html.ValidationMessageFor(m => m.SelectedRoles)
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="UserManagement" class="btn btn-secondary">Cancel</a>
+
+     @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+}

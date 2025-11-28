@@ -1,0 +1,27 @@
+@* @model AssociateTimesheetRow
+@{
+    var index = ViewData["RowIndex"] ?? 0;
+    var weekDates = ViewData["WeekDates"] as List<DateTime>;
+}
+
+<tr>
+    <td>
+        <input type="text" name="LineItems[@index].AssociateName" class="form-control" value="@Model.AssociateName" />
+        <input type="hidden" name="LineItems[@index].AssociateId" value="@Model.AssociateId" />
+    </td>
+
+    @foreach (var date in weekDates)
+    {
+        <td>
+            <input type="number" name="LineItems[@index].Hours[@date.ToString("yyyyMMdd")]" class="form-control" step="0.25" min="0" max="24" />
+        </td>
+    }
+
+    <td>
+        <input type="text" name="LineItems[@index].Description" class="form-control" value="@Model.Description" />
+    </td>
+
+    <td>
+        <button type="button" class="btn btn-danger" onclick="removeRow(this)">Delete</button>
+    </td>
+</tr> *@

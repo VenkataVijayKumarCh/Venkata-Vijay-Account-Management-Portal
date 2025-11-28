@@ -1,0 +1,78 @@
+@* Create a view to display all Project Info or Single Project Info along with Account Name and Description. Also need Create Project button as well *@
+@model VenkataAllocationManagementSystem.ViewModels.UserManagementViewModel
+
+@{
+    ViewData["Title"] = "User Management";
+}
+
+@* <h2>@ViewData["Title"]</h2> *@
+<section>
+    <h2>Welcome to the User Management Dashboard</h2>
+    <p>This dashboard provides an overview of all the Users of Softility having access to Venkata Allocation Management System.</p>
+</section>
+<p>
+    <a class="btn btn-primary" asp-controller="Users" asp-action="CreateUser">Create User</a>
+</p>
+
+@if (@Model.Users != null && @Model.Users.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+               <th style="text-align:center;">User Name</th>
+               <th style="text-align:center;">First Name</th> 
+               <th style="text-align:center;">Last Name</th>       
+               <th style="text-align:center;">User Email</th>      
+               <th style="text-align:center;">Status</th>              
+                @* <th style="text-align:center;">Account Description</th> *@
+                <th style="text-align:center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (VenkataAllocationManagementSystem.Models.User userInfo in @Model.Users)
+            {
+                <tr>
+                    <td>@userInfo.UserName</td>
+                    <td>@userInfo.FirstName</td>
+                    <td>@userInfo.LastName</td>
+                    <td>@userInfo.UserEmail</td>
+                    <td>
+                        @if (userInfo.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="ViewUser" asp-controller="Users" asp-route-UserId="@userInfo.UserId" class="btn btn-info btn-sm">View</a>
+                        <a asp-action="EditUser" asp-controller="Users" asp-route-UserId="@userInfo.UserId" class="btn btn-warning btn-sm">Edit</a>
+                        <a asp-action="DeleteUser" asp-controller="Users" asp-route-UserId="@userInfo.UserId" class="btn btn-danger btn-sm"
+                           onclick="return confirm('Are you sure you want to delete this User?');">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">No Users found.</div>
+}
+
+@* @if (Model.Project != null)
+{
+    <h3>Project Details</h3>
+    <dl class="row">
+        <dt class="col-sm-3">Project Name</dt>
+        <dd class="col-sm-9">@Model.Project.Name</dd>
+        <dt class="col-sm-3">Description</dt>
+        <dd class="col-sm-9">@Model.Project.Description</dd>
+        <dt class="col-sm-3">Account Name</dt>
+        <dd class="col-sm-9">@Model.Project.Account?.AccountName</dd>
+        <dt class="col-sm-3">Account Description</dt>
+        <dd class="col-sm-9">@Model.Project.Account?.Description</dd>
+    </dl>
+} *@

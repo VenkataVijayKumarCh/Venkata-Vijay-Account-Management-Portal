@@ -1,0 +1,69 @@
+@model VenkataAllocationManagementSystem.ViewModels.AllocationManagementViewModel
+
+
+@{
+    ViewData["Title"] = "Allocation Management Dashboard";
+}
+
+@* <h1>@ViewData["Title"]</h1> *@
+<section>
+    <h2>Welcome to the Allocation Management Dashboard</h2>
+    <p>This dashboard provides an overview of all the Allocations of Softility.</p>
+</section>
+
+<section>
+    @* <h2>Allocations</h2> *@
+    <p>
+        @* <a class="btn btn-primary" asp-controller="Allocations" asp-action="CreateAllocation">Create New Allocation</a> *@
+        <a class="btn btn-primary" href="@Url.Action("CreateAllocation", "Allocations")">Create New Allocation</a>
+    </p>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Account</th>
+                <th>Project</th>
+                <th>Associate</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Allocation %</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var allocation in Model.AllocationsMgmtInfo)
+            {
+                <tr>
+                    <td>@allocation.AccountName</td>
+                    <td>@allocation.ProjectName</td>
+                    <td>@allocation.AssociateName</td>
+                    <td>@allocation.StartDate.ToShortDateString()</td>
+                    <td>@allocation.EndDate.ToShortDateString()</td>
+                    @* <td>
+                        @if (allocation.EndDate.HasValue)
+                        {
+                            @allocation.EndDate.ToShortDateString()
+                        }
+                        else
+                        {
+                            "—"
+                        }
+                    </td> *@
+                    <td>@allocation.AllocationPercentage</td>
+                    <td>
+                        <span class="badge @(allocation.IsActive ? "bg-success" : "bg-secondary")">
+                            @(allocation.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </td>
+                    <td>
+                        <input type="hidden" name="AllocationId" value="@allocation.AllocationId" />
+                        <a asp-controller="Allocations" asp-action="ViewAllocation" asp-route-AllocationId="@allocation.AllocationId" class="btn btn-info btn-sm">View</a>
+                        <a asp-controller="Allocations" asp-action="EditAllocation" asp-route-AllocationId="@allocation.AllocationId" class="btn btn-warning btn-sm">Edit</a>
+                        <a asp-controller="Allocations" asp-action="CompleteAllocation" asp-route-AllocationId="@allocation.AllocationId" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Are you sure you want to complete this allocation?');">Complete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>

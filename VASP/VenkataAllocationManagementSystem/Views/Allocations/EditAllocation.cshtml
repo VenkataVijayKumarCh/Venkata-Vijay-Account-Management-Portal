@@ -1,0 +1,261 @@
+<input type="hidden" asp-for="AllocationId" />
+@model VenkataAllocationManagementSystem.ViewModels.AllocationManagementViewModel
+
+@* 
+<script type="JavaScript" lang="JavaScript">
+    function ValidateAllocationEndDate() {
+        alert('Hi Came to the JS function');
+        const projectEnd = new Date($("#ProjectEndDate").val());
+        const allocationEnd = new Date($("#AllocationEndDate").val());
+
+        if (allocationEnd > projectEnd) {
+            alert("Allocation End Date cannot be after Project End Date.");
+            return false;
+        }
+        return true;
+    }
+</script> *@
+
+
+@{
+    ViewData["Title"] = "Edit Allocation";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<hr />
+@* <div class="row">
+    <div class="col-md-6">    
+        <dt class="col-sm-2">Associate Name</dt>
+        <dd class="col-sm-10">@Model.AssociateName</dd>
+        <dt class="col-sm-2">Account Name</dt>
+        <dd class="col-sm-10">@Model.AccountName</dd>
+        <dt class="col-sm-2">Project Name</dt>
+        <dd class="col-sm-10">@Model.ProjectName</dd>    
+    </div>
+</div>     *@
+
+@using (Html.BeginForm("EditAllocation", "Allocations", FormMethod.Post))
+{
+    <input type="hidden" asp-for="@Model.AllocationsInfo[0].AllocationId" />
+    <input type="hidden" asp-for="@Model.AllocationsInfo[0].AssociateId" />
+    <input type="hidden" asp-for="@Model.AllocationsInfo[0].ProjectId" />
+    <input type="hidden" asp-for="@Model.AllocationsInfo[0].IsActive" />
+    <input type="hidden" asp-for="@Model.ProjectEndDate" id="ProjectEndDate" />
+    <input type="hidden" asp-for="@Model.ProjectStartDate" id="ProjectStartDate" />
+
+    <fieldset>
+     <legend>Associate, Account & Project Details</legend>
+    <div class="row">
+        <div class="col-md-6"> 
+            <div class="form-group">
+                <label asp-for="AssociateName" class="control-label">Associate Name</label>
+                <input asp-for="@Model.AssociateName" class="form-control" readonly type="text" />
+            </div>       
+            <div class="form-group">
+                <label asp-for="AccountName" class="control-label">Account Name</label>
+                <input asp-for="@Model.AccountName" class="form-control" readonly type="text" />
+            </div>       
+            <div class="form-group">
+                <label asp-for="ProjectName" class="control-label">Project Name</label>
+                <input asp-for="@Model.ProjectName" class="form-control" readonly type="text" />
+            </div>       
+            <div class="form-group">
+                <label asp-for="StartDate" class="control-label">Start Date</label>
+                <input asp-for="@Model.StartDate" class="form-control datepicker" type="date" />
+                <span asp-validation-for="StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndDate" class="control-label">End Date</label>
+                <input asp-for="@Model.EndDate" class="form-control datepicker" type="date" id="AllocationEndDate"/>                
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+                @* <span asp-validation-for="EndDate" class="text-danger">Allocation End Date should be less than or equal to Project End Date.</span> *@
+            </div>
+            <div class="form-group">   
+                <label asp-for="BillabilityTypeId">Billability Type</label>     
+                
+                    @if(@Model.BillabilityTypes != null && @Model.BillabilityTypes.Any())
+                    {
+                        @Html.DropDownListFor(b => b.BillabilityTypeId, 
+                            new SelectList(@Model.BillabilityTypes, "BillabilityTypeId", "BillabilityTypeName"),  
+                            "-- Select Billability Type --",
+                            htmlAttributes: new { @class = "form-control", id = "BillabilityTypeId"})
+                    }
+                    else
+                    {
+                        <span class="text-danger">No Billability Types available. Please create a Billability Type first.</span>
+                    }
+                <span asp-validation-for="BillabilityTypeId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AllocationPercentage" class="control-label">Allocation Percentage</label>
+                <input asp-for="@Model.AllocationsInfo[0].AllocationPercentage" class="form-control" type="number" step="0.01" min="0" max="100" />
+                <span asp-validation-for="AllocationPercentage" class="text-danger"></span>
+            </div>
+            
+        </div>
+    </div>
+</fieldset>
+    <div>
+    
+        <table class="table table-bordered" id="allocationRateGrid">
+            <thead>
+                <tr>
+                    <th style="text-align:center;">Rate Start Date</th>
+                    <th style="text-align:center;">Rate End Date</th>
+                    <th style="text-align:center;">Bill Rate</th>            
+                    <th style="text-align:center;">Action</th>
+                </tr>
+            </thead>
+            @* <tbody>
+                <!-- Initial row example -->
+                <tr>
+                    <td>
+                        <input type="date" name="RateStartDate[]" class="form-control" />
+                    </td>
+                    <td>
+                        <input type="date" name="RateEndDate[]" class="form-control" />
+                    </td>
+                    <td>
+                        <input type="number" name="BillRate[]" class="form-control" step="0.01" min="0" />
+                    </td>
+                    <td style="text-align:center;">
+                        <button type="button" class="btn btn-danger" onclick="deleteRow(this)">Delete</button>
+                    </td>
+                </tr>
+            </tbody> *@
+            <tbody>
+                
+                    @for (int index = 0; index < (Model.AllocationRates?.Count ?? 1); index++)
+                    {
+                        <tr>
+                            <td>
+                                <input type="date" name="AllocationRates[@index].AllocationRateStartDate" class="form-control"
+                                    asp-for="AllocationRates[@index].AllocationRateStartDate" />
+                            </td>
+                            <td>
+                                <input type="date" name="AllocationRates[@index].AllocationRateEndDate" class="form-control"
+                                    asp-for="AllocationRates[@index].AllocationRateEndDate" />
+                            </td>
+                            <td>
+                                <input name="AllocationRates[@index].AllocationBillRate" class="form-control"
+                                    asp-for="AllocationRates[@index].AllocationBillRate" step="0.01" min="0"/>
+                            </td>
+                            <td style="text-align:center;">
+                                <button type="button" class="btn btn-danger" onclick="deleteRow(this)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                
+                
+                
+                
+                
+                
+                @* @if(Model.AllocationRate != null)
+                    {
+                        System.Diagnostics.EventLog.WriteEntry("Application", "Rendering Allocation Rate Row for Allocation ID: ");
+                        <tr>
+                            <td><input asp-for="AllocationRate!.AllocationRateStartDate" class="form-control datepicker" type="date" /></td>
+                            <td><input asp-for="AllocationRate!.AllocationRateEndDate" class="form-control datepicker" type="date" /></td>
+                            <td><input asp-for="AllocationRate!.AllocationBillRate" class="form-control" step="0.01" min="0" /></td>
+                            <td style="text-align:center;">
+                                <button type="button" class="btn btn-danger" onclick="deleteRow(this)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                else
+                    {
+                        System.Diagnostics.EventLog.WriteEntry("Application", "No Allocation Rate found to render.");
+                    } *@
+            </tbody>
+        </table>
+    <div class="form-group">
+                <button type="button" class="btn btn-success" onclick="addRow()">Add Row</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="AllocationManagement" class="btn btn-secondary">Cancel</a>        
+    </div>
+
+
+<script>
+    function getCurrentRowCount() {
+        var table = document.getElementById("allocationRateGrid");
+        return table.getElementsByTagName('tbody')[0].getElementsByTagName('tr').length;
+    }
+
+    function addRow() {
+        var table = document.getElementById("allocationRateGrid").getElementsByTagName('tbody')[0];
+        var rowIndex = getCurrentRowCount(); // Get current number of rows
+        var newRow = table.insertRow();
+        newRow.innerHTML = `
+            <td>
+                <input type="date" name="AllocationRates[${rowIndex}].AllocationRateStartDate" 
+                    class="form-control datepicker" />
+            </td>
+            <td>
+                <input type="date" name="AllocationRates[${rowIndex}].AllocationRateEndDate" 
+                    class="form-control datepicker" />
+            </td>
+            <td>
+                <input type="number" name="AllocationRates[${rowIndex}].AllocationBillRate" 
+                    class="form-control" step="0.01" min="0" />
+            </td>
+            <td style="text-align:center;">
+                <button type="button" class="btn btn-danger" onclick="deleteRow(this)">Delete</button>
+            </td>
+        `;
+    }
+
+    function deleteRow(btn) {
+        var row = btn.closest('tr');
+        row.parentNode.removeChild(row);
+        reindexRows(); // Reindex remaining rows after deletion
+    }
+
+    function reindexRows() {
+        var table = document.getElementById("allocationRateGrid");
+        var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        
+        for(var i = 0; i < rows.length; i++) {
+            var inputs = rows[i].getElementsByTagName('input');
+            for(var j = 0; j < inputs.length; j++) {
+                var input = inputs[j];
+                var name = input.getAttribute('name');
+                if(name) {
+                    // Replace the index in the name attribute
+                    input.setAttribute('name', name.replace(/\[\d+\]/, `[${i}]`));
+                }
+            }
+        }
+    }
+</script>
+
+@* <script>
+function addRow() {
+    var table = document.getElementById("allocationRateGrid").getElementsByTagName('tbody')[0];
+    var newRow = table.insertRow();
+    newRow.innerHTML = `
+        <td><input asp-for="AllocationRate!.AllocationRateStartDate" class="form-control datepicker" type="date" /></td>
+        <td><input asp-for="AllocationRate!.AllocationRateEndDate" class="form-control datepicker" type="date" /></td>
+        <td><input asp-for="AllocationRate!.AllocationBillRate" class="form-control" step="0.01" min="0" /></td>
+        <td style="text-align:center;">
+            <button type="button" class="btn btn-danger" onclick="deleteRow(this)">Delete</button>
+        </td>
+    `;
+}
+
+function deleteRow(btn) {
+    var row = btn.closest('tr');
+    row.parentNode.removeChild(row);
+}
+</script> *@
+    
+    </div>
+    
+
+    @* @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    } *@
+@* onclick="javascript:if (document.getElementById('AllocationEndDate').value > document.getElementById('ProjectEndDate').value) alert ('Allocation End Date should be less than or equal to Project End Date.'); return false;" *@
+}
+

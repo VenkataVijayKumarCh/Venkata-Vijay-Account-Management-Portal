@@ -1,0 +1,87 @@
+@model VenkataAllocationManagementSystem.ViewModels.AssociateManagementViewModel
+
+@{
+    ViewData["Title"] = "Update Associate Information";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@* <script>
+    $(document).ready(function () {
+        $('#AssociateStatusId').change(function () {
+            var status = parseInt($(this).val());
+            if (status === 3) { // Inactive
+                $('#TerminationDate').attr('required', 'required');
+            } else {
+                $('#TerminationDate').removeAttr('required');
+            }
+        });
+    });
+</script> *@
+
+
+@using (Html.BeginForm("UpdateAssociate", "Associates", FormMethod.Post))
+{
+    @* @if (Model.Associate != null && Model.Associate.AssociateId > 0)
+    {
+        @Html.HiddenFor(a => a.Associate.AssociateId)
+    } *@
+   <input type="hidden" asp-for="Associate.AssociateId" />
+        @* <input type="hidden" asp-for="Associate.AssociateId" /> *@
+        @* <div class="form-group">
+            <label class="col-sm-2">Associate Name</label>
+            <label class="col-sm-10">@ViewBag.AccountName</label>
+    </div> *@
+    <div class="form-group">
+        <label asp-for="Associate.FullName"></label>
+        <input asp-for="Associate.FullName" class="form-control" />
+        <span asp-validation-for="Associate.FullName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Associate.Email">Email Address</label>
+        <input asp-for="Associate.Email" class="form-control" />
+        <span asp-validation-for="Associate.Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Associate.ContactNumber">Contact Number</label>
+        <input asp-for="Associate.ContactNumber" class="form-control" />
+        <span asp-validation-for="Associate.ContactNumber" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Associate.AssociateEmployeeId">Employee ID</label>
+        <input asp-for="Associate.AssociateEmployeeId" class="form-control" />
+        <span asp-validation-for="Associate.AssociateEmployeeId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Associate.AssociateStatusId">Associate Status</label>        
+        <select asp-for="Associate.AssociateStatusId" asp-items="@(new SelectList(Model.AssociateStatus, "AssociateStatusId", "AssociateStatusName"))" 
+            class="form-control" id="AssociateStatusId">
+        </select>
+        <span asp-validation-for="Associate.AssociateStatusId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Associate.AssociateTypeId">Associate Type</label>        
+        <select asp-for="Associate.AssociateTypeId" asp-items="@(new SelectList(Model.AssociateTypes, "AssociateTypeId", "AssociateType"))" 
+            class="form-control" id="AssociateTypeId">
+        </select>
+        <span asp-validation-for="Associate.AssociateTypeId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Associate.JoiningDate">Joining Date</label>
+        <input asp-for="Associate.JoiningDate" class="form-control datepicker" type="date" />
+        <span asp-validation-for="Associate.JoiningDate" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Associate.TerminationDate">Termination Date</label>
+        <input asp-for="Associate.TerminationDate" class="form-control datepicker" type="date" />
+        <span asp-validation-for="Associate.TerminationDate" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="AssociateManagement" class="btn btn-secondary">Cancel</a>
+
+   
+}
+
+ @section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
