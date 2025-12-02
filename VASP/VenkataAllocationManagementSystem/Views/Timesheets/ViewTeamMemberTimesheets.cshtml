@@ -9,7 +9,7 @@
 </section>
 
 <section>
-    <h2>Timesheets</h2>
+    <h3>Timesheets</h3>
     <p>
         @* <a class="btn btn-primary" asp-controller="Timesheets" asp-action="CreateTimesheets">Create New Timesheet</a> *@
         <a class="btn btn-primary" asp-controller="Timesheets" asp-action="CreateMyTimesheets">Create My New Timesheet</a>
@@ -160,7 +160,7 @@
                         }
                         @if (ts.TimesheetStatus != "Rejected")
                         {
-                            <a asp-action="ViewTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" class="btn btn-info btn-sm">View</a>
+                            <a asp-action="ViewTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" asp-route-tsperiodId="@Model.TimesheetPeriodId" class="btn btn-info btn-sm">View</a>
                         }
                         @if (ts.TimesheetStatus == "Submitted" || ts.TimesheetStatus == "Rejected")
                         {

@@ -65,7 +65,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             return View(timesheetsDetails);
         }
 
-        public async Task<IActionResult> ViewTeamMemberTimesheets()
+        public async Task<IActionResult> ViewTeamMemberTimesheets(int tsperiodId = 0)
         {
             var userId = GetCurrentUserId();
             var myAssociateId = GetAssociateIdFromUserId(userId);
@@ -75,7 +75,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             //     .ToList();
 
             var projects = await _dbContext.Projects.ToListAsync();
-            var timesheetPeriods = await _dbContext.TimesheetPeriods.Where(tp => tp.IsActive).ToListAsync();
+            var timesheetPeriods = await _dbContext.TimesheetPeriods.Where(tp => tp.IsActive && (tsperiodId == 0 || tp.TimesheetPeriodId == tsperiodId)).ToListAsync();
             var associates = await _dbContext.Associates.ToListAsync();
 
             var timesheetsInfo = await (from t in _dbContext.Timesheets
@@ -752,7 +752,7 @@ namespace VenkataAllocationManagementSystem.Controllers
 
         #region  Approve and Reject Timesheets
 
-        public IActionResult ApproveTimesheet(Guid timesheetId, string origin="")
+        public IActionResult ApproveTimesheet(Guid timesheetId, string origin="", int tsperiodId = 0)
         {
             var timesheet = _dbContext.Timesheets.FirstOrDefault(t => t.TimesheetId == timesheetId);
             if (timesheet != null)
@@ -764,12 +764,12 @@ namespace VenkataAllocationManagementSystem.Controllers
             }
             if (!string.IsNullOrEmpty(origin) && origin == "ViewTeamMemberTimesheets")
             {
-                return RedirectToAction("ViewTeamMemberTimesheets");
+                return RedirectToAction("ViewTeamMemberTimesheets", new {  tsperiodId = tsperiodId });
             }
             return RedirectToAction("ViewMyTimesheets");
         }
 
-        public IActionResult RejectTimesheet(Guid timesheetId, string origin="")
+        public IActionResult RejectTimesheet(Guid timesheetId, string origin="", int tsperiodId = 0)
         {
             var timesheet = _dbContext.Timesheets.FirstOrDefault(t => t.TimesheetId == timesheetId);
             if (timesheet != null)
@@ -781,7 +781,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             }
             if (!string.IsNullOrEmpty(origin) && origin == "ViewTeamMemberTimesheets")
             {
-                return RedirectToAction("ViewTeamMemberTimesheets");
+                return RedirectToAction("ViewTeamMemberTimesheets", new { tsperiodId = tsperiodId });
             }
             return RedirectToAction("ViewMyTimesheets");
         }

@@ -212,17 +212,29 @@
         const rejected = @Html.Raw(JsonSerializer.Serialize(Model.TimesheetCompliance.Select(m => m.Rejected)));
         const notSubmitted = @Html.Raw(JsonSerializer.Serialize(Model.TimesheetCompliance.Select(m => m.NotSubmitted)));
 
+        // Combine into objects for easier filtering
+        const rawData = [
+            { label: 'Submitted', data: submitted, backgroundColor: '#4e73df' },
+            { label: 'Approved', data: approved, backgroundColor: '#1cc88a' },
+            { label: 'Rejected', data: rejected, backgroundColor: '#e74a3b' },
+            { label: 'Not Submitted', data: notSubmitted, backgroundColor: '#f6c23e' }
+        ];
+
+        // Filter out datasets where all values are zero
+        const filteredDatasets = rawData.filter(ds => ds.data.some(v => v !== "0" && v !== 0));
+
         new Chart(document.getElementById('complianceChart'), {
             type: 'bar',
             data: {
                 @* labels: labelsProjectName.map((project, index) => `${project} - ${labelsWeekStartDate[index]}`), *@
                 labels: labelsWeekStartDate,
-                datasets: [
+                @* datasets: [
                     { label: 'Submitted', data: submitted, backgroundColor: '#4e73df' },
                     { label: 'Approved', data: approved, backgroundColor: '#1cc88a' },
                     { label: 'Rejected', data: rejected, backgroundColor: '#e74a3b' },
                     { label: 'Not Submitted', data: notSubmitted, backgroundColor: '#f6c23e' }
-                ]
+                ] *@
+                datasets: filteredDatasets
             },
             options: {
                 responsive: true,

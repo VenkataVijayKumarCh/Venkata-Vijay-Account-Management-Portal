@@ -60,7 +60,8 @@
                             }
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Timesheets" asp-action="ViewMyTimesheets">Timesheets</a>
-                                <ul class="submenu">                                    
+                                <ul class="submenu">
+                                    <li><a href="@Url.Action(action:"ManageTimesheetPeriods", controller: "TimesheetPeriods")">Manage Timesheet Periods</a></li>
                                     <li><a href="@Url.Action(action:"ViewTeamMemberTimesheets", controller: "Timesheets")">Team Member's Timesheets</a></li>
                                 </ul>                                    
                             </li>

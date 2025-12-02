@@ -1,0 +1,60 @@
+@model VenkataAllocationManagementSystem.ViewModels.TimesheetPeriodsViewModel
+
+@{
+    ViewData["Title"] = "Manage Timesheet Periods";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<h4>Timesheet Reporting Periods</h4>
+<div style="padding: 10px;">This screen will help to enable and disable Timesheet Reporting Periods</div>
+
+@using (Html.BeginForm("ManageTimesheetPeriods", "TimesheetPeriods", FormMethod.Post))
+{
+    <div style="padding: 5px;">
+        <button type="submit" class="btn btn-primary" id="btnUpdateTSPeriods" style="width: 250px;">Update Timesheet Periods
+        </button>
+    </div>
+
+    @if(Model.TimesheetPeriods!.Count() != 0)
+    {
+        <div class=""form-group">
+            <table class="table table-bordered" style="width: 500px; align-items: center; align: center;">
+                <thead>
+                    <tr>
+                        <th>TS Period Id</th>
+                        <th>Week Start Date</th>
+                        <th>Week End Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int index = 0 ; index < Model.TimesheetPeriods!.Count(); index++)
+                    {
+                        <tr>
+                            <td style="text-align: center;">
+                                <input type="hidden" asp-for="TimesheetPeriods[@index].TimesheetPeriodId" />
+                                <label asp-for="TimesheetPeriods[@index].TimesheetPeriodId" class="form-check-label">
+                                    @Model.TimesheetPeriods![index].TimesheetPeriodId
+                                </label>
+                            </td>
+                            <td style="text-align: center;">
+                                <label asp-for="TimesheetPeriods[@index].WeekStartDate" class="form-check-label">
+                                    @Model.TimesheetPeriods![index].WeekStartDate.ToShortDateString()
+                                </label>
+                            </td>
+                            <td style="text-align: center;">
+                                <label asp-for="TimesheetPeriods[@index].WeekEndDate" class="form-check-label">
+                                    @Model.TimesheetPeriods![index].WeekEndDate.ToShortDateString()
+                                </label>
+                            </td>
+                            <td style="text-align: center;">                                
+                                <input type="checkbox" asp-for="TimesheetPeriods[@index].IsActive" class="form-check-input" />
+                            </td>                      
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }    
+}

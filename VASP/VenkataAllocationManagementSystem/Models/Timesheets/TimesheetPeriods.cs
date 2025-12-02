@@ -11,6 +11,6 @@ namespace VenkataAllocationManagementSystem.Models
         public DateOnly WeekEndDate { get; set; }
         public bool IsActive { get; set; }
 
-        public ICollection<Timesheet>? Timesheets { get; set; }
+        // public ICollection<Timesheet>? Timesheets { get; set; }
     }
 }
