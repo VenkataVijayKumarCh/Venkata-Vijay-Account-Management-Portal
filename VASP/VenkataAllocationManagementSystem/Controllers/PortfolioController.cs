@@ -171,7 +171,7 @@ namespace VenkataAllocationManagementSystem.Controllers
 
                 // var NotSubmittedTS = _dbContext.Allocations.Where(a => a.ProjectId == project!.ProjectId).Count() - (submittedTS + approvedTS + rejectedTS);
                 var NotSubmittedTS = allocatedAssociateCountPeriod - (submittedTS + approvedTS + rejectedTS);
-//System.Diagnostics.EventLog.WriteEntry("Application",$"Period: {period!.WeekStartDate}, Submitted: {submittedTS}, Approved: {approvedTS}, Rejected: {rejectedTS}, Not Submitted: {NotSubmittedTS}", System.Diagnostics.EventLogEntryType.Information);
+// System.Diagnostics.EventLog.WriteEntry("Application",$"Period: {period!.WeekStartDate}, Submitted: {submittedTS}, Approved: {approvedTS}, Rejected: {rejectedTS}, Not Submitted: {NotSubmittedTS}, allocated: {allocatedAssociateCountPeriod}", System.Diagnostics.EventLogEntryType.Information);
                 data.Add(new TimesheetComplianceDto()
                     {
                         ProjectName = project!.ProjectName,

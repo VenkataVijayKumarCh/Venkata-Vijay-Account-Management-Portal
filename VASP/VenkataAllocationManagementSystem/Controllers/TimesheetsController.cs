@@ -75,13 +75,16 @@ namespace VenkataAllocationManagementSystem.Controllers
             //     .ToList();
 
             var projects = await _dbContext.Projects.ToListAsync();
-            var timesheetPeriods = await _dbContext.TimesheetPeriods.Where(tp => tp.IsActive && (tsperiodId == 0 || tp.TimesheetPeriodId == tsperiodId)).ToListAsync();
+            var timesheetPeriods = await _dbContext.TimesheetPeriods.Where(tp => tp.IsActive).ToListAsync();
             var associates = await _dbContext.Associates.ToListAsync();
+
+            // && (tsperiodId == 0 || tp.TimesheetPeriodId == tsperiodId)
 
             var timesheetsInfo = await (from t in _dbContext.Timesheets
                     join p in _dbContext.Projects on t.ProjectId equals p.ProjectId
-                    join tp in _dbContext.TimesheetPeriods on t.TimesheetPeriodId equals tp.TimesheetPeriodId
-                    join a in _dbContext.Associates on t.AssociateId equals a.AssociateId
+                    join tp in _dbContext.TimesheetPeriods on t.TimesheetPeriodId equals tp.TimesheetPeriodId 
+                    join a in _dbContext.Associates on t.AssociateId equals a.AssociateId 
+                    where tp.TimesheetPeriodId == (tsperiodId != 0 ? tsperiodId : tp.TimesheetPeriodId)
                     select new TimesheetsViewModel
                     {
                         TimesheetId = t.TimesheetId,
@@ -103,7 +106,9 @@ namespace VenkataAllocationManagementSystem.Controllers
                 CurrentAssociateId = myAssociateId,
                 Projects = projects,
                 TimesheetPeriods = timesheetPeriods,
-                Associates = associates
+                Associates = associates,
+                //FilteredTimesheetPeriodId = tsperiodId,
+                TimesheetPeriodId = tsperiodId != 0 ? tsperiodId : 0
             };
             return View(timesheetsDetails);
         }
@@ -754,6 +759,7 @@ namespace VenkataAllocationManagementSystem.Controllers
 
         public IActionResult ApproveTimesheet(Guid timesheetId, string origin="", int tsperiodId = 0)
         {
+            // System.Diagnostics.EventLog.WriteEntry("Application", "ApproveTimesheet called for TS Period: " + tsperiodId.ToString(), System.Diagnostics.EventLogEntryType.Information);
             var timesheet = _dbContext.Timesheets.FirstOrDefault(t => t.TimesheetId == timesheetId);
             if (timesheet != null)
             {

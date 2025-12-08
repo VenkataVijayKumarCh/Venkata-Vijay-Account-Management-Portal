@@ -41,6 +41,8 @@ namespace VenkataAllocationManagementSystem.ViewModels
 
         public string? ProjectName { get; set; }
         public bool IsEditMode { get; set; } = false;
+
+        public int FilteredTimesheetPeriodId { get; set; } = 0;
     }
 
     public class AssociateTimesheetRow

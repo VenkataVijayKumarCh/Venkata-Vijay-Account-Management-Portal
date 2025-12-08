@@ -160,7 +160,7 @@
                         }
                         @if (ts.TimesheetStatus != "Rejected")
                         {
-                            <a asp-action="ViewTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" asp-route-tsperiodId="@Model.TimesheetPeriodId" class="btn btn-info btn-sm">View</a>
+                            <a asp-action="ViewTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" class="btn btn-info btn-sm">View</a>
                         }
                         @if (ts.TimesheetStatus == "Submitted" || ts.TimesheetStatus == "Rejected")
                         {
@@ -168,8 +168,8 @@
                         }
                         @if (ts.TimesheetStatus == "Submitted")
                         {
-                            <a asp-action="ApproveTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" asp-route-origin="@origin" class="btn btn-warning btn-sm">Approve</a>
-                            <a asp-action="RejectTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" asp-route-origin="@origin" class="btn btn-danger btn-sm"
+                            <a asp-action="ApproveTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" asp-route-origin="@origin" asp-route-tsperiodId="@ts.TimesheetPeriodId" class="btn btn-warning btn-sm">Approve</a>
+                            <a asp-action="RejectTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" asp-route-origin="@origin" asp-route-tsperiodId="@ts.TimesheetPeriodId" class="btn btn-danger btn-sm"
                                 onclick="return confirm('Are you sure you want to reject this Timesheet?');">Reject</a>
                         }                        
                     </td>

@@ -286,6 +286,14 @@ namespace VenkataAllocationManagementSystem.Controllers
                     allocation.EndDate = allocationInfo.EndDate;
                     allocation.BillabilityTypeId = allocationInfo.BillabilityTypeId;
                     allocation.AllocationPercentage = allocationInfo.AllocationsInfo[0].AllocationPercentage;
+                    if (allocationInfo.ProjectEndDate < allocationInfo.AllocationsInfo[0].EndDate)
+                    {
+                        allocation.IsActive = false;
+                    }
+                    else
+                    {
+                        allocation.IsActive = true;
+                    }                    
                     _dbContext.Update(allocation);
                     await _dbContext.SaveChangesAsync();
 
