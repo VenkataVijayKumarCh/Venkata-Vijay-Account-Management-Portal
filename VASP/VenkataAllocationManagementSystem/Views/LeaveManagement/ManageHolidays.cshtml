@@ -1,0 +1,159 @@
+@using VenkataAllocationManagementSystem.ViewModels;
+
+@{
+    ViewData["Title"] = "Holiday Calendar";
+}
+
+@model LeaveManagementViewModel
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="mb-4">
+                <i class="bi bi-calendar2-week"></i> Holiday Calendar Management
+            </h2>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Add Holiday Section -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Add Holiday</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateHoliday" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="Holiday.HolidayName">Holiday Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-sm" id="Holiday.HolidayName" name="Holiday.HolidayName" 
+                               placeholder="e.g., New Year, Christmas" value="@Model.Holiday?.HolidayName" required maxlength="150">
+                        <span asp-validation-for="Holiday.HolidayName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="Holiday.HolidayDate">Date <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control form-control-sm" id="Holiday.HolidayDate" name="Holiday.HolidayDate" 
+                               value="@Model.Holiday?.HolidayDate.ToString("yyyy-MM-dd")" required>
+                        <span asp-validation-for="Holiday.HolidayDate" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="Holiday.Description">Description</label>
+                    <textarea class="form-control form-control-sm" id="Holiday.Description" name="Holiday.Description" rows="2" 
+                              placeholder="Optional description" maxlength="500">@Model.Holiday?.Description</textarea>
+                    <span asp-validation-for="Holiday.Description" class="text-danger small"></span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="Holiday.IsRecurring" name="Holiday.IsRecurring" 
+                           @(Model.Holiday?.IsRecurring == true ? "checked" : "")>
+                    <label class="form-check-label" for="Holiday.IsRecurring">
+                        Recurring Holiday (applies every year)
+                    </label>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <i class="bi bi-check-circle"></i> Save Holiday
+                    </button>
+                    <a href="@Url.Action("ManageHolidays")" class="btn btn-secondary btn-sm">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Holidays List -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Holiday Calendar</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.Holidays != null && Model.Holidays.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Holiday Name</th>
+                                <th>Date</th>
+                                <th>Day</th>
+                                <th>Recurring</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var holiday in Model.Holidays)
+                            {
+                                var holidayDateTime = new DateTime(holiday.HolidayDate.Year, holiday.HolidayDate.Month, holiday.HolidayDate.Day);
+                                var dayName = holidayDateTime.ToString("dddd");
+                                
+                                <tr>
+                                    <td class="fw-bold">@holiday.HolidayName</td>
+                                    <td>@holiday.HolidayDate.ToString("dd MMM yyyy")</td>
+                                    <td>@dayName</td>
+                                    <td>
+                                        @if (holiday.IsRecurring)
+                                        {
+                                            <span class="badge bg-info">Recurring</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">One-time</span>
+                                        }
+                                    </td>
+                                    <td>@(string.IsNullOrEmpty(holiday.Description) ? "-" : holiday.Description)</td>
+                                    <td>
+                                        <a href="@Url.Action("EditHoliday", new { id = holiday.HolidayId })" class="btn btn-sm btn-primary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form method="post" action="@Url.Action("DeleteHoliday")" style="display:inline;" 
+                                              onsubmit="return confirm('Are you sure you want to delete this holiday?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@holiday.HolidayId" />
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-3 alert alert-info" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Total Holidays:</strong> @Model.Holidays.Count() 
+                    | <strong>Recurring:</strong> @(Model.Holidays.Count(h => h.IsRecurring)) 
+                    | <strong>One-time:</strong> @(Model.Holidays.Count(h => !h.IsRecurring))
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    No holidays configured yet. Add holidays to manage leave calculations accurately.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

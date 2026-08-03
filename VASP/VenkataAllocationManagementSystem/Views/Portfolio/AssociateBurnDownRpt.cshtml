@@ -13,7 +13,8 @@
                 @Html.DropDownListFor(p => p.ProjectId,
                     new SelectList(Model.Projects, "ProjectId", "ProjectName"),
                     "-- Select Project --",
-                    htmlAttributes: new { @class = "form-control", id = "ProjectId", style = "width: 400px;" })                
+                    htmlAttributes: new { @class = "form-control", id = "ProjectId", style = "width: 400px;" })
+                <span asp-validation-for="@Model.ProjectId" class="text-danger"></span>              
             }
             else
             {
@@ -33,7 +34,30 @@
             <button type="submit" class="btn btn-primary" id="btnLoadAssociateBurnDown"
                     style="width: 250px;" name="action" value="load">
                 Load Portfolio Dashboards
-            </button>
+            </button>            
+            <a href="javascript:void(0);" id="exportAssociateBurndown" class="form-action" title="Export to Excel" aria-label="Export Associate Burndown to Excel">
+                <img src="~/images/excel.jpg" alt="Excel Icon" title="Export to Excel" style="width:25px; height:25px; margin-right:5px;" class="fa-solid fa-file-excel"/>
+            </a>
+
+            <script>
+                (function(){
+                    var btn = document.getElementById('exportAssociateBurndown');
+                    if (!btn) return;
+                    btn.addEventListener('click', function(e){
+                        e.preventDefault();
+                        var projEl = document.getElementById('ProjectId');
+                        var assocEl = document.getElementById('AssociateId');
+                        var projectId = projEl ? projEl.value : '';
+                        var associateId = assocEl ? assocEl.value : '';
+                        if (!projectId && !associateId) {
+                            alert('Please select at least one Project or Associate before exporting.');
+                            return;
+                        }
+                        var url = '@Url.Action("ExportAssociateBurndowtoCSV","Portfolio")' + '?projectId=' + encodeURIComponent(projectId) + '&associateId=' + encodeURIComponent(associateId);
+                        window.open(url, '_blank');
+                    });
+                })();
+            </script>
         </div>
         @* <span asp-validation-for="@Model.ProjectId" class="text-danger"></span>
         <span asp-validation-for="@Model.AssociateId" class="text-danger"></span> *@
@@ -88,13 +112,26 @@
                             <td >@ts.Associate!.FullName</td>
                             @foreach (var timesheet in ts.Timesheets!)
                             {
-                                <td style="text-align:center;">@timesheet.TotalHours</td>
+                                @* <td style="text-align:center;">@timesheet.TotalHours</td> *@
+                                 <td style="text-align:center;"> @(ts.StartDate < Model.BurndownData[0].Project!.StartDate ? 0 : timesheet.TotalHours) </td>
                             }                            
                             <td style="text-align:center;">
                                 @Model.BurndownData.Where(assoc => assoc.Associate!.AssociateId == ts.Associate!.AssociateId).Sum(x => x.Timesheets!.Sum(ts => ts.TotalHours))
                             </td>
                         </tr>
                     }
+                    <tr>
+                        <td style="font-weight:bold;">Total Hours</td>
+                        @foreach (var tsp in @Model.TimesheetPeriods!)
+                        {
+                            <td style="text-align:center; font-weight:bold;">
+                                @Model.BurndownData.Sum(x => x.Timesheets!.Where(ts => ts.TimesheetPeriodId == tsp.TimesheetPeriodId).Sum(ts => ts.TotalHours))
+                            </td>
+                        }
+                        <td style="text-align:center; font-weight:bold;">
+                            @Model.BurndownData.Sum(x => x.Timesheets!.Sum(ts => ts.TotalHours))
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>

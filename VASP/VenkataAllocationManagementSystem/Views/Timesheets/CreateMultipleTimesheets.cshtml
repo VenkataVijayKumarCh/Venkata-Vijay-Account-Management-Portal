@@ -27,7 +27,12 @@
         @Html.ValidationMessageFor(m => m.ProjectId)        
     </div>
 
-     <div class="form-group" style="padding:5px 0px 5px 0px;">
+    <div class="form-group" style="padding:5px 0px 5px 0px;">
+        <label>Include Resignation Associates</label>
+        @Html.CheckBoxFor(m => m.IncludeResignationAssociates, new { @class = "form-check-input", id = "IncludeResignationAssociates" })        
+    </div>
+
+    <div class="form-group" style="padding:5px 0px 5px 0px;">
         <button type="submit" class="btn btn-primary" id="btnLoadTimesheetlineItems" name="action" value="load">Load Timesheet Table for your Team Members</button>
     </div>
    
@@ -36,7 +41,6 @@
             // @Html.RenderPartialAsync("_TimesheetLinesPartial", Model)
             @await Html.PartialAsync("_MultipleTimesheetLinesPartial", Model)
         }
-
 
     @section Scripts {
         @* <script>

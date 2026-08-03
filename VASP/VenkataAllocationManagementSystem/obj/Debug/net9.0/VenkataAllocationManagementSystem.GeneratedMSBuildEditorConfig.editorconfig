@@ -15,6 +15,8 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v9.0
 build_property.RootNamespace = VenkataAllocationManagementSystem
 build_property.RootNamespace = VenkataAllocationManagementSystem
 build_property.ProjectDir = C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\
@@ -104,12 +106,36 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/LeaveManagement/EditHoliday.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVhdmVNYW5hZ2VtZW50XEVkaXRIb2xpZGF5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/LeaveManagement/EditLeave.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVhdmVNYW5hZ2VtZW50XEVkaXRMZWF2ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/LeaveManagement/LeaveRequestsHistory.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVhdmVNYW5hZ2VtZW50XExlYXZlUmVxdWVzdHNIaXN0b3J5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/LeaveManagement/ManageHolidays.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVhdmVNYW5hZ2VtZW50XE1hbmFnZUhvbGlkYXlzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/LeaveManagement/ManageLeaves.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVhdmVNYW5hZ2VtZW50XE1hbmFnZUxlYXZlcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Management/PortfolioManagement.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFuYWdlbWVudFxQb3J0Zm9saW9NYW5hZ2VtZW50LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Portfolio/AssociateBurnDownRpt.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUG9ydGZvbGlvXEFzc29jaWF0ZUJ1cm5Eb3duUnB0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Portfolio/MLSummaryReport.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUG9ydGZvbGlvXE1MU3VtbWFyeVJlcG9ydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Portfolio/PortfolioDashboard.cshtml]

@@ -1,0 +1,348 @@
+@using VenkataAllocationManagementSystem.ViewModels;
+
+@{
+    ViewData["Title"] = "Edit Leave Request";
+}
+
+@model LeaveManagementViewModel
+
+@{
+    var status = Model.LeaveRequest?.Status ?? "Pending";
+    var isPending = status == "Pending";
+    var isSubmitted = status == "Submitted";
+    var isApproved = status == "Approved";
+    var isRejected = status == "Rejected";
+    var isEditable = isPending;
+    var showCommentsField = isSubmitted || isApproved || isRejected;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h3 class="mb-4">
+                <i class="bi bi-pencil-square"></i> 
+                @if (isPending)
+                {
+                    <span>Edit Leave Request</span>
+                }
+                else if (isSubmitted)
+                {
+                    <span>Review Leave Request for Approval</span>
+                }
+                else
+                {
+                    <span>View Leave Request</span>
+                }
+            </h3>
+
+            @if (!isPending)
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    @if (isSubmitted)
+                    {
+                        <span><strong>Submitted for Approval</strong> - This request has been submitted and is awaiting manager approval.</span>
+                    }
+                    else if (isApproved)
+                    {
+                        <span><strong>Approved</strong> - This leave request has been approved and cannot be modified.</span>
+                    }
+                    else if (isRejected)
+                    {
+                        <span><strong>Rejected</strong> - This leave request has been rejected and cannot be modified.</span>
+                    }
+                </div>
+            }
+
+            <style>
+                .readonly-section { opacity: 0.6; pointer-events: none; }
+            </style>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form asp-action="EditLeave" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" name="LeaveRequest.LeaveRequestId" value="@Model.LeaveRequest?.LeaveRequestId" />
+                        <input type="hidden" name="LeaveRequest.RequestedOn" value="@Model.LeaveRequest?.RequestedOn" />
+                        <input type="hidden" name="LeaveRequest.Status" value="@Model.LeaveRequest?.Status" />
+                        <input type="hidden" name="LeaveRequest.ApprovedBy" value="@Model.LeaveRequest?.ApprovedBy" />
+                        <input type="hidden" name="LeaveRequest.ApprovedOn" value="@Model.LeaveRequest?.ApprovedOn" />
+
+                        <div class="row mb-3 @(isEditable ? "" : "readonly-section")">
+                            <div class="col-md-6">
+                                <label class="form-label" for="LeaveRequest.AssociateId">Associate Name <span class="text-danger">*</span></label>
+                                <select class="form-control form-control-sm" id="LeaveRequest.AssociateId" name="LeaveRequest.AssociateId" required disabled>
+                                    @if (Model.Associates != null)
+                                    {
+                                        @foreach (var associate in Model.Associates)
+                                        {
+                                            if (associate.AssociateId == Model.LeaveRequest?.AssociateId)
+                                            {
+                                                <option value="@associate.AssociateId" selected>@associate.FullName</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@associate.AssociateId">@associate.FullName</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                                <input type="hidden" name="LeaveRequest.AssociateId" value="@Model.LeaveRequest?.AssociateId" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="LeaveRequest.LeaveType">Leave Type <span class="text-danger">*</span></label>
+                                <select class="form-control form-control-sm" id="LeaveRequest.LeaveType" name="LeaveRequest.LeaveType" required @(isEditable ? "" : "disabled")>
+                                    @{
+                                        var leaveType = Model.LeaveRequest?.LeaveType ?? "Annual";
+                                    }
+                                    @if (leaveType == "Annual")
+                                    {
+                                        <option value="Annual" selected>Annual Leave</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Annual">Annual Leave</option>
+                                    }
+                                    @if (leaveType == "Sick")
+                                    {
+                                        <option value="Sick" selected>Sick Leave</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Sick">Sick Leave</option>
+                                    }
+                                    @if (leaveType == "Casual")
+                                    {
+                                        <option value="Casual" selected>Casual Leave</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Casual">Casual Leave</option>
+                                    }
+                                    @if (leaveType == "Maternity")
+                                    {
+                                        <option value="Maternity" selected>Maternity Leave</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Maternity">Maternity Leave</option>
+                                    }
+                                    @if (leaveType == "Paternity")
+                                    {
+                                        <option value="Paternity" selected>Paternity Leave</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Paternity">Paternity Leave</option>
+                                    }
+                                    @if (leaveType == "Other")
+                                    {
+                                        <option value="Other" selected>Other</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Other">Other</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="LeaveRequest.LeaveType" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 @(isEditable ? "" : "readonly-section")">
+                            <div class="col-md-6">
+                                <label class="form-label" for="LeaveRequest.StartDate">Start Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control form-control-sm" id="LeaveRequest.StartDate" name="LeaveRequest.StartDate" 
+                                       value="@Model.LeaveRequest?.StartDate.ToString("yyyy-MM-dd")" required @(isEditable ? "onchange=\"calculateDays()\"" : "disabled")>
+                                <span asp-validation-for="LeaveRequest.StartDate" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="LeaveRequest.EndDate">End Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control form-control-sm" id="LeaveRequest.EndDate" name="LeaveRequest.EndDate" 
+                                       value="@Model.LeaveRequest?.EndDate.ToString("yyyy-MM-dd")" required @(isEditable ? "onchange=\"calculateDays()\"" : "disabled")>
+                                <span asp-validation-for="LeaveRequest.EndDate" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 @(isEditable ? "" : "readonly-section")">
+                            <div class="col-md-6">
+                                <label class="form-label" for="LeaveRequest.RequestedDays">Number of Days <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-sm">
+                                    <input type="number" step="0.5" min="0.5" max="365" class="form-control" id="LeaveRequest.RequestedDays" 
+                                           name="LeaveRequest.RequestedDays" value="@Model.LeaveRequest?.RequestedDays" required @(isEditable ? "" : "disabled")>
+                                    @if (isEditable)
+                                    {
+                                        <button class="btn btn-outline-secondary" type="button" onclick="autoCalculateDays()" title="Auto-calculate days">
+                                            Auto-Calculate
+                                        </button>
+                                    }
+                                </div>
+                                @if (isEditable)
+                                {
+                                    <small class="form-text text-muted">Editable - adjust manually as needed (0.5 for half-day)</small>
+                                }
+                                <span asp-validation-for="LeaveRequest.RequestedDays" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="LeaveRequest.Status">Status <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" disabled value="@status">
+                                <span asp-validation-for="LeaveRequest.Status" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 @(isEditable ? "" : "readonly-section")">
+                            <label class="form-label" for="LeaveRequest.Notes">Notes</label>
+                            <textarea class="form-control form-control-sm" id="LeaveRequest.Notes" name="LeaveRequest.Notes" rows="2" @(isEditable ? "" : "disabled")>@Model.LeaveRequest?.Notes</textarea>
+                            <span asp-validation-for="LeaveRequest.Notes" class="text-danger small"></span>
+                        </div>
+
+                        @if (showCommentsField)
+                        {
+                            <div class="mb-3 border-top pt-3">
+                                <label class="form-label" for="comments">
+                                    <strong>Comments</strong>
+                                    @if (isSubmitted)
+                                    {
+                                        <span class="text-muted">(Manager's notes for approval/rejection)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">(Manager's decision notes)</span>
+                                    }
+                                </label>
+                                <textarea class="form-control form-control-sm" id="comments" name="comments" rows="3" placeholder="Enter your comments here...">@Model.LeaveRequest?.Comments</textarea>
+                            </div>                            
+                        }
+                    @if (isPending)
+                            {
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="bi bi-check-circle"></i> Update Leave Request
+                                </button>
+                            </div>
+                            }
+                    </form>
+                     <div class="d-grid gap-2 d-md-flex justify-content-md-end border-top pt-3 mt-3">
+                            @if (isPending)
+                            {
+                                @* <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="bi bi-check-circle"></i> Update Leave
+                                </button> *@
+
+                                @* <form method="post" action="/LeaveManagement/EditLeave" style="display:inline;" 
+                                        onsubmit="return confirm('Are you sure you want to update this leave request?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@Model.LeaveRequest?.LeaveRequestId" />
+                                    <button type="submit" class="btn btn-sm btn-info" title="Update Leave Request">
+                                        <i class="bi bi-arrow-up-circle"></i> Update
+                                    </button>
+                                </form> *@
+
+                                <form method="post" action="/LeaveManagement/SubmitLeave" style="display:inline;" 
+                                        onsubmit="return confirm('Are you sure you want to submit this leave request for approval?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@Model.LeaveRequest?.LeaveRequestId" />
+                                    <button type="submit" class="btn btn-sm btn-info" title="Submit for Approval">
+                                        <i class="bi bi-arrow-up-circle"></i> Submit
+                                    </button>
+                                </form>
+                            }
+                            else if (isSubmitted)
+                            {
+                                @* <form method="post" action="@Url.Action("ApproveLeave")" style="display:inline;"> *@
+                                <form method="post" action="/LeaveManagement/approveleave" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@Model.LeaveRequest?.LeaveRequestId" />
+                                    <input type="hidden" name="comments" value="" id="approveComments" />
+                                    <button type="button" class="btn btn-success btn-sm" onclick="setCommentsAndSubmit('/LeaveManagement/approveleave', 'approve')">
+                                        <i class="bi bi-check-circle"></i> Approve
+                                    </button>
+                                </form>
+                                <form method="post" action="@Url.Action("RejectLeave")" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@Model.LeaveRequest?.LeaveRequestId" />
+                                    <input type="hidden" name="comments" value="" id="rejectComments" />
+                                    <button type="button" class="btn btn-warning btn-sm" onclick="setCommentsAndSubmit('@Url.Action("RejectLeave")', 'reject')">
+                                        <i class="bi bi-x-circle"></i> Reject
+                                    </button>
+                                </form>
+                            }
+
+                            <a href="@Url.Action("ManageLeaves")" class="btn btn-secondary btn-sm">
+                                <i class="bi bi-x-circle"></i> 
+                                @if (isPending)
+                                {
+                                    <span>Cancel</span>
+                                }
+                                else
+                                {
+                                    <span>Back to List</span>
+                                }
+                            </a>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculateDays() {
+        const startInput = document.getElementById('LeaveRequest.StartDate').value;
+        const endInput = document.getElementById('LeaveRequest.EndDate').value;
+
+        if (startInput && endInput) {
+            const startDate = new Date(startInput);
+            const endDate = new Date(endInput);
+
+            if (endDate >= startDate) {
+                const timeDiff = endDate - startDate;
+                const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+                document.getElementById('LeaveRequest.RequestedDays').value = daysDiff;
+            }
+        }
+    }
+
+    function autoCalculateDays() {
+        calculateDays();
+    }
+
+    function setCommentsAndSubmit(actionUrl, actionType) {
+    const commentsField = document.getElementById('comments');
+    const commentsValue = commentsField ? commentsField.value.trim() : '';
+
+    // Debugging logs
+    alert('actionUrl:', actionUrl);
+    alert('actionType:', actionType);
+    alert('commentsValue:', commentsValue);
+
+    // Find the form by action
+    const form = document.querySelector('form[action="' + actionUrl + '"]');
+    if (!form) {
+        alert('Form not found for action: ' + actionUrl);
+        return;
+    }
+
+    if (actionType === 'approve') {
+        const approveField = document.getElementById('approveComments');
+        if (approveField) approveField.value = commentsValue;
+        form.submit();
+    } else if (actionType === 'reject') {
+        const confirmMsg = 'Are you sure you want to reject this leave request?';
+        if (confirm(confirmMsg)) {
+            const rejectField = document.getElementById('rejectComments');
+            if (rejectField) rejectField.value = commentsValue;
+            form.submit();
+        }
+    }
+}
+</script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

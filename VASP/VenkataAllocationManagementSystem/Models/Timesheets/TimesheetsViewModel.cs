@@ -21,7 +21,7 @@ namespace VenkataAllocationManagementSystem.ViewModels
         public string? AssociateName { get; set; }
         public int CurrentAssociateId { get; set; }
 
-        public decimal? TotalHours { get; set; }
+        public decimal TotalHours { get; set; }
 
         public List<Project>? Projects { get; set; }
 
@@ -43,6 +43,11 @@ namespace VenkataAllocationManagementSystem.ViewModels
         public bool IsEditMode { get; set; } = false;
 
         public int FilteredTimesheetPeriodId { get; set; } = 0;
+
+        public bool IncludeResignationAssociates { get; set; } = false;
+        public List<TimesheetStatus>? TimesheetStatuses { get; set; }
+        public int TimesheetStatusId { get; set; }
+        // public string? TimesheetStatusName { get; set; }
     }
 
     public class AssociateTimesheetRow

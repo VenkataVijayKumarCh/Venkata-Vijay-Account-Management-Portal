@@ -1,0 +1,73 @@
+@using VenkataAllocationManagementSystem.ViewModels;
+
+@{
+    ViewData["Title"] = "Edit Holiday";
+}
+
+@model LeaveManagementViewModel
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h3 class="mb-4">
+                <i class="bi bi-pencil-square"></i> Edit Holiday
+            </h3>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form asp-action="EditHoliday" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" name="Holiday.HolidayId" value="@Model.Holiday?.HolidayId" />
+                        <input type="hidden" name="Holiday.CreatedOn" value="@Model.Holiday?.CreatedOn" />
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="Holiday.HolidayName">Holiday Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="Holiday.HolidayName" name="Holiday.HolidayName" 
+                                       value="@Model.Holiday?.HolidayName" required maxlength="150">
+                                <span asp-validation-for="Holiday.HolidayName" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="Holiday.HolidayDate">Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control form-control-sm" id="Holiday.HolidayDate" name="Holiday.HolidayDate" 
+                                       value="@Model.Holiday?.HolidayDate.ToString("yyyy-MM-dd")" required>
+                                <span asp-validation-for="Holiday.HolidayDate" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="Holiday.Description">Description</label>
+                            <textarea class="form-control form-control-sm" id="Holiday.Description" name="Holiday.Description" rows="2" maxlength="500">@Model.Holiday?.Description</textarea>
+                            <span asp-validation-for="Holiday.Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="Holiday.IsRecurring" name="Holiday.IsRecurring" 
+                                   @(Model.Holiday?.IsRecurring == true ? "checked" : "")>
+                            <label class="form-check-label" for="Holiday.IsRecurring">
+                                Recurring Holiday (applies every year)
+                            </label>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="bi bi-check-circle"></i> Update Holiday
+                            </button>
+                            <a href="@Url.Action("ManageHolidays")" class="btn btn-secondary btn-sm">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

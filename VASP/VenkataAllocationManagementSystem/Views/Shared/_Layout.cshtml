@@ -66,9 +66,18 @@
                                 </ul>                                    
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="LeaveManagement" asp-action="ManageLeaves">Leave & Holiday Management</a>
+                                <ul class="submenu">
+                                    <li><a href="@Url.Action(action:"ManageLeaves", controller: "LeaveManagement")">Leave Requests</a></li>
+                                    <li><a href="@Url.Action(action:"LeaveRequestsHistory", controller: "LeaveManagement")">Leave Requests History</a></li>
+                                    <li><a href="@Url.Action(action:"ManageHolidays", controller: "LeaveManagement")">Holiday Calendar</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Portfolio" asp-action="PortfolioDashboard">Portfolio Dashboard</a>
                                 <ul class="submenu">
-                                    <li><a href="@Url.Action(action:"AssociateBurnDownRpt", controller: "Portfolio")">Associate Burn Down</a></li>                                    
+                                    <li><a href="@Url.Action(action:"AssociateBurnDownRpt", controller: "Portfolio")">Associate Burn Down</a></li>
+                                    <li><a href="@Url.Action(action:"MLSummaryReport", controller: "Portfolio")">ML Summary Report</a></li>                                    
                                 </ul>
                             </li>
                             <li class="nav-item">

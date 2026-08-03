@@ -87,6 +87,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                 );
                 _dbContext.SaveChanges();
 
+                TempData["SuccessMessage"] = "Timesheet Periods updated successfully.";
                 return RedirectToAction("ManageTimesheetPeriods");
             }
 

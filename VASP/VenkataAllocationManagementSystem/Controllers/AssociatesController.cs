@@ -33,6 +33,16 @@ namespace VenkataAllocationManagementSystem.Controllers
             };
             return View(associatesInfo);
         }
+
+        // [HttpPost]
+        // public async Task<IActionResult> AssociateManagement()
+        // {
+        //     var associatesInfo = new AssociateManagementViewModel
+        //     {
+        //         Associates = await _dbContext.Associates.ToListAsync()
+        //     };
+        //     return View(associatesInfo);
+        // }
         
         public async Task<IActionResult> CreateAssociate()
         {

@@ -80,6 +80,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                 // projectInfo.AccountId = project.AccountId
                 _dbContext.Projects.Add(project);
                 await _dbContext.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Project created successfully.";
                 return RedirectToAction(nameof(ProjectManagement));
             }
             return View(project);
@@ -162,6 +163,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                 {
                     _dbContext.Update(project);
                     await _dbContext.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Project updated successfully.";
                     return RedirectToAction(nameof(ProjectManagement));
                 }
                 catch (DbUpdateConcurrencyException)
@@ -201,7 +203,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                     _dbContext.Update(allocation);
                 }
                 await _dbContext.SaveChangesAsync();
-
+                TempData["SuccessMessage"] = "Project deleted successfully.";
                 return RedirectToAction(nameof(ProjectManagement));
             }
             //return View(account);

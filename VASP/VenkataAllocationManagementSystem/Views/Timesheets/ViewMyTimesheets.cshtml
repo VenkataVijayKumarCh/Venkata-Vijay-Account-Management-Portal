@@ -3,87 +3,147 @@
 @{
     ViewBag.Title = "View My & Teams Timesheets";
 }
-<section>
-    <h2>Welcome to the Timesheet Dashboard</h2>
-    <p>This dashboard provides an consolidated overview of all my & Teams Timesheets.</p>
-</section>
+@using (Html.BeginForm("ViewMyTimesheets", "Timesheets", FormMethod.Post))
+{
+    <section>
+        <h2>Welcome to the Timesheet Dashboard</h2>
+        <p>This dashboard provides an consolidated overview of all my & Teams Timesheets.</p>
+    </section>
 
-<section>
-    <h2>Timesheets</h2>
-    <p>
-        @* <a class="btn btn-primary" asp-controller="Timesheets" asp-action="CreateTimesheets">Create New Timesheet</a> *@
-        <a class="btn btn-primary" asp-controller="Timesheets" asp-action="CreateMyTimesheets">Create My New Timesheet</a>
-        <a class="btn btn-primary" asp-controller="Timesheets" asp-action="CreateMultipleTimesheets">Create Multiple New Timesheet</a>
-        
-    </p>
-</section>
-@* <section>
-     @if(User.Identity!.IsAuthenticated)
-        {
-            @if(User.Identity != null & @User.Identity!.IsAuthenticated)
+    <section>
+        <h2>Timesheets</h2>
+        <p>
+            @* <a class="btn btn-primary" asp-controller="Timesheets" asp-action="CreateTimesheets">Create New Timesheet</a> *@
+            <a class="btn btn-primary" asp-controller="Timesheets" asp-action="CreateMyTimesheets">Create My New Timesheet</a>
+            <a class="btn btn-primary" asp-controller="Timesheets" asp-action="CreateMultipleTimesheets">Create Multiple New Timesheet</a>
+            <button type="submit" class="btn btn-primary" id="btnBulkApproveTimesheets" asp-action="BulkApproveTimesheet" asp-controller="Timesheets" asp-route-origin="ViewMyTimesheets"
+                        style="width: 250px;" name="action" value="load">
+                    Approve Timesheets
+            </button>
+            <button type="submit" class="btn btn-primary" id="btnBulkRejectTimesheets" asp-action="BulkRejectTimesheet" asp-controller="Timesheets" asp-route-origin="ViewMyTimesheets"
+                        style="width: 250px;" name="action" value="load">
+                Reject Timesheets
+            </button>
+            
+        </p>
+        <div class="d-flex align-items-center gap-3 mb-3">
+                <label for="ProjectId" class="form-label mb-0" style="font-weight:bold">Search</label>
+
+                @if (Model.Projects != null && Model.Projects.Any())
+                {
+                    @Html.DropDownListFor(p => p.ProjectId,
+                        new SelectList(Model.Projects, "ProjectId", "ProjectName"),
+                        "-- Select Project --",
+                        htmlAttributes: new { @class = "form-control", id = "ProjectId", style = "width: 300px;" })                
+                }
+                else
+                {
+                    <span class="text-danger">No projects available. Please create a project first.</span>
+                }            
+                @if (Model.TimesheetPeriods != null && Model.TimesheetPeriods.Any())
+                {
+                    @Html.DropDownListFor(p => p.TimesheetPeriodId,
+                        new SelectList(Model.TimesheetPeriods, "TimesheetPeriodId", "WeekStartDate"),
+                        "-- Select Timesheet Period --",
+                        htmlAttributes: new { @class = "form-control", id = "TimesheetPeriodId", style = "width: 300px;" })
+                }
+                @if (Model.TimesheetPeriods != null && Model.TimesheetPeriods.Any())
+                {
+                    @Html.DropDownListFor(p => p.TimesheetStatusId,
+                        new SelectList(Model.TimesheetStatuses, "TimesheetStatusId", "TimesheetStatusName"),
+                        "-- Select Timesheet Status --",
+                        htmlAttributes: new { @class = "form-control", id = "TimesheetStatusId", style = "width: 300px;" })
+                }
+                <button type="submit" class="btn btn-primary" id="btnLoadMyTimesheets"
+                        style="width: 300px;" name="action" value="load">
+                    Load My Timesheets
+                </button>
+            </div>
+    </section>
+    @* <section>
+        @if(User.Identity!.IsAuthenticated)
             {
-                var userIdValue = User.FindFirst("UserId")?.Value;
+                @if(User.Identity != null & @User.Identity!.IsAuthenticated)
+                {
+                    var userIdValue = User.FindFirst("UserId")?.Value;
+                }
             }
-        }
-</section> *@
-<section>
-<h2>My Timesheets</h2>
+    </section> *@
+    <section>
+    <h2>My Timesheets</h2>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Week</th>
-            <th>Project</th>
-            <th>Hours Logged</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @* var userIdValue = User.FindFirst("UserId")?.Value; *@        
-        @if (Model.TimesheetsInfo!.Where(t => t.AssociateId == Model.CurrentAssociateId).Any() == false)
-        {
+    <table class="table table-striped">
+        <thead>
             <tr>
-                <td colspan="5" style="text-align: center; vertical-align: middle;">Unable to determine your Associate ID. Please contact administrator.</td>
+                <th>Select <input type="checkbox" id="selectAll" /></th>
+                <th>Week</th>
+                <th>Project</th>
+                <th>Hours Logged</th>
+                <th>Status</th>
+                <th>Actions</th>
             </tr>
-        }
-        else
-        {
-            @foreach (var ts in Model.TimesheetsInfo!.Where(t => t.AssociateId == Model.CurrentAssociateId))
+        </thead>
+        <tbody>
+            @* var userIdValue = User.FindFirst("UserId")?.Value; *@        
+            @if (Model.TimesheetsInfo!.Where(t => t.AssociateId == Model.CurrentAssociateId).Any() == false)
             {
                 <tr>
-                    <td style="text-align: center; vertical-align: middle;">@ts.TimesheetStartDate.ToShortDateString() - @ts.TimesheetEndDate.ToShortDateString()</td>
-                    <td style="text-align: center; vertical-align: middle;">@ts.ProjectName</td> <!-- Replace with project name if available -->
-                    <td style="text-align: center; vertical-align: middle;">@ts.TotalHours</td>
-                    <td style="text-align: center; vertical-align: middle;">@ts.TimesheetStatus</td>
-                    <td style="text-align: center;">
-                        @{
-                            @* var status = @Model.TimesheetsInfo![0].TimesheetStatus;
-                            var timesheetId = @Model.TimesheetsInfo![0].TimesheetId; *@
-                            var origin = "ViewMyTimesheets";
-                        }
-                        @if (ts.TimesheetStatus != "Rejected")
-                        {
-                            <a asp-action="ViewTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" class="btn btn-info btn-sm">View</a>
-                        }
-                        @if (ts.TimesheetStatus == "Submitted" || ts.TimesheetStatus == "Rejected")
-                        {
-                            <a asp-action="EditTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" class="btn btn-warning btn-sm">Edit</a>                            
-                        }
-                        @if (ts.TimesheetStatus == "Submitted")
-                        {
-                            <a asp-action="ApproveTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" asp-route-origin="@origin" class="btn btn-warning btn-sm">Approve</a>
-                            <a asp-action="RejectTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" asp-route-origin="@origin" class="btn btn-danger btn-sm"
-                                onclick="return confirm('Are you sure you want to reject this Timesheet?');">Reject</a>
-                        } 
-                    </td>
-                </tr>
+                    <td colspan="5" style="text-align: center; vertical-align: middle;">No Timesheets of yours Available or matching with corresponding filter conditions.</td>
+                </tr> @*Unable to determine your Associate ID. Please contact administrator. *@
             }
-        }        
-    </tbody>
-</table>
-</section>
-
+            else
+            {
+                @foreach (var ts in Model.TimesheetsInfo!.OrderByDescending(t => t.TimesheetStartDate).Where(t => t.AssociateId == Model.CurrentAssociateId))
+                {
+                    <tr>
+                        @{
+                            // Define the logic: Disable if Status is Approved (2) or Rejected (3)
+                            bool isLocked = ts.TimesheetStatus == "Approved" || ts.TimesheetStatus == "Rejected";
+                        }
+                        <td style="text-align: center; vertical-align: middle;">
+                            <input type="checkbox" asp-action="BulkApproveTimesheet" asp-route-timesheetId="@ts.TimesheetId" asp-route-origin="ViewMyTimesheets" name="selectedTimesheets" value="@ts.TimesheetId" class="form-check-input" @(isLocked ? "disabled" : "")/>
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">@ts.TimesheetStartDate.ToShortDateString() - @ts.TimesheetEndDate.ToShortDateString()</td>
+                        <td style="text-align: center; vertical-align: middle;">@ts.ProjectName</td> <!-- Replace with project name if available -->
+                        <td style="text-align: center; vertical-align: middle;">@ts.TotalHours</td>
+                        <td style="text-align: center; vertical-align: middle;">@ts.TimesheetStatus</td>
+                        <td style="text-align: center;">
+                            @{
+                                @* var status = @Model.TimesheetsInfo![0].TimesheetStatus;
+                                var timesheetId = @Model.TimesheetsInfo![0].TimesheetId; *@
+                                var origin = "ViewMyTimesheets";
+                            }
+                            @if (ts.TimesheetStatus != "Rejected")
+                            {
+                                <a asp-action="ViewTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" class="btn btn-info btn-sm">View</a>
+                            }
+                            @if (ts.TimesheetStatus == "Submitted" || ts.TimesheetStatus == "Rejected")
+                            {
+                                <a asp-action="EditTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" class="btn btn-warning btn-sm">Edit</a>                            
+                            }
+                            @if (ts.TimesheetStatus == "Submitted")
+                            {
+                                <a asp-action="ApproveTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" asp-route-origin="@origin" class="btn btn-warning btn-sm">Approve</a>
+                                <a asp-action="RejectTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" asp-route-origin="@origin" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Are you sure you want to reject this Timesheet?');">Reject</a>
+                            }
+                            @if (ts.TimesheetStatus == "Approved")
+                            {
+                                <a asp-action="ReOpenTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" asp-route-origin="@origin" asp-route-tsperiodId="@ts.TimesheetPeriodId" asp-route-tsassociateId="@ts.AssociateId"class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Are you sure you want to re-open this Timesheet?');">ReOpen</a>
+                            } 
+                            @if (ts.TimesheetStatus == "ReOpen")
+                            {
+                                <a asp-action="EditTimesheet" asp-controller="Timesheets" asp-route-timesheetId="@ts.TimesheetId" asp-route-tsassociateId="@ts.AssociateId" class="btn btn-warning btn-sm">Edit</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            }        
+        </tbody>
+    </table>
+    </section>
+}
 @* <section>
 <h2>Teams Timesheets</h2>
 
@@ -131,3 +191,13 @@
     </tbody>
 </table>
 </section> *@
+
+@section scripts {
+    <script>
+        // Select/Deselect all checkboxes which are not disabled
+        document.getElementById('selectAll').addEventListener('change', function (e) {
+            const checkboxes = document.querySelectorAll('input[name="selectedTimesheets"]:not(:disabled)');
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
+        });
+    </script>
+}

@@ -24,11 +24,11 @@ namespace VenkataAllocationManagementSystem.Models
 
     public DateTime? ModifiedOn { get; set; }
 
-    public decimal? TotalHours { get; set; }
+    public decimal TotalHours { get; set; }
 
     public TimesheetPeriod? TimesheetPeriod { get; set; }
 
-    
+    public int TimesheetStatusId { get; set; }
 
     // public ICollection<TimesheetLineItem>? TimesheetLineItems { get; set; }
 }

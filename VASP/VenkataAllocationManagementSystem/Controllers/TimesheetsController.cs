@@ -32,6 +32,10 @@ namespace VenkataAllocationManagementSystem.Controllers
         {
             var userId = GetCurrentUserId();
             var myAssociateId = GetAssociateIdFromUserId(userId);
+
+            var projects = await _dbContext.Projects.ToListAsync();
+            var timesheetPeriods = await _dbContext.TimesheetPeriods.Where(tp => tp.IsActive).ToListAsync();
+            var timesheetStatuses = await _dbContext.TimesheetStatus.ToListAsync();
             // var timesheets = _dbContext.Timesheets
             //     .Include(t => t.TimesheetPeriod)
             //     .Where(t => t.AssociateId == userId)
@@ -50,6 +54,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                         TimesheetStartDate = t.TimesheetStartDate,
                         TimesheetEndDate = t.TimesheetEndDate,
                         TimesheetStatus = t.Status,
+                        TimesheetStatusId = t.TimesheetStatusId,
                         TotalHours = t.TotalHours,
                         CreatedBy = t.CreatedBy,
                         AssociateId = t.AssociateId,
@@ -60,12 +65,67 @@ namespace VenkataAllocationManagementSystem.Controllers
             var timesheetsDetails = new TimesheetsViewModel
             {
                 TimesheetsInfo = timesheetsInfo,
-                CurrentAssociateId = myAssociateId
+                CurrentAssociateId = myAssociateId,
+                Projects = projects,
+                TimesheetPeriods = timesheetPeriods,
+                TimesheetStatuses = timesheetStatuses
+                //FilteredTimesheetPeriodId = tsperiodId,
             };
             return View(timesheetsDetails);
         }
 
-        public async Task<IActionResult> ViewTeamMemberTimesheets(int tsperiodId = 0)
+        [HttpPost]
+        public async Task<IActionResult> ViewMyTimesheets(TimesheetsViewModel tsModel)
+        {
+            // int tsprojectId = 0,int tsperiodId = 0, int tsstatusId = 0
+            // System.Diagnostics.EventLog.WriteEntry("Application", "ViewMyTimesheets POST called with tsprojectId: " + tsModel.ProjectId.ToString() + ", tsperiodId: " + tsModel.TimesheetPeriodId.ToString() + ", tsstatusId: " + tsModel.TimesheetStatusId.ToString(), System.Diagnostics.EventLogEntryType.Information);
+            var userId = GetCurrentUserId();
+            var myAssociateId = GetAssociateIdFromUserId(userId);
+
+            var projects = await _dbContext.Projects.ToListAsync();
+            var timesheetPeriods = await _dbContext.TimesheetPeriods.Where(tp => tp.IsActive).ToListAsync();
+            var timesheetStatuses = await _dbContext.TimesheetStatus.ToListAsync();
+            // var timesheets = _dbContext.Timesheets
+            //     .Include(t => t.TimesheetPeriod)
+            //     .Where(t => t.AssociateId == userId)
+            //     .ToList();
+
+            var timesheetsInfo = await (from t in _dbContext.Timesheets
+                    join p in _dbContext.Projects on t.ProjectId equals p.ProjectId
+                    join tp in _dbContext.TimesheetPeriods on t.TimesheetPeriodId equals tp.TimesheetPeriodId
+                    join a in _dbContext.Associates on t.AssociateId equals a.AssociateId
+                    where t.AssociateId == userId &&
+                        (t.ProjectId == tsModel.ProjectId || tsModel.ProjectId == 0)
+                        && (t.TimesheetPeriodId == tsModel.TimesheetPeriodId || tsModel.TimesheetPeriodId == 0)
+                        && (t.TimesheetStatusId == tsModel.TimesheetStatusId || tsModel.TimesheetStatusId == 0)
+                    select new TimesheetsViewModel
+                    {
+                        TimesheetId = t.TimesheetId,
+                        TimesheetPeriodId = t.TimesheetPeriodId,
+                        ProjectName = p.ProjectName,
+                        TimesheetStartDate = t.TimesheetStartDate,
+                        TimesheetEndDate = t.TimesheetEndDate,
+                        TimesheetStatus = t.Status,
+                        TimesheetStatusId = t.TimesheetStatusId,
+                        TotalHours = t.TotalHours,
+                        CreatedBy = t.CreatedBy,
+                        AssociateId = t.AssociateId,
+                        AssociateName = a.FullName,
+                        CurrentAssociateId = myAssociateId  // Add this line
+                    }).ToListAsync();
+
+            var timesheetsDetails = new TimesheetsViewModel
+            {
+                TimesheetsInfo = timesheetsInfo,
+                CurrentAssociateId = myAssociateId,
+                Projects = projects,
+                TimesheetPeriods = timesheetPeriods,
+                TimesheetStatuses = timesheetStatuses
+            };
+            return View(timesheetsDetails);
+        }
+
+        public async Task<IActionResult> ViewTeamMemberTimesheets(int tsperiodId = 0, int tsassociateId = 0)
         {
             var userId = GetCurrentUserId();
             var myAssociateId = GetAssociateIdFromUserId(userId);
@@ -76,7 +136,8 @@ namespace VenkataAllocationManagementSystem.Controllers
 
             var projects = await _dbContext.Projects.ToListAsync();
             var timesheetPeriods = await _dbContext.TimesheetPeriods.Where(tp => tp.IsActive).ToListAsync();
-            var associates = await _dbContext.Associates.ToListAsync();
+            var associates = await _dbContext.Associates.ToListAsync();            
+            var timesheetStatuses = await _dbContext.TimesheetStatus.ToListAsync();
 
             // && (tsperiodId == 0 || tp.TimesheetPeriodId == tsperiodId)
 
@@ -84,7 +145,8 @@ namespace VenkataAllocationManagementSystem.Controllers
                     join p in _dbContext.Projects on t.ProjectId equals p.ProjectId
                     join tp in _dbContext.TimesheetPeriods on t.TimesheetPeriodId equals tp.TimesheetPeriodId 
                     join a in _dbContext.Associates on t.AssociateId equals a.AssociateId 
-                    where tp.TimesheetPeriodId == (tsperiodId != 0 ? tsperiodId : tp.TimesheetPeriodId)
+                    where (tp.TimesheetPeriodId == (tsperiodId != 0 ? tsperiodId : tp.TimesheetPeriodId)
+                        && (t.AssociateId == (tsassociateId != 0 ? tsassociateId : t.AssociateId)))
                     select new TimesheetsViewModel
                     {
                         TimesheetId = t.TimesheetId,
@@ -93,6 +155,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                         TimesheetStartDate = t.TimesheetStartDate,
                         TimesheetEndDate = t.TimesheetEndDate,
                         TimesheetStatus = t.Status,
+                        TimesheetStatusId = t.TimesheetStatusId,
                         TotalHours = t.TotalHours,
                         CreatedBy = t.CreatedBy,
                         AssociateId = t.AssociateId,
@@ -108,14 +171,17 @@ namespace VenkataAllocationManagementSystem.Controllers
                 TimesheetPeriods = timesheetPeriods,
                 Associates = associates,
                 //FilteredTimesheetPeriodId = tsperiodId,
-                TimesheetPeriodId = tsperiodId != 0 ? tsperiodId : 0
-            };
+                TimesheetPeriodId = tsperiodId != 0 ? tsperiodId : 0,
+                AssociateId = tsassociateId != 0 ? tsassociateId : 0,
+                TimesheetStatuses = timesheetStatuses
+            };            
             return View(timesheetsDetails);
         }
 
         [HttpPost]
         public async Task<IActionResult> ViewTeamMemberTimesheets(TimesheetsViewModel tsModel)
         {
+            // System.Diagnostics.EventLog.WriteEntry("Application", "ViewTeamMemberTimesheets POST called with tsModel.TimesheetStatusId: " + tsModel.TimesheetStatusId.ToString(), System.Diagnostics.EventLogEntryType.Information);
             var userId = GetCurrentUserId();
             var myAssociateId = GetAssociateIdFromUserId(userId);
             // var timesheets = _dbContext.Timesheets
@@ -126,6 +192,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             var projects = await _dbContext.Projects.ToListAsync();
             var timesheetPeriods = await _dbContext.TimesheetPeriods.Where(tp => tp.IsActive).ToListAsync();
             var associates = await _dbContext.Associates.ToListAsync();
+            var timesheetStatuses = await _dbContext.TimesheetStatus.ToListAsync();
 
             var timesheetsInfo = await (from t in _dbContext.Timesheets
                     join p in _dbContext.Projects on t.ProjectId equals p.ProjectId
@@ -134,6 +201,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                     where (t.ProjectId == tsModel.ProjectId || tsModel.ProjectId == 0) 
                         && (t.AssociateId == tsModel.AssociateId || tsModel.AssociateId == 0)
                         && (t.TimesheetPeriodId == tsModel.TimesheetPeriodId || tsModel.TimesheetPeriodId == 0)
+                        && (t.TimesheetStatusId == tsModel.TimesheetStatusId || tsModel.TimesheetStatusId == 0)
                     select new TimesheetsViewModel
                     {
                         TimesheetId = t.TimesheetId,
@@ -142,6 +210,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                         TimesheetStartDate = t.TimesheetStartDate,
                         TimesheetEndDate = t.TimesheetEndDate,
                         TimesheetStatus = t.Status,
+                        TimesheetStatusId = t.TimesheetStatusId,
                         TotalHours = t.TotalHours,
                         CreatedBy = t.CreatedBy,
                         AssociateId = t.AssociateId,
@@ -155,7 +224,8 @@ namespace VenkataAllocationManagementSystem.Controllers
                 CurrentAssociateId = myAssociateId,
                 Projects = projects,
                 TimesheetPeriods = timesheetPeriods,
-                Associates = associates
+                Associates = associates,
+                TimesheetStatuses = timesheetStatuses,
             };
             return View(timesheetsDetails);
         }
@@ -176,6 +246,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                         TimesheetStartDate = t.TimesheetStartDate,
                         TimesheetEndDate = t.TimesheetEndDate,
                         TimesheetStatus = t.Status,
+                        TimesheetStatusId = t.TimesheetStatusId,
                         TotalHours = t.TotalHours,
                         CreatedBy = t.CreatedBy,
                         AssociateId = t.AssociateId,
@@ -208,6 +279,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                         TimesheetStartDate = t.TimesheetStartDate,
                         TimesheetEndDate = t.TimesheetEndDate,
                         TimesheetStatus = t.Status,
+                        TimesheetStatusId = t.TimesheetStatusId,
                         TotalHours = t.TotalHours,
                         CreatedBy = t.CreatedBy,
                         AssociateId = t.AssociateId,
@@ -237,7 +309,8 @@ namespace VenkataAllocationManagementSystem.Controllers
                 if (timesheet != null)
                 {
                     timesheet.TotalHours = modelUpdatets.TotalHours;
-                    timesheet.Status = "Submitted";
+                    timesheet.Status = TimesheetStatusEnum.Submitted.ToString(); // "Submitted";
+                    timesheet.TimesheetStatusId = (int)TimesheetStatusEnum.Submitted;
                     timesheet.ModifiedBy = GetCurrentUserId();
                     timesheet.ModifiedOn = DateTime.Now;
 
@@ -342,7 +415,8 @@ namespace VenkataAllocationManagementSystem.Controllers
                     TimesheetStartDate = model.TimesheetStartDate,
                     TimesheetEndDate = model.TimesheetEndDate,
                     TotalHours = model.TotalHours,
-                    Status = "Submitted",
+                    Status = TimesheetStatusEnum.Submitted.ToString(), //"Submitted",
+                    TimesheetStatusId = (int)TimesheetStatusEnum.Submitted,
                     CreatedBy = GetCurrentUserId(),
                     CreatedOn = DateTime.Now
                 };
@@ -396,6 +470,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                 // Populate model.TimesheetLineItems (load rows for selected Period/Project)
                 // Return the view so the partial renders the table for editing.
                 await PopulateTimesheetLines(model);
+                // System.Diagnostics.EventLog.WriteEntry("Application", "CreateMultipleTimesheets POST after PopulateTimesheetLines with AssociateTimesheetRows count: " + (model.AssociateTimesheetRows != null ? model.AssociateTimesheetRows.Count.ToString() : "null"), System.Diagnostics.EventLogEntryType.Information);
                 ModelState.Clear();  // Clear ModelState so new values show
                 return View(model);
             }
@@ -437,7 +512,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             var associatesAllocated = new List<Associate>();
             foreach (var project in projects.Where(p => p.ProjectId == model.ProjectId))
             {
-                var allocatedAssociates = GetAllocatedAssociates(project.ProjectId);
+                var allocatedAssociates = GetAllocatedAssociates(project.ProjectId, model.IncludeResignationAssociates);
                 foreach (var assoc in allocatedAssociates)
                 {
                     // Verify if timesheet already exists for this associate, period, and project and add to model only if not exists
@@ -489,7 +564,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                     model.AssociateTimesheetRows = new List<AssociateTimesheetRow>();
                 }
                 model.AssociateTimesheetRows.Add(associateRow);
-            }
+            }            
         }
 
         private async Task SaveAllTimesheets(TimesheetsViewModel model)
@@ -508,7 +583,8 @@ namespace VenkataAllocationManagementSystem.Controllers
                     TotalHours = associateRow.TimesheetLineItems!.Sum(tli => tli.HoursWorked),
                     Status = TimesheetStatusEnum.Submitted.ToString(),
                     CreatedBy = GetCurrentUserId(),
-                    CreatedOn = DateTime.Now
+                    CreatedOn = DateTime.Now,
+                    TimesheetStatusId = (int)TimesheetStatusEnum.Submitted
                 };
 
                 _dbContext.Timesheets.Add(timesheet);
@@ -607,7 +683,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             return TimesheetLineItems;
         }
 
-        private List<Associate> GetAllocatedAssociates(int projectId)
+        private List<Associate> GetAllocatedAssociates(int projectId, bool includeResignationAssociates)
         {
             // Fetch associates allocated to the specified project
             var project = _dbContext.Projects.FirstOrDefault(p => p.ProjectId == projectId);
@@ -628,7 +704,7 @@ namespace VenkataAllocationManagementSystem.Controllers
 
             var associates = from a in _dbContext.Associates
                              join al in _dbContext.Allocations on a.AssociateId equals al.AssociateId                             
-                             where al.ProjectId == projectId
+                             where al.ProjectId == projectId && (includeResignationAssociates == false ? al.IsActive == true : true)
                              select a;
 
             return associates.ToList();
@@ -715,7 +791,8 @@ namespace VenkataAllocationManagementSystem.Controllers
                         TotalHours = model.TimesheetLineItems!.Sum(tli => tli.HoursWorked), // model.TotalHours,
                         Status = TimesheetStatusEnum.Submitted.ToString(),
                         CreatedBy = GetCurrentUserId(),
-                        CreatedOn = DateTime.Now
+                        CreatedOn = DateTime.Now,
+                        TimesheetStatusId = (int)TimesheetStatusEnum.Submitted
                     };
 
                     _dbContext.Timesheets.Add(timesheet);
@@ -757,37 +834,101 @@ namespace VenkataAllocationManagementSystem.Controllers
 
         #region  Approve and Reject Timesheets
 
-        public IActionResult ApproveTimesheet(Guid timesheetId, string origin="", int tsperiodId = 0)
+        public IActionResult ApproveTimesheet(Guid timesheetId, string origin="", int tsperiodId = 0, int tsassociateId = 0)
         {
             // System.Diagnostics.EventLog.WriteEntry("Application", "ApproveTimesheet called for TS Period: " + tsperiodId.ToString(), System.Diagnostics.EventLogEntryType.Information);
             var timesheet = _dbContext.Timesheets.FirstOrDefault(t => t.TimesheetId == timesheetId);
             if (timesheet != null)
             {
                 timesheet.Status = TimesheetStatusEnum.Approved.ToString();
+                timesheet.TimesheetStatusId = (int)TimesheetStatusEnum.Approved;
                 timesheet.ModifiedBy = GetCurrentUserId();
                 timesheet.ModifiedOn = DateTime.Now;
                 _dbContext.SaveChanges();
             }
             if (!string.IsNullOrEmpty(origin) && origin == "ViewTeamMemberTimesheets")
             {
-                return RedirectToAction("ViewTeamMemberTimesheets", new {  tsperiodId = tsperiodId });
+                return RedirectToAction("ViewTeamMemberTimesheets", new {  tsperiodId = tsperiodId, tsassociateId = tsassociateId });
             }
             return RedirectToAction("ViewMyTimesheets");
         }
 
-        public IActionResult RejectTimesheet(Guid timesheetId, string origin="", int tsperiodId = 0)
+        public IActionResult RejectTimesheet(Guid timesheetId, string origin="", int tsperiodId = 0, int tsassociateId = 0)
         {
             var timesheet = _dbContext.Timesheets.FirstOrDefault(t => t.TimesheetId == timesheetId);
             if (timesheet != null)
             {
                 timesheet.Status = TimesheetStatusEnum.Rejected.ToString();
+                timesheet.TimesheetStatusId = (int)TimesheetStatusEnum.Rejected;
                 timesheet.ModifiedBy = GetCurrentUserId();
                 timesheet.ModifiedOn = DateTime.Now;
                 _dbContext.SaveChanges();
             }
             if (!string.IsNullOrEmpty(origin) && origin == "ViewTeamMemberTimesheets")
             {
-                return RedirectToAction("ViewTeamMemberTimesheets", new { tsperiodId = tsperiodId });
+                return RedirectToAction("ViewTeamMemberTimesheets", new { tsperiodId = tsperiodId, tsassociateId = tsassociateId });
+            }
+            return RedirectToAction("ViewMyTimesheets");
+        }
+
+        public IActionResult ReOpenTimesheet(Guid timesheetId, string origin="", int tsperiodId = 0, int tsassociateId = 0)
+        {
+            var timesheet = _dbContext.Timesheets.FirstOrDefault(t => t.TimesheetId == timesheetId);
+            if (timesheet != null)
+            {
+                timesheet.Status = TimesheetStatusEnum.ReOpen.ToString();
+                timesheet.TimesheetStatusId = (int)TimesheetStatusEnum.ReOpen;
+                timesheet.ModifiedBy = GetCurrentUserId();
+                timesheet.ModifiedOn = DateTime.Now;
+                _dbContext.SaveChanges();
+            }
+            if (!string.IsNullOrEmpty(origin) && origin == "ViewTeamMemberTimesheets")
+            {
+                return RedirectToAction("ViewTeamMemberTimesheets", new { tsperiodId = tsperiodId, tsassociateId = tsassociateId });
+            }
+            return RedirectToAction("ViewMyTimesheets");
+        }
+
+        public IActionResult BulkApproveTimesheet(List<Guid> selectedTimesheets, string origin="", int tsperiodId = 0, int tsassociateId = 0)
+        {
+            // System.Diagnostics.EventLog.WriteEntry("Application", "BulkApproveTimesheet called with selectedTimesheets count: " + (selectedTimesheets != null ? selectedTimesheets.Count.ToString() : "null"), System.Diagnostics.EventLogEntryType.Information);
+            foreach (var timesheetId in selectedTimesheets!)
+            {
+                var timesheet = _dbContext.Timesheets.FirstOrDefault(t => t.TimesheetId == timesheetId);
+                if (timesheet != null)
+                {
+                    timesheet.Status = TimesheetStatusEnum.Approved.ToString();
+                    timesheet.TimesheetStatusId = (int)TimesheetStatusEnum.Approved;
+                    timesheet.ModifiedBy = GetCurrentUserId();
+                    timesheet.ModifiedOn = DateTime.Now;
+                    _dbContext.SaveChanges();
+                }
+            }
+            if (!string.IsNullOrEmpty(origin) && origin == "ViewTeamMemberTimesheets")
+            {
+                return RedirectToAction("ViewTeamMemberTimesheets", new {  tsperiodId = tsperiodId, tsassociateId = tsassociateId });
+            }
+            return RedirectToAction("ViewMyTimesheets");
+        }
+
+        public IActionResult BulkRejectTimesheet(List<Guid> selectedTimesheets, string origin="", int tsperiodId = 0, int tsassociateId = 0)
+        {
+            // System.Diagnostics.EventLog.WriteEntry("Application", "BulkApproveTimesheet called with selectedTimesheets count: " + (selectedTimesheets != null ? selectedTimesheets.Count.ToString() : "null"), System.Diagnostics.EventLogEntryType.Information);
+            foreach (var timesheetId in selectedTimesheets!)
+            {
+                var timesheet = _dbContext.Timesheets.FirstOrDefault(t => t.TimesheetId == timesheetId);
+                if (timesheet != null)
+                {
+                    timesheet.Status = TimesheetStatusEnum.Rejected.ToString();
+                    timesheet.TimesheetStatusId = (int)TimesheetStatusEnum.Rejected;
+                    timesheet.ModifiedBy = GetCurrentUserId();
+                    timesheet.ModifiedOn = DateTime.Now;
+                    _dbContext.SaveChanges();
+                }
+            }
+            if (!string.IsNullOrEmpty(origin) && origin == "ViewTeamMemberTimesheets")
+            {
+                return RedirectToAction("ViewTeamMemberTimesheets", new {  tsperiodId = tsperiodId, tsassociateId = tsassociateId });
             }
             return RedirectToAction("ViewMyTimesheets");
         }

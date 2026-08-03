@@ -13,9 +13,13 @@
 
 <section>
     @* <h2>Associates</h2> *@
+    <h3>Associates</h3>
     <p>
+        <input type="text" id="associateSearchInput" placeholder="Search Associates..." onkeyup="filterAssociates()" class="form-control" style="width: 300px; display: inline-block; margin-right: 10px;" />
         <a class="btn btn-primary" asp-controller="Associates" asp-action="CreateAssociate">Create New Associate</a>
     </p>
+</section>
+<section>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -78,8 +82,51 @@
                         </td>
                     </tr>
                 }
+                <tr id="noResultsRow" style="display:none;">
+                    <td colspan="5">No Associates found.</td>
+                </tr>
             }
         </tbody>
     </table>
+</section>
 
+<script>
+    function filterAssociates() {alert("test");
+        var input = document.getElementById('associateSearchInput');
+        if (!input) return;
+        var filter = input.value.trim().toLowerCase();
+        var table = input.closest('section').querySelector('table');
+        if (!table) return;
+        var tbody = table.tBodies[0];
+        var rows = Array.from(tbody.querySelectorAll('tr'));
+        var noResultsRow = document.getElementById('noResultsRow');
+        var visibleCount = 0;
+
+        rows.forEach(function(row){
+            if (row.id === 'noResultsRow') return; // skip placeholder
+            var text = row.textContent.replace(/\s+/g,' ').toLowerCase();
+            if (!filter || text.indexOf(filter) !== -1) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        if (noResultsRow) {
+            noResultsRow.style.display = (visibleCount === 0) ? '' : 'none';
+        }
+    }
+
+    // Optional: debounce the input for better UX on large lists
+    (function(){
+        var input = document.getElementById('associateSearchInput');
+        if (!input) return;
+        var timer = null;
+        input.addEventListener('keyup', function(){
+            clearTimeout(timer);
+            timer = setTimeout(filterAssociates, 150);
+        });
+    })();
+</script>
 </section>

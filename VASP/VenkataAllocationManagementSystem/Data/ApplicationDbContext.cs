@@ -37,6 +37,12 @@ namespace VenkataAllocationManagementSystem.Data
 
         public DbSet<TimesheetLineItem> TimesheetLineItems { get; set; }
 
+        public DbSet<TimesheetStatus> TimesheetStatus { get; set; }
+
+        public DbSet<LeaveRequest> LeaveRequests { get; set; }
+
+        public DbSet<Holiday> Holidays { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
