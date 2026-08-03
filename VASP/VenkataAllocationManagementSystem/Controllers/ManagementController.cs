@@ -81,7 +81,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                 from ts in _dbContext.Timesheets
                 join al in _dbContext.Allocations on ts.AssociateId equals al.AssociateId
                 join ar in _dbContext.AllocationRates on al.AllocationId equals ar.AllocationId
-                select ts.TotalHours * ar.AllocationBillRate * (ar.AllocationPercentage / 100m)
+                select ts.TotalHours * ar.AllocationBillRate // * (ar.AllocationPercentage / 100m)
             ).SumAsync();       
 
             return revenue;

@@ -1,8 +1,129 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-4">
+    <section class="p-5 mb-4 rounded-3 text-white shadow" style="background: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);">
+        <div class="container-fluid py-3">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                    <p class="fw-semibold mb-2 text-white-50">Enterprise resource planning for delivery teams</p>
+                    <h1 class="display-5 fw-bold mb-3">Venkata Allocation Management System</h1>
+                    <p class="fs-5 mb-4" style="max-width: 720px;">
+                        A complete business management portal for overseeing accounts, projects, associates, allocations,
+                        timesheets, leave planning, and portfolio performance from a single system.
+                    </p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-light text-primary fw-semibold" asp-controller="Management" asp-action="PortfolioManagement">Open Dashboard</a>
+                        <a class="btn btn-outline-light" asp-controller="LeaveManagement" asp-action="ManageLeaves">Manage Leave & Holidays</a>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="bg-white bg-opacity-10 rounded-3 p-3">
+                        <h5 class="mb-3">Key capabilities</h5>
+                        <ul class="mb-0 ps-3">
+                            <li>Centralized resource visibility</li>
+                            <li>Project staffing and allocation control</li>
+                            <li>Team timesheet and reporting support</li>
+                            <li>Leave, holiday, and portfolio insights</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">What this system helps you do</h2>
+                    <p class="mb-3">
+                        This application gives managers and leadership a practical view of delivery operations by combining
+                        core business functions into one platform. It improves visibility into staffing, project health,
+                        workforce availability, and planning decisions.
+                    </p>
+                    <div class="row g-2">
+                        <div class="col-sm-6">
+                            <div class="border rounded p-2 small">📊 Monitor account and project activity</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="border rounded p-2 small">👥 Align associates with the right projects</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="border rounded p-2 small">🗓️ Review timesheets and reporting periods</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="border rounded p-2 small">🧾 Track leave requests and holidays</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Quick access</h2>
+                    <div class="list-group list-group-flush">
+                        <a class="list-group-item px-0" asp-controller="Management" asp-action="PortfolioManagement">
+                            <strong>Management Dashboard</strong>
+                            <div class="small text-muted">Access account, project, associate, and allocation views.</div>
+                        </a>
+                        <a class="list-group-item px-0" asp-controller="Timesheets" asp-action="ViewMyTimesheets">
+                            <strong>Timesheets</strong>
+                            <div class="small text-muted">Submit and review timesheet information and reporting periods.</div>
+                        </a>
+                        <a class="list-group-item px-0" asp-controller="LeaveManagement" asp-action="ManageLeaves">
+                            <strong>Leave & Holiday Management</strong>
+                            <div class="small text-muted">Manage leave requests, approval status, and holiday planning.</div>
+                        </a>
+                        <a class="list-group-item px-0" asp-controller="Portfolio" asp-action="PortfolioDashboard">
+                            <strong>Portfolio Reporting</strong>
+                            <div class="small text-muted">Review portfolio-level insights and summary reporting.</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <div class="fs-3 mb-2">🏢</div>
+                    <h3 class="h5">Account & Project Management</h3>
+                    <p class="small text-muted mb-0">Maintain account information and track project details to align delivery with business needs.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <div class="fs-3 mb-2">🤝</div>
+                    <h3 class="h5">Associate & Allocation Control</h3>
+                    <p class="small text-muted mb-0">Assign associates to projects and manage utilization, capacity, and staffing visibility.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <div class="fs-3 mb-2">📝</div>
+                    <h3 class="h5">Timesheet & Reporting</h3>
+                    <p class="small text-muted mb-0">Support consistent reporting with timesheet tracking and reporting period management.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <div class="fs-3 mb-2">🌴</div>
+                    <h3 class="h5">Leave, Holidays & Insights</h3>
+                    <p class="small text-muted mb-0">Plan workforce availability, manage leave requests, and review portfolio-level insights.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

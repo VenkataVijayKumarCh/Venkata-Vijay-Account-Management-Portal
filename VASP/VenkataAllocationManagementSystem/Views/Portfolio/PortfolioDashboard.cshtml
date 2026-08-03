@@ -112,6 +112,70 @@
             </div>
         </div>
     </div>
+
+    <div class="row mb-3">
+        <div class="col-12 col-lg-6">
+            <div class="card p-3">
+                <h6 class="mb-3">Leave/Holiday Adjusted Revenue Projection</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Week</th>
+                                <th>Working Days</th>
+                                <th>Actual Revenue</th>
+                                <th>Adjusted Projection</th>
+                                <th>Variance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var row in Model.WeeklyRevenueProjection)
+                            {
+                                <tr>
+                                    <td>@row.WeekStartDate.ToString("MMM dd") - @row.WeekEndDate.ToString("MMM dd")</td>
+                                    <td>@row.EffectiveWorkingDays / @row.ExpectedWorkingDays</td>
+                                    <td>@row.ActualRevenue.ToString("C2")</td>
+                                    <td>@row.AdjustedProjection.ToString("C2")</td>
+                                    <td class="@(row.Variance >= 0 ? "text-success" : "text-danger")">@(row.Variance >= 0 ? "+" : "")@row.Variance.ToString("C2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="card p-3">
+                <h6 class="mb-3">Weekly Compliance with Leave/Holiday Overlaps</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Week</th>
+                                <th>Submitted Hours</th>
+                                <th>Leave Overlap</th>
+                                <th>Holiday Overlap</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var row in Model.WeeklyComplianceDetails)
+                            {
+                                <tr>
+                                    <td>@row.WeekStartDate.ToString("MMM dd") - @row.WeekEndDate.ToString("MMM dd")</td>
+                                    <td>@row.SubmittedHours</td>
+                                    <td>@row.LeaveOverlapHours</td>
+                                    <td>@row.HolidayOverlapHours</td>
+                                    <td class="@(row.Status == "Overlap detected" ? "text-danger" : "text-success")">@row.Status</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
     }
 
     

@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using VenkataAllocationManagementSystem.Common;
 using VenkataAllocationManagementSystem.Data;
 using VenkataAllocationManagementSystem.ViewModels;
 using VenkataAllocationManagementSystem.Models;
@@ -24,6 +25,13 @@ namespace VenkataAllocationManagementSystem.Controllers
         {
             _logger = logger;
             _dbContext = dbContext;
+        }
+
+        private static decimal CalculateRevenue(decimal hoursWorked, decimal? billRate, decimal? allocationPercentage)
+        {
+            var effectiveBillRate = billRate ?? 0m;
+            var effectiveAllocationPercentage = allocationPercentage is > 0 ? allocationPercentage.Value : 100m;
+            return hoursWorked * effectiveBillRate * (effectiveAllocationPercentage / 100m);
         }
 
         #region Portfolio Dashboard
@@ -121,7 +129,169 @@ namespace VenkataAllocationManagementSystem.Controllers
                   NotSubmitted = g.Sum(x => x.NotSubmitted)
               }).ToList();
 
+            portfolioDashboardView.WeeklyRevenueProjection = await BuildWeeklyRevenueProjection(portfolioDashboardView.ProjectId);
+            portfolioDashboardView.WeeklyComplianceDetails = await BuildWeeklyComplianceDetails(portfolioDashboardView.ProjectId);
+
             return View(portfolioDashboardView);
+        }
+
+        private async Task<List<WeeklyRevenueProjectionDto>> BuildWeeklyRevenueProjection(int projectId)
+        {
+            var periods = await _dbContext.TimesheetPeriods
+                .Where(tp => tp.IsActive)
+                .OrderBy(tp => tp.WeekStartDate)
+                .ToListAsync();
+
+            var project = await _dbContext.Projects.FirstOrDefaultAsync(p => p.ProjectId == projectId);
+            if (project is null)
+            {
+                return new List<WeeklyRevenueProjectionDto>();
+            }
+
+            var results = new List<WeeklyRevenueProjectionDto>();
+
+            foreach (var period in periods)
+            {
+                var weekStart = period.WeekStartDate;
+                var weekEnd = period.WeekEndDate;
+
+                var allocations = await _dbContext.Allocations
+                    .Where(a => a.ProjectId == projectId && a.StartDate <= weekEnd && a.EndDate >= weekStart)
+                    .ToListAsync();
+
+                var associateIds = allocations.Select(a => a.AssociateId).Distinct().ToList();
+                var approvedLeaves = await _dbContext.LeaveRequests
+                    .Where(l => associateIds.Contains(l.AssociateId) && l.Status == "Approved" && l.StartDate <= weekEnd && l.EndDate >= weekStart)
+                    .ToListAsync();
+
+                var holidayDates = await _dbContext.Holidays
+                    .Where(h => h.HolidayDate >= weekStart && h.HolidayDate <= weekEnd)
+                    .Select(h => h.HolidayDate)
+                    .ToListAsync();
+
+                var leaveDates = approvedLeaves
+                    .SelectMany(l => PortfolioReportingHelper.GetDatesInRange(l.StartDate, l.EndDate))
+                    .Where(d => d >= weekStart && d <= weekEnd)
+                    .Distinct()
+                    .ToList();
+
+                var expectedWorkingDays = PortfolioReportingHelper.CountWorkingDays(weekStart, weekEnd, holidayDates, new List<DateOnly>());
+                var effectiveWorkingDays = PortfolioReportingHelper.CountWorkingDays(weekStart, weekEnd, holidayDates, leaveDates);
+
+                var revenueRows = await (from tli in _dbContext.TimesheetLineItems
+                                         join ts in _dbContext.Timesheets on tli.TimesheetId equals ts.TimesheetId
+                                         join alloc in _dbContext.Allocations on new { ts.AssociateId, ts.ProjectId } equals new { alloc.AssociateId, alloc.ProjectId }
+                                         join ar in _dbContext.AllocationRates on alloc.AllocationId equals ar.AllocationId into allocationRates
+                                         from ar in allocationRates.DefaultIfEmpty()
+                                         where ts.ProjectId == projectId
+                                               && ts.TimesheetPeriodId == period.TimesheetPeriodId
+                                               && (ts.Status == "Approved" || ts.Status == "Submitted")
+                                         select new
+                                         {
+                                             HoursWorked = tli.HoursWorked,
+                                             BillRate = ar != null ? ar.AllocationBillRate : 0m,
+                                             AllocationPercentage = ar != null && ar.AllocationPercentage > 0 ? ar.AllocationPercentage : alloc.AllocationPercentage
+                                         }).ToListAsync();
+
+                var actualRevenue = revenueRows.Sum(x => CalculateRevenue(x.HoursWorked, x.BillRate, x.AllocationPercentage));
+
+                var adjustedProjection = effectiveWorkingDays > 0 && expectedWorkingDays > 0
+                    ? actualRevenue * ((decimal)expectedWorkingDays / effectiveWorkingDays)
+                    : actualRevenue;
+
+                results.Add(new WeeklyRevenueProjectionDto
+                {
+                    ProjectName = project.ProjectName,
+                    WeekStartDate = weekStart,
+                    WeekEndDate = weekEnd,
+                    ExpectedWorkingDays = expectedWorkingDays,
+                    EffectiveWorkingDays = effectiveWorkingDays,
+                    ActualRevenue = actualRevenue,
+                    AdjustedProjection = adjustedProjection,
+                    Variance = adjustedProjection - actualRevenue,
+                    LeaveDays = leaveDates.Count,
+                    HolidayCount = holidayDates.Count
+                });
+            }
+
+            return results;
+        }
+
+        private async Task<List<WeeklyComplianceDetailDto>> BuildWeeklyComplianceDetails(int projectId)
+        {
+            var periods = await _dbContext.TimesheetPeriods
+                .Where(tp => tp.IsActive)
+                .OrderBy(tp => tp.WeekStartDate)
+                .ToListAsync();
+
+            var project = await _dbContext.Projects.FirstOrDefaultAsync(p => p.ProjectId == projectId);
+            if (project is null)
+            {
+                return new List<WeeklyComplianceDetailDto>();
+            }
+
+            var results = new List<WeeklyComplianceDetailDto>();
+
+            foreach (var period in periods)
+            {
+                var weekStart = period.WeekStartDate;
+                var weekEnd = period.WeekEndDate;
+
+                var allocations = await _dbContext.Allocations
+                    .Where(a => a.ProjectId == projectId && a.StartDate <= weekEnd && a.EndDate >= weekStart)
+                    .ToListAsync();
+
+                var associateIds = allocations.Select(a => a.AssociateId).Distinct().ToList();
+                var approvedLeaves = await _dbContext.LeaveRequests
+                    .Where(l => associateIds.Contains(l.AssociateId) && l.Status == "Approved" && l.StartDate <= weekEnd && l.EndDate >= weekStart)
+                    .ToListAsync();
+
+                var holidayDates = await _dbContext.Holidays
+                    .Where(h => h.HolidayDate >= weekStart && h.HolidayDate <= weekEnd)
+                    .Select(h => h.HolidayDate)
+                    .ToListAsync();
+
+                var leaveDates = approvedLeaves
+                    .SelectMany(l => PortfolioReportingHelper.GetDatesInRange(l.StartDate, l.EndDate))
+                    .Where(d => d >= weekStart && d <= weekEnd)
+                    .Distinct()
+                    .ToList();
+
+                var overlapEntries = await (from tli in _dbContext.TimesheetLineItems
+                                            join ts in _dbContext.Timesheets on tli.TimesheetId equals ts.TimesheetId
+                                            where ts.ProjectId == projectId
+                                                  && ts.TimesheetPeriodId == period.TimesheetPeriodId
+                                                  && (ts.Status == "Approved" || ts.Status == "Submitted")
+                                            select new
+                                            {
+                                                ts.AssociateId,
+                                                tli.WorkDate,
+                                                tli.HoursWorked
+                                            }).ToListAsync();
+
+                var leaveOverlapHours = overlapEntries
+                    .Where(entry => leaveDates.Contains(entry.WorkDate))
+                    .Sum(entry => entry.HoursWorked);
+                var holidayOverlapHours = overlapEntries
+                    .Where(entry => holidayDates.Contains(entry.WorkDate))
+                    .Sum(entry => entry.HoursWorked);
+                var totalOverlapHours = leaveOverlapHours + holidayOverlapHours;
+
+                results.Add(new WeeklyComplianceDetailDto
+                {
+                    ProjectName = project.ProjectName,
+                    WeekStartDate = weekStart,
+                    WeekEndDate = weekEnd,
+                    SubmittedHours = overlapEntries.Sum(entry => entry.HoursWorked),
+                    LeaveOverlapHours = leaveOverlapHours,
+                    HolidayOverlapHours = holidayOverlapHours,
+                    TotalOverlapHours = totalOverlapHours,
+                    OverlapEntries = overlapEntries.Count(entry => leaveDates.Contains(entry.WorkDate) || holidayDates.Contains(entry.WorkDate)),
+                    Status = totalOverlapHours > 0 ? "Overlap detected" : "Healthy"
+                });
+            }
+
+            return results;
         }
 
         // CSV export example for project allocations
@@ -488,21 +658,32 @@ namespace VenkataAllocationManagementSystem.Controllers
 
             // 3) Revenue Quick Summary by month
             // Calculate revenue from timesheets based on allocation hourly rate and hours worked
-            var monthlyRevenueData = await (from tli in _dbContext.TimesheetLineItems
-                                             join ts in _dbContext.Timesheets on tli.TimesheetId equals ts.TimesheetId
-                                             join tsp in _dbContext.TimesheetPeriods on ts.TimesheetPeriodId equals tsp.TimesheetPeriodId
-                                             join alloc in _dbContext.Allocations on new { ts.AssociateId, ts.ProjectId } equals new { alloc.AssociateId, alloc.ProjectId }
-                                             where (ts.Status == "Approved" || ts.Status == "Submitted")
-                                             group new { tli, tsp, alloc } by new { tsp.WeekStartDate.Year, tsp.WeekStartDate.Month } into g
-                                             select new MonthlyRevenueDto
-                                             {
-                                                 Year = g.Key.Year,
-                                                 Month = g.Key.Month,
-                                                 MonthName = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMM"),
-                                                 Revenue = g.Sum(x => x.tli.HoursWorked * (x.alloc.AllocationPercentage > 0 ? x.alloc.AllocationPercentage : 50)) // Use allocation percentage as hourly rate proxy
-                                             }).ToListAsync();
+            var monthlyRevenueRows = await (from tli in _dbContext.TimesheetLineItems
+                                            join ts in _dbContext.Timesheets on tli.TimesheetId equals ts.TimesheetId
+                                            join tsp in _dbContext.TimesheetPeriods on ts.TimesheetPeriodId equals tsp.TimesheetPeriodId
+                                            join alloc in _dbContext.Allocations on new { ts.AssociateId, ts.ProjectId } equals new { alloc.AssociateId, alloc.ProjectId }
+                                            join ar in _dbContext.AllocationRates on alloc.AllocationId equals ar.AllocationId into allocationRates
+                                            from ar in allocationRates.DefaultIfEmpty()
+                                            where (ts.Status == "Approved" || ts.Status == "Submitted")
+                                            select new
+                                            {
+                                                Year = tsp.WeekStartDate.Year,
+                                                Month = tsp.WeekStartDate.Month,
+                                                MonthName = new DateTime(tsp.WeekStartDate.Year, tsp.WeekStartDate.Month, 1).ToString("MMM"),
+                                                HoursWorked = tli.HoursWorked,
+                                                BillRate = ar != null ? ar.AllocationBillRate : 0m,
+                                                AllocationPercentage = ar != null && ar.AllocationPercentage > 0 ? ar.AllocationPercentage : alloc.AllocationPercentage
+                                            }).ToListAsync();
 
-            viewModel.MonthlyRevenues = monthlyRevenueData
+            viewModel.MonthlyRevenues = monthlyRevenueRows
+                .GroupBy(m => new { m.Year, m.Month, m.MonthName })
+                .Select(g => new MonthlyRevenueDto
+                {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    MonthName = g.Key.MonthName,
+                    Revenue = g.Sum(x => CalculateRevenue(x.HoursWorked, x.BillRate, x.AllocationPercentage))
+                })
                 .OrderByDescending(m => m.Year)
                 .ThenByDescending(m => m.Month)
                 .Take(12)
@@ -559,19 +740,31 @@ namespace VenkataAllocationManagementSystem.Controllers
             var financialMetrics = new FinancialMetricsDto();
 
             // Revenue per Project
-            var revenuePerProject = await (from tli in _dbContext.TimesheetLineItems
-                                            join ts in _dbContext.Timesheets on tli.TimesheetId equals ts.TimesheetId
-                                            join p in _dbContext.Projects on ts.ProjectId equals p.ProjectId
-                                            join a in _dbContext.Accounts on p.AccountId equals a.AccountId
-                                            join alloc in _dbContext.Allocations on new { ts.AssociateId, ts.ProjectId } equals new { alloc.AssociateId, alloc.ProjectId }
-                                            where ts.Status == "Approved" || ts.Status == "Submitted"
-                                            group new { tli, p, a, alloc } by new { p.ProjectName, a.AccountName } into g
-                                            select new RevenuePerProjectDto
-                                            {
-                                                ProjectName = g.Key.ProjectName,
-                                                AccountName = g.Key.AccountName,
-                                                Revenue = g.Sum(x => x.tli.HoursWorked * (x.alloc.AllocationPercentage > 0 ? x.alloc.AllocationPercentage : 50))
-                                            }).ToListAsync();
+            var revenuePerProjectRows = await (from tli in _dbContext.TimesheetLineItems
+                                               join ts in _dbContext.Timesheets on tli.TimesheetId equals ts.TimesheetId
+                                               join p in _dbContext.Projects on ts.ProjectId equals p.ProjectId
+                                               join a in _dbContext.Accounts on p.AccountId equals a.AccountId
+                                               join alloc in _dbContext.Allocations on new { ts.AssociateId, ts.ProjectId } equals new { alloc.AssociateId, alloc.ProjectId }
+                                               join ar in _dbContext.AllocationRates on alloc.AllocationId equals ar.AllocationId into allocationRates
+                                               from ar in allocationRates.DefaultIfEmpty()
+                                               where ts.Status == "Approved" || ts.Status == "Submitted"
+                                               select new
+                                               {
+                                                   ProjectName = p.ProjectName,
+                                                   AccountName = a.AccountName,
+                                                   HoursWorked = tli.HoursWorked,
+                                                   BillRate = ar != null ? ar.AllocationBillRate : 0m,
+                                                   AllocationPercentage = ar != null && ar.AllocationPercentage > 0 ? ar.AllocationPercentage : alloc.AllocationPercentage
+                                               }).ToListAsync();
+
+            var revenuePerProject = revenuePerProjectRows
+                .GroupBy(r => new { r.ProjectName, r.AccountName })
+                .Select(g => new RevenuePerProjectDto
+                {
+                    ProjectName = g.Key.ProjectName,
+                    AccountName = g.Key.AccountName,
+                    Revenue = g.Sum(x => CalculateRevenue(x.HoursWorked, x.BillRate, x.AllocationPercentage))
+                }).ToList();
 
             financialMetrics.RevenuePerProject = revenuePerProject.OrderByDescending(r => r.Revenue).ToList();
             financialMetrics.TotalProjectRevenue = financialMetrics.RevenuePerProject.Sum(r => r.Revenue);
@@ -584,18 +777,30 @@ namespace VenkataAllocationManagementSystem.Controllers
             }
 
             // Revenue per Associate
-            var revenuePerAssociate = await (from tli in _dbContext.TimesheetLineItems
-                                              join ts in _dbContext.Timesheets on tli.TimesheetId equals ts.TimesheetId
-                                              join assoc in _dbContext.Associates on ts.AssociateId equals assoc.AssociateId
-                                              join alloc in _dbContext.Allocations on new { ts.AssociateId, ts.ProjectId } equals new { alloc.AssociateId, alloc.ProjectId }
-                                              where ts.Status == "Approved" || ts.Status == "Submitted"
-                                              group new { tli, assoc, alloc } by new { assoc.FullName, assoc.AssociateEmployeeId } into g
-                                              select new RevenuePerAssociateDto
-                                              {
-                                                  AssociateName = g.Key.FullName,
-                                                  EmployeeId = g.Key.AssociateEmployeeId,
-                                                  Revenue = g.Sum(x => x.tli.HoursWorked * (x.alloc.AllocationPercentage > 0 ? x.alloc.AllocationPercentage : 50))
-                                              }).ToListAsync();
+            var revenuePerAssociateRows = await (from tli in _dbContext.TimesheetLineItems
+                                                 join ts in _dbContext.Timesheets on tli.TimesheetId equals ts.TimesheetId
+                                                 join assoc in _dbContext.Associates on ts.AssociateId equals assoc.AssociateId
+                                                 join alloc in _dbContext.Allocations on new { ts.AssociateId, ts.ProjectId } equals new { alloc.AssociateId, alloc.ProjectId }
+                                                 join ar in _dbContext.AllocationRates on alloc.AllocationId equals ar.AllocationId into allocationRates
+                                                 from ar in allocationRates.DefaultIfEmpty()
+                                                 where ts.Status == "Approved" || ts.Status == "Submitted"
+                                                 select new
+                                                 {
+                                                     AssociateName = assoc.FullName,
+                                                     EmployeeId = assoc.AssociateEmployeeId,
+                                                     HoursWorked = tli.HoursWorked,
+                                                     BillRate = ar != null ? ar.AllocationBillRate : 0m,
+                                                     AllocationPercentage = ar != null && ar.AllocationPercentage > 0 ? ar.AllocationPercentage : alloc.AllocationPercentage
+                                                 }).ToListAsync();
+
+            var revenuePerAssociate = revenuePerAssociateRows
+                .GroupBy(r => new { r.AssociateName, r.EmployeeId })
+                .Select(g => new RevenuePerAssociateDto
+                {
+                    AssociateName = g.Key.AssociateName,
+                    EmployeeId = g.Key.EmployeeId,
+                    Revenue = g.Sum(x => CalculateRevenue(x.HoursWorked, x.BillRate, x.AllocationPercentage))
+                }).ToList();
 
             financialMetrics.RevenuePerAssociate = revenuePerAssociate.OrderByDescending(r => r.Revenue).ToList();
             financialMetrics.TotalAssociateRevenue = financialMetrics.RevenuePerAssociate.Sum(r => r.Revenue);
@@ -608,23 +813,41 @@ namespace VenkataAllocationManagementSystem.Controllers
             }
 
             // Cost Variance (using SOWValue as budget and actual cost derived from timesheets)
-            var costVariance = await (from p in _dbContext.Projects
-                                      join a in _dbContext.Accounts on p.AccountId equals a.AccountId
-                                      let budgetedCost = p.SOWValue > 0 ? p.SOWValue : 0
-                                      let actualCost = (from ts in _dbContext.Timesheets
-                                                        join tli in _dbContext.TimesheetLineItems on ts.TimesheetId equals tli.TimesheetId
-                                                        join alloc in _dbContext.Allocations on new { ts.AssociateId, ts.ProjectId } equals new { alloc.AssociateId, alloc.ProjectId }
-                                                        where ts.ProjectId == p.ProjectId && (ts.Status == "Approved" || ts.Status == "Submitted")
-                                                        select tli.HoursWorked * (alloc.AllocationPercentage > 0 ? alloc.AllocationPercentage : 50)).Sum()
-                                      select new CostVarianceDto
-                                      {
-                                          ProjectName = p.ProjectName,
-                                          BudgetedCost = budgetedCost,
-                                          ActualCost = actualCost,
-                                          Variance = budgetedCost - actualCost,
-                                          VariancePercentage = budgetedCost > 0 ? ((budgetedCost - actualCost) / budgetedCost) * 100 : 0,
-                                          Status = budgetedCost == 0 ? "No Budget" : (actualCost <= budgetedCost ? "Under Budget" : "Over Budget")
-                                      }).ToListAsync();
+            var costVarianceRows = await (from p in _dbContext.Projects
+                                          join a in _dbContext.Accounts on p.AccountId equals a.AccountId
+                                          join ts in _dbContext.Timesheets on p.ProjectId equals ts.ProjectId
+                                          join tli in _dbContext.TimesheetLineItems on ts.TimesheetId equals tli.TimesheetId
+                                          join alloc in _dbContext.Allocations on new { ts.AssociateId, ts.ProjectId } equals new { alloc.AssociateId, alloc.ProjectId }
+                                          join ar in _dbContext.AllocationRates on alloc.AllocationId equals ar.AllocationId into allocationRates
+                                          from ar in allocationRates.DefaultIfEmpty()
+                                          where (ts.Status == "Approved" || ts.Status == "Submitted")
+                                          select new
+                                          {
+                                              ProjectName = p.ProjectName,
+                                              BudgetedCost = p.SOWValue > 0 ? p.SOWValue : 0m,
+                                              HoursWorked = tli.HoursWorked,
+                                              BillRate = ar != null ? ar.AllocationBillRate : 0m,
+                                              AllocationPercentage = ar != null && ar.AllocationPercentage > 0 ? ar.AllocationPercentage : alloc.AllocationPercentage
+                                          }).ToListAsync();
+
+            var costVariance = costVarianceRows
+                .GroupBy(c => new { c.ProjectName, c.BudgetedCost })
+                .Select(g =>
+                {
+                    var actualCost = g.Sum(x => CalculateRevenue(x.HoursWorked, x.BillRate, x.AllocationPercentage));
+                    var budgetedCost = g.Key.BudgetedCost;
+                    return new CostVarianceDto
+                    {
+                        ProjectName = g.Key.ProjectName,
+                        BudgetedCost = budgetedCost,
+                        ActualCost = actualCost,
+                        Variance = budgetedCost - actualCost,
+                        VariancePercentage = budgetedCost > 0 ? ((budgetedCost - actualCost) / budgetedCost) * 100 : 0,
+                        Status = budgetedCost == 0 ? "No Budget" : (actualCost <= budgetedCost ? "Under Budget" : "Over Budget")
+                    };
+                })
+                .OrderBy(c => c.ProjectName)
+                .ToList();
 
             financialMetrics.CostVariances = costVariance.OrderBy(c => c.ProjectName).ToList();
             financialMetrics.TotalBudgetedCost = financialMetrics.CostVariances.Sum(c => c.BudgetedCost);
@@ -632,25 +855,37 @@ namespace VenkataAllocationManagementSystem.Controllers
             financialMetrics.TotalCostVariance = financialMetrics.TotalBudgetedCost - financialMetrics.TotalActualCost;
 
             // Profit Margin
-            var profitMargins = await (from p in _dbContext.Projects
-                                       let revenue = (from ts in _dbContext.Timesheets
-                                                      join tli in _dbContext.TimesheetLineItems on ts.TimesheetId equals tli.TimesheetId
-                                                      join alloc in _dbContext.Allocations on new { ts.AssociateId, ts.ProjectId } equals new { alloc.AssociateId, alloc.ProjectId }
-                                                      where ts.ProjectId == p.ProjectId && (ts.Status == "Approved" || ts.Status == "Submitted")
-                                                      select tli.HoursWorked * (alloc.AllocationPercentage > 0 ? alloc.AllocationPercentage : 50)).Sum()
-                                       let cost = (from ts in _dbContext.Timesheets
-                                                   join tli in _dbContext.TimesheetLineItems on ts.TimesheetId equals tli.TimesheetId
-                                                   join alloc in _dbContext.Allocations on new { ts.AssociateId, ts.ProjectId } equals new { alloc.AssociateId, alloc.ProjectId }
-                                                   where ts.ProjectId == p.ProjectId && (ts.Status == "Approved" || ts.Status == "Submitted")
-                                                   select tli.HoursWorked * (alloc.AllocationPercentage > 0 ? alloc.AllocationPercentage : 50) * 0.7m).Sum() // Assuming 70% cost ratio
-                                       select new ProfitMarginDto
-                                       {
-                                           ProjectName = p.ProjectName,
-                                           Revenue = revenue,
-                                           Cost = cost,
-                                           ProfitMargin = revenue - cost,
-                                           ProfitMarginPercentage = revenue > 0 ? ((revenue - cost) / revenue) * 100 : 0
-                                       }).ToListAsync();
+            var profitMarginRows = await (from p in _dbContext.Projects
+                                          join ts in _dbContext.Timesheets on p.ProjectId equals ts.ProjectId
+                                          join tli in _dbContext.TimesheetLineItems on ts.TimesheetId equals tli.TimesheetId
+                                          join alloc in _dbContext.Allocations on new { ts.AssociateId, ts.ProjectId } equals new { alloc.AssociateId, alloc.ProjectId }
+                                          join ar in _dbContext.AllocationRates on alloc.AllocationId equals ar.AllocationId into allocationRates
+                                          from ar in allocationRates.DefaultIfEmpty()
+                                          where (ts.Status == "Approved" || ts.Status == "Submitted")
+                                          select new
+                                          {
+                                              ProjectName = p.ProjectName,
+                                              HoursWorked = tli.HoursWorked,
+                                              BillRate = ar != null ? ar.AllocationBillRate : 0m,
+                                              AllocationPercentage = ar != null && ar.AllocationPercentage > 0 ? ar.AllocationPercentage : alloc.AllocationPercentage
+                                          }).ToListAsync();
+
+            var profitMargins = profitMarginRows
+                .GroupBy(p => p.ProjectName)
+                .Select(g =>
+                {
+                    var revenue = g.Sum(x => CalculateRevenue(x.HoursWorked, x.BillRate, x.AllocationPercentage));
+                    return new ProfitMarginDto
+                    {
+                        ProjectName = g.Key,
+                        Revenue = revenue,
+                        Cost = revenue * 0.7m,
+                        ProfitMargin = revenue - (revenue * 0.7m),
+                        ProfitMarginPercentage = revenue > 0 ? ((revenue - (revenue * 0.7m)) / revenue) * 100 : 0
+                    };
+                })
+                .OrderByDescending(p => p.ProfitMarginPercentage)
+                .ToList();
 
             financialMetrics.ProfitMargins = profitMargins.OrderByDescending(p => p.ProfitMarginPercentage).ToList();
             financialMetrics.TotalRevenue = financialMetrics.ProfitMargins.Sum(p => p.Revenue);

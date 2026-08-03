@@ -51,6 +51,33 @@ namespace VenkataAllocationManagementSystem.ViewModels
         public Project? Project { get; set; }
         public DateOnly StartDate { get; set; }
     }
+
+    public class WeeklyRevenueProjectionDto
+    {
+        public string? ProjectName { get; set; }
+        public DateOnly WeekStartDate { get; set; }
+        public DateOnly WeekEndDate { get; set; }
+        public int ExpectedWorkingDays { get; set; }
+        public int EffectiveWorkingDays { get; set; }
+        public decimal ActualRevenue { get; set; }
+        public decimal AdjustedProjection { get; set; }
+        public decimal Variance { get; set; }
+        public int LeaveDays { get; set; }
+        public int HolidayCount { get; set; }
+    }
+
+    public class WeeklyComplianceDetailDto
+    {
+        public string? ProjectName { get; set; }
+        public DateOnly WeekStartDate { get; set; }
+        public DateOnly WeekEndDate { get; set; }
+        public decimal SubmittedHours { get; set; }
+        public decimal LeaveOverlapHours { get; set; }
+        public decimal HolidayOverlapHours { get; set; }
+        public decimal TotalOverlapHours { get; set; }
+        public int OverlapEntries { get; set; }
+        public string Status { get; set; } = "Healthy";
+    }
     
     public class PortfolioDashboardViewModel
     {
@@ -58,6 +85,8 @@ namespace VenkataAllocationManagementSystem.ViewModels
         public List<UtilizationDto> Utilization { get; set; } = new();
         public List<SubmissionStatusDto> SubmissionStatuses { get; set; } = new();
         public List<TimesheetComplianceDto> TimesheetCompliance { get; set; } = new();
+        public List<WeeklyRevenueProjectionDto> WeeklyRevenueProjection { get; set; } = new();
+        public List<WeeklyComplianceDetailDto> WeeklyComplianceDetails { get; set; } = new();
         public List<Project>? Projects { get; set; }
         public int ProjectId { get; set; }
         public List<Associate>? Associates { get; set; }

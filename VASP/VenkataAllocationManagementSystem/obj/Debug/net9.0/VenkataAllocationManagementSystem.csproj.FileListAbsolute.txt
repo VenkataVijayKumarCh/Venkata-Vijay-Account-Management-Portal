@@ -228,7 +228,6 @@ C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management 
 C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\bin\Debug\net9.0\publish\VenkataAllocationManagementSystem.deps.json
 C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\bin\Debug\net9.0\publish\VenkataAllocationManagementSystem.runtimeconfig.json
 C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\bin\Debug\net9.0\publish\VenkataAllocationManagementSystem.staticwebassets.endpoints.json
-C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\obj\Debug\net9.0\VenkataAllocationManagementSystem.sourcelink.json
 C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\bin\Debug\net9.0\EPPlus.dll
 C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\bin\Debug\net9.0\EPPlus.Interfaces.dll
 C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\bin\Debug\net9.0\Microsoft.Extensions.Configuration.dll
