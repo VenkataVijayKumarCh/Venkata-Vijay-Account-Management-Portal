@@ -27,11 +27,34 @@ namespace VenkataAllocationManagementSystem.Controllers
             _dbContext = dbContext;
         }
 
-        private static decimal CalculateRevenue(decimal hoursWorked, decimal? billRate, decimal? allocationPercentage)
+        private static decimal CalculateActualRevenue(decimal hoursWorked, decimal? billRate)
+        {
+            var effectiveBillRate = billRate ?? 0m;
+            return hoursWorked * effectiveBillRate;
+        }
+
+        private static decimal CalculatePredictedRevenue(decimal expectedWorkingHours, decimal? billRate, decimal? allocationPercentage)
         {
             var effectiveBillRate = billRate ?? 0m;
             var effectiveAllocationPercentage = allocationPercentage is > 0 ? allocationPercentage.Value : 100m;
-            return hoursWorked * effectiveBillRate * (effectiveAllocationPercentage / 100m);
+            return expectedWorkingHours * effectiveBillRate * (effectiveAllocationPercentage / 100m);
+        }
+
+        private static decimal GetExpectedWorkingHours(int year, int month)
+        {
+            var daysInMonth = DateTime.DaysInMonth(year, month);
+            var workingDays = 0;
+
+            for (var day = 1; day <= daysInMonth; day++)
+            {
+                var currentDate = new DateTime(year, month, day);
+                if (currentDate.DayOfWeek is not DayOfWeek.Saturday and not DayOfWeek.Sunday)
+                {
+                    workingDays++;
+                }
+            }
+
+            return workingDays * 8m;
         }
 
         #region Portfolio Dashboard
@@ -193,7 +216,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                                              AllocationPercentage = ar != null && ar.AllocationPercentage > 0 ? ar.AllocationPercentage : alloc.AllocationPercentage
                                          }).ToListAsync();
 
-                var actualRevenue = revenueRows.Sum(x => CalculateRevenue(x.HoursWorked, x.BillRate, x.AllocationPercentage));
+                var actualRevenue = revenueRows.Sum(x => CalculateActualRevenue(x.HoursWorked, x.BillRate));
 
                 var adjustedProjection = effectiveWorkingDays > 0 && expectedWorkingDays > 0
                     ? actualRevenue * ((decimal)expectedWorkingDays / effectiveWorkingDays)
@@ -682,7 +705,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                     Year = g.Key.Year,
                     Month = g.Key.Month,
                     MonthName = g.Key.MonthName,
-                    Revenue = g.Sum(x => CalculateRevenue(x.HoursWorked, x.BillRate, x.AllocationPercentage))
+                    Revenue = g.Sum(x => CalculateActualRevenue(x.HoursWorked, x.BillRate))
                 })
                 .OrderByDescending(m => m.Year)
                 .ThenByDescending(m => m.Month)
@@ -698,23 +721,21 @@ namespace VenkataAllocationManagementSystem.Controllers
             for (int i = 0; i < sortedMonthlyData.Count; i++)
             {
                 var current = sortedMonthlyData[i];
-                decimal predictedRevenue;
+                var expectedWorkingHours = GetExpectedWorkingHours(current.Year, current.Month);
+                var monthStart = new DateOnly(current.Year, current.Month, 1);
+                var monthEnd = monthStart.AddMonths(1).AddDays(-1);
 
-                // Use average of previous 3 months as prediction
-                if (i >= 3)
-                {
-                    var previous3 = sortedMonthlyData.Skip(i - 3).Take(3).ToList();
-                    predictedRevenue = previous3.Average(p => p.Revenue);
-                }
-                else if (i > 0)
-                {
-                    var previous = sortedMonthlyData.Take(i).ToList();
-                    predictedRevenue = previous.Any() ? previous.Average(p => p.Revenue) : current.Revenue;
-                }
-                else
-                {
-                    predictedRevenue = current.Revenue; // First month - no prediction
-                }
+                var allocationRows = await (from alloc in _dbContext.Allocations
+                                            join ar in _dbContext.AllocationRates on alloc.AllocationId equals ar.AllocationId into allocationRates
+                                            from ar in allocationRates.DefaultIfEmpty()
+                                            where alloc.StartDate <= monthEnd && alloc.EndDate >= monthStart
+                                            select new
+                                            {
+                                                BillRate = ar != null ? ar.AllocationBillRate : 0m,
+                                                AllocationPercentage = ar != null && ar.AllocationPercentage > 0 ? ar.AllocationPercentage : alloc.AllocationPercentage
+                                            }).ToListAsync();
+
+                var predictedRevenue = allocationRows.Sum(x => CalculatePredictedRevenue(expectedWorkingHours, x.BillRate, x.AllocationPercentage));
 
                 var variance = current.Revenue - predictedRevenue;
                 var variancePercentage = predictedRevenue > 0 ? (variance / predictedRevenue) * 100 : 0;
@@ -763,7 +784,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                 {
                     ProjectName = g.Key.ProjectName,
                     AccountName = g.Key.AccountName,
-                    Revenue = g.Sum(x => CalculateRevenue(x.HoursWorked, x.BillRate, x.AllocationPercentage))
+                    Revenue = g.Sum(x => CalculateActualRevenue(x.HoursWorked, x.BillRate))
                 }).ToList();
 
             financialMetrics.RevenuePerProject = revenuePerProject.OrderByDescending(r => r.Revenue).ToList();
@@ -799,8 +820,9 @@ namespace VenkataAllocationManagementSystem.Controllers
                 {
                     AssociateName = g.Key.AssociateName,
                     EmployeeId = g.Key.EmployeeId,
-                    Revenue = g.Sum(x => CalculateRevenue(x.HoursWorked, x.BillRate, x.AllocationPercentage))
+                    Revenue = g.Sum(x => CalculateActualRevenue(x.HoursWorked, x.BillRate))
                 }).ToList();
+            
 
             financialMetrics.RevenuePerAssociate = revenuePerAssociate.OrderByDescending(r => r.Revenue).ToList();
             financialMetrics.TotalAssociateRevenue = financialMetrics.RevenuePerAssociate.Sum(r => r.Revenue);
@@ -834,7 +856,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                 .GroupBy(c => new { c.ProjectName, c.BudgetedCost })
                 .Select(g =>
                 {
-                    var actualCost = g.Sum(x => CalculateRevenue(x.HoursWorked, x.BillRate, x.AllocationPercentage));
+                    var actualCost = g.Sum(x => CalculateActualRevenue(x.HoursWorked, x.BillRate));
                     var budgetedCost = g.Key.BudgetedCost;
                     return new CostVarianceDto
                     {
@@ -874,7 +896,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                 .GroupBy(p => p.ProjectName)
                 .Select(g =>
                 {
-                    var revenue = g.Sum(x => CalculateRevenue(x.HoursWorked, x.BillRate, x.AllocationPercentage));
+                    var revenue = g.Sum(x => CalculateActualRevenue(x.HoursWorked, x.BillRate));
                     return new ProfitMarginDto
                     {
                         ProjectName = g.Key,

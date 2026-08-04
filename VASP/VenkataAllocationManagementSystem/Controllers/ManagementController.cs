@@ -79,10 +79,10 @@ namespace VenkataAllocationManagementSystem.Controllers
 
             var revenue = await (
                 from ts in _dbContext.Timesheets
-                join al in _dbContext.Allocations on ts.AssociateId equals al.AssociateId
+                join al in _dbContext.Allocations on new { ts.AssociateId, ts.ProjectId } equals new { al.AssociateId, al.ProjectId }
                 join ar in _dbContext.AllocationRates on al.AllocationId equals ar.AllocationId
                 select ts.TotalHours * ar.AllocationBillRate // * (ar.AllocationPercentage / 100m)
-            ).SumAsync();       
+            ).SumAsync();
 
             return revenue;
         }
