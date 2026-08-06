@@ -23,9 +23,9 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Full Name</th>
-                <th>Email Address</th>
                 <th>Employee ID</th>
+                <th>Full Name</th>
+                <th>Email Address</th>                
                 <th>Status</th>
                 <th></th>
             </tr>
@@ -43,20 +43,20 @@
                 {
                     <tr>
                         @* <td>@account.AccountId</td> *@
-                        <td>@associate.FullName</td>
-                        <td>@associate.Email</td>
                         <td>@associate.AssociateEmployeeId</td>
+                        <td>@associate.FullName</td>
+                        <td>@associate.Email</td>                        
                         <td>
                             @switch ((@AssociateStatusEnum) associate.AssociateStatusId)
                             {
                                 case AssociateStatusEnum.Active:
-                                    <span class="badge bg-success">Active</span>
+                                    <span class="text-success">🟢</span>
                                     break;
                                 case AssociateStatusEnum.Resigned:
-                                    <span class="badge bg-warning text-dark">Resigned</span>
+                                    <span class="text-muted">💤</span>
                                     break;
                                 case @AssociateStatusEnum.Inactive:
-                                    <span class="badge bg-secondary">Inactive</span>
+                                    <span class="text-secondary">⚪</span>
                                     break;
                                 default:
                                     <span class="badge bg-light text-muted">Unknown</span>
@@ -88,24 +88,37 @@
             }
         </tbody>
     </table>
+    <!-- Place this just after your table -->
+    <div style="display:flex; justify-content:flex-end; align-items:center; margin-top:10px; gap:10px;">
+        <label for="pageSize" style="margin:0;">Show</label>
+        <select id="pageSize" class="form-select form-select-sm" style="width:80px;">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+        </select>
+        <span>associates per page</span>
+
+        <!-- Pagination controls -->
+        <div id="paginationControls" class="btn-group"></div>
+    </div>
+
+
+    
+
+    
 </section>
 
     <script>
         function filterAssociates() {
             var input = document.getElementById('associateSearchInput');
-            if (!input) return;
-
             var filter = input.value.trim().toLowerCase();
-            var table = document.querySelector('table'); // directly select the table
-            if (!table) return;
-
-            var tbody = table.tBodies[0];
-            var rows = Array.from(tbody.querySelectorAll('tr'));
+            var table = document.querySelector('table');
+            var rows = Array.from(table.tBodies[0].querySelectorAll('tr'));
             var noResultsRow = document.getElementById('noResultsRow');
             var visibleCount = 0;
 
             rows.forEach(function(row) {
-                if (row.id === 'noResultsRow') return; // skip placeholder
+                if (row.id === 'noResultsRow') return;
                 var text = row.textContent.replace(/\s+/g, ' ').toLowerCase();
                 if (!filter || text.indexOf(filter) !== -1) {
                     row.style.display = '';
@@ -118,6 +131,10 @@
             if (noResultsRow) {
                 noResultsRow.style.display = (visibleCount === 0) ? '' : 'none';
             }
+
+            // ✅ Always reset to first page after search
+            // currentPage = 1;
+            paginateAssociates();
         }
 
         // Debounce for smoother UX
@@ -130,6 +147,115 @@
                 timer = setTimeout(filterAssociates, 150);
             });
         })();
+
+
+        // pagination logic  
+        function paginateAssociates() {
+            var pageSize = parseInt(document.getElementById("pageSize").value);
+            var table = document.querySelector("table");
+            var rows = Array.from(table.tBodies[0].querySelectorAll("tr"))
+                            .filter(r => r.id !== "noResultsRow" && r.style.display !== "none");
+
+            var totalRows = rows.length;
+            var totalPages = Math.ceil(totalRows / pageSize);
+
+            // ✅ Clamp currentPage so it never exceeds totalPages
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            // If only one page → hide controls
+            var controls = document.getElementById("paginationControls");
+            if (totalPages <= 1) {
+                controls.innerHTML = "";
+                return;
+            }
+
+            // Hide all rows
+            rows.forEach(r => r.style.display = "none");
+
+            // Show only rows for current page
+            var start = (currentPage - 1) * pageSize;
+            var end = start + pageSize;
+            rows.slice(start, end).forEach(r => r.style.display = "");
+
+            // Render pagination controls
+            controls.innerHTML = "";
+
+            function createButton(text, page, disabled = false, active = false) {
+                var btn = document.createElement("button");
+                btn.textContent = text;
+                btn.className = "btn btn-sm " + (active ? "btn-primary" : "btn-light");
+                btn.disabled = disabled;
+                if (!disabled && !active) {
+                    btn.onclick = function() {
+                        currentPage = page;
+                        paginateAssociates();
+                    };
+                }
+                controls.appendChild(btn);
+            }
+
+            // First / Prev
+            createButton("First", 1, currentPage === 1);
+            createButton("Prev", Math.max(1, currentPage - 1), currentPage === 1);
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                createButton(i, i, false, i === currentPage);
+            }
+
+            // Next / Last
+            createButton("Next", Math.min(totalPages, currentPage + 1), currentPage === totalPages);
+            createButton("Last", totalPages, currentPage === totalPages);
+        }
+
+        function filterAssociates() {
+            var input = document.getElementById('associateSearchInput');
+            var filter = input.value.trim().toLowerCase();
+            var table = document.querySelector('table');
+            var rows = Array.from(table.tBodies[0].querySelectorAll('tr'));
+            var noResultsRow = document.getElementById('noResultsRow');
+            var visibleCount = 0;
+
+            rows.forEach(function(row) {
+                if (row.id === 'noResultsRow') return;
+                var text = row.textContent.replace(/\s+/g, ' ').toLowerCase();
+                if (!filter || text.indexOf(filter) !== -1) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            if (noResultsRow) {
+                noResultsRow.style.display = (visibleCount === 0) ? '' : 'none';
+            }
+
+            // Reset to first page after search
+            currentPage = 1;
+            paginateAssociates();
+        }
+
+        // Debounce search
+        (function() {
+            var input = document.getElementById('associateSearchInput');
+            var timer = null;
+            input.addEventListener('keyup', function() {
+                clearTimeout(timer);
+                timer = setTimeout(filterAssociates, 150);
+            });
+        })();
+
+        // Page size change
+        document.getElementById("pageSize").addEventListener("change", function() {
+            currentPage = 1;
+            paginateAssociates();
+        });
+
+        // Initialize
+        paginateAssociates();
+
     </script>
 
 </section>
