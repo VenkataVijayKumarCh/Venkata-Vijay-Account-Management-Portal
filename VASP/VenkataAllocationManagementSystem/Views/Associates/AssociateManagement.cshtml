@@ -109,6 +109,8 @@
 </section>
 
     <script>
+        var currentPage = 1;
+
         function filterAssociates() {
             var input = document.getElementById('associateSearchInput');
             var filter = input.value.trim().toLowerCase();
@@ -121,10 +123,10 @@
                 if (row.id === 'noResultsRow') return;
                 var text = row.textContent.replace(/\s+/g, ' ').toLowerCase();
                 if (!filter || text.indexOf(filter) !== -1) {
-                    row.style.display = '';
+                    row.dataset.visible = "true";   // ✅ mark visible rows
                     visibleCount++;
                 } else {
-                    row.style.display = 'none';
+                    row.dataset.visible = "false";  // ✅ mark hidden rows
                 }
             });
 
@@ -132,12 +134,11 @@
                 noResultsRow.style.display = (visibleCount === 0) ? '' : 'none';
             }
 
-            // ✅ Always reset to first page after search
-            // currentPage = 1;
+            currentPage = 1;
             paginateAssociates();
         }
 
-        // Debounce for smoother UX
+        // Debounce search
         (function() {
             var input = document.getElementById('associateSearchInput');
             if (!input) return;
@@ -148,30 +149,27 @@
             });
         })();
 
-
-        // pagination logic  
         function paginateAssociates() {
             var pageSize = parseInt(document.getElementById("pageSize").value);
             var table = document.querySelector("table");
             var rows = Array.from(table.tBodies[0].querySelectorAll("tr"))
-                            .filter(r => r.id !== "noResultsRow" && r.style.display !== "none");
+                            .filter(r => r.id !== "noResultsRow" && r.dataset.visible !== "false");
 
             var totalRows = rows.length;
             var totalPages = Math.ceil(totalRows / pageSize);
 
-            // ✅ Clamp currentPage so it never exceeds totalPages
-            if (currentPage > totalPages) currentPage = totalPages;
-            if (currentPage < 1) currentPage = 1;
-
-            // If only one page → hide controls
-            var controls = document.getElementById("paginationControls");
-            if (totalPages <= 1) {
-                controls.innerHTML = "";
+            if (totalPages === 0) {
+                document.getElementById("paginationControls").innerHTML = "";
+                document.getElementById("pageInfo").textContent = "";
                 return;
             }
 
-            // Hide all rows
-            rows.forEach(r => r.style.display = "none");
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            // Hide all rows first
+            Array.from(table.tBodies[0].querySelectorAll("tr"))
+                .forEach(r => { if (r.id !== "noResultsRow") r.style.display = "none"; });
 
             // Show only rows for current page
             var start = (currentPage - 1) * pageSize;
@@ -179,6 +177,7 @@
             rows.slice(start, end).forEach(r => r.style.display = "");
 
             // Render pagination controls
+            var controls = document.getElementById("paginationControls");
             controls.innerHTML = "";
 
             function createButton(text, page, disabled = false, active = false) {
@@ -195,67 +194,32 @@
                 controls.appendChild(btn);
             }
 
-            // First / Prev
-            createButton("First", 1, currentPage === 1);
-            createButton("Prev", Math.max(1, currentPage - 1), currentPage === 1);
+            if (totalPages > 1) {
+                createButton("First", 1, currentPage === 1);
+                createButton("Prev", Math.max(1, currentPage - 1), currentPage === 1);
 
-            // Page numbers
-            for (let i = 1; i <= totalPages; i++) {
-                createButton(i, i, false, i === currentPage);
-            }
-
-            // Next / Last
-            createButton("Next", Math.min(totalPages, currentPage + 1), currentPage === totalPages);
-            createButton("Last", totalPages, currentPage === totalPages);
-        }
-
-        function filterAssociates() {
-            var input = document.getElementById('associateSearchInput');
-            var filter = input.value.trim().toLowerCase();
-            var table = document.querySelector('table');
-            var rows = Array.from(table.tBodies[0].querySelectorAll('tr'));
-            var noResultsRow = document.getElementById('noResultsRow');
-            var visibleCount = 0;
-
-            rows.forEach(function(row) {
-                if (row.id === 'noResultsRow') return;
-                var text = row.textContent.replace(/\s+/g, ' ').toLowerCase();
-                if (!filter || text.indexOf(filter) !== -1) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
+                for (let i = 1; i <= totalPages; i++) {
+                    createButton(i, i, false, i === currentPage);
                 }
-            });
 
-            if (noResultsRow) {
-                noResultsRow.style.display = (visibleCount === 0) ? '' : 'none';
+                createButton("Next", Math.min(totalPages, currentPage + 1), currentPage === totalPages);
+                createButton("Last", totalPages, currentPage === totalPages);
             }
 
-            // Reset to first page after search
-            currentPage = 1;
-            paginateAssociates();
+            document.getElementById("pageInfo").textContent = "Page " + currentPage + " of " + totalPages;
         }
 
-        // Debounce search
-        (function() {
-            var input = document.getElementById('associateSearchInput');
-            var timer = null;
-            input.addEventListener('keyup', function() {
-                clearTimeout(timer);
-                timer = setTimeout(filterAssociates, 150);
-            });
-        })();
+        document.addEventListener("DOMContentLoaded", function() {
+            // Mark all rows visible initially
+            Array.from(document.querySelector('table').tBodies[0].querySelectorAll('tr'))
+                .forEach(r => { if (r.id !== "noResultsRow") r.dataset.visible = "true"; });
+            paginateAssociates();
+        });
 
-        // Page size change
         document.getElementById("pageSize").addEventListener("change", function() {
             currentPage = 1;
             paginateAssociates();
         });
-
-        // Initialize
-        paginateAssociates();
-
     </script>
 
 </section>
