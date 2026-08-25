@@ -373,7 +373,7 @@ C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management 
 C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\obj\Debug\net9.0\compressed\z0uq1504ae-{0}-muycvpuwrr-muycvpuwrr.gz
 C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\obj\Debug\net9.0\compressed\fjmb2pxjjk-{0}-87fc7y1x7t-87fc7y1x7t.gz
 C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\obj\Debug\net9.0\compressed\1vbv09uof4-{0}-mlv21k5csn-mlv21k5csn.gz
-C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\obj\Debug\net9.0\compressed\p2ucp6poul-{0}-4ada7fl0p4-4ada7fl0p4.gz
-C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\obj\Debug\net9.0\compressed\qqtzgoqa7g-{0}-4ada7fl0p4-4ada7fl0p4.gz
 C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\obj\Debug\net9.0\staticwebassets.build.json.cache
 C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\obj\Debug\net9.0\swae.build.ex.cache
+C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\obj\Debug\net9.0\compressed\p2ucp6poul-{0}-4ada7fl0p4-4ada7fl0p4.gz
+C:\Venkata Vijay Kumar Chakka\Venkata Personal\Venkata Vijay Account Management Portal\VASP\VenkataAllocationManagementSystem\obj\Debug\net9.0\compressed\qqtzgoqa7g-{0}-4ada7fl0p4-4ada7fl0p4.gz

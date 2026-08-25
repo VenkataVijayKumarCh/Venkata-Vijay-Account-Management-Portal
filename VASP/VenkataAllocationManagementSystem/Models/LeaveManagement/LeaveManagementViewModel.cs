@@ -1,4 +1,5 @@
 using VenkataAllocationManagementSystem.Models;
+ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace VenkataAllocationManagementSystem.ViewModels
 {
@@ -13,5 +14,11 @@ namespace VenkataAllocationManagementSystem.ViewModels
         public IEnumerable<Holiday>? Holidays { get; set; }
 
         public Holiday? Holiday { get; set; }
+        public int AssociateId {get; set;}
+        public int ProjectId {get; set;}
+        public IEnumerable<Project>? Projects {get;set;}  
+        public string? SelectedMonth { get; set; }
+
+        public IEnumerable<SelectListItem>? MonthList {get; set; }
     }
 }

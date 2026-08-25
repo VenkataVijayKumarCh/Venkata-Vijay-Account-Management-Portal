@@ -71,6 +71,29 @@
 
                         <div class="row mb-3 @(isEditable ? "" : "readonly-section")">
                             <div class="col-md-6">
+                                <label class="form-label" for="LeaveRequest.ProjectId">Project Name <span class="text-danger">*</span></label>
+                                <select class="form-control form-control-sm" id="LeaveRequest.ProjectId" name="LeaveRequest.ProjectId" required disabled>
+                                    @if (Model.Projects != null)
+                                    {
+                                        @foreach (var  project in Model.Projects)
+                                        {
+                                            if (project.ProjectId == Model.LeaveRequest?.ProjectId)
+                                            {
+                                                <option value="@project.ProjectId" selected>@project.ProjectName</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@project.ProjectId">@project.ProjectName</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                                <input type="hidden" name="LeaveRequest.ProjectId" value="@Model.LeaveRequest?.ProjectId" />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 @(isEditable ? "" : "readonly-section")">
+                            <div class="col-md-6">
                                 <label class="form-label" for="LeaveRequest.AssociateId">Associate Name <span class="text-danger">*</span></label>
                                 <select class="form-control form-control-sm" id="LeaveRequest.AssociateId" name="LeaveRequest.AssociateId" required disabled>
                                     @if (Model.Associates != null)
@@ -199,7 +222,7 @@
                             <span asp-validation-for="LeaveRequest.Notes" class="text-danger small"></span>
                         </div>
 
-                        @if (showCommentsField)
+                        @if (showCommentsField && !isEditable)
                         {
                             <div class="mb-3 border-top pt-3">
                                 <label class="form-label" for="comments">

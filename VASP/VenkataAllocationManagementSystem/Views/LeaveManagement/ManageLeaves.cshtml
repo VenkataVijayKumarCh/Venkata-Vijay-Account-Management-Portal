@@ -34,6 +34,23 @@
 
                 <div class="row mb-3">
                     <div class="col-md-6">
+                        <label class="form-label" for="LeaveRequest.ProjectId">Project Name <span class="text-danger">*</span></label>
+                        <select class="form-control form-control-sm" id="LeaveRequest.ProjectId" name="LeaveRequest.ProjectId" required>
+                            <option value="">-- Select Project --</option>
+                            @if (Model.Projects != null)
+                            {
+                                @foreach (var project in Model.Projects)
+                                {
+                                    <option value="@project.ProjectId">@project.ProjectName</option>
+                                }                                
+                            }
+                        </select>
+                        <span asp-validation-for="LeaveRequest.ProjectId" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
                         <label class="form-label" for="LeaveRequest.AssociateId">Associate Name <span class="text-danger">*</span></label>
                         <select class="form-control form-control-sm" id="LeaveRequest.AssociateId" name="LeaveRequest.AssociateId" required>
                             <option value="">-- Select Associate --</option>
@@ -56,6 +73,7 @@
                             <option value="Casual">Casual Leave</option>
                             <option value="Maternity">Maternity Leave</option>
                             <option value="Paternity">Paternity Leave</option>
+                            <option value="Marriage">Marriage Leave</option>
                             <option value="Other">Other</option>
                         </select>
                         <span asp-validation-for="LeaveRequest.LeaveType" class="text-danger small"></span>
@@ -103,6 +121,7 @@
                     </div>
                 </div>
 
+                
                 <div class="mb-3">
                     <label class="form-label" for="LeaveRequest.Notes">Notes</label>
                     <textarea class="form-control form-control-sm" id="LeaveRequest.Notes" name="LeaveRequest.Notes" rows="2" placeholder="Optional notes"></textarea>

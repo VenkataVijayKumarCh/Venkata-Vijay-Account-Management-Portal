@@ -5,10 +5,12 @@ using VenkataAllocationManagementSystem.Data;
 using VenkataAllocationManagementSystem.Enums;
 using VenkataAllocationManagementSystem.Models;
 using VenkataAllocationManagementSystem.ViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Globalization;
 
 namespace VenkataAllocationManagementSystem.Controllers
 {
-    [CustomAuthorize(Roles.Admin, Roles.Manager)]
+    [CustomAuthorize(Roles.Admin, Roles.Manager, Roles.User)]
     public class LeaveManagementController : Controller
     {
         private readonly ApplicationDbContext _dbContext;
@@ -22,12 +24,13 @@ namespace VenkataAllocationManagementSystem.Controllers
         {
             return RedirectToAction(nameof(ManageLeaves));
         }
-
+        
         public async Task<IActionResult> ManageLeaves()
         {
             var model = new LeaveManagementViewModel
             {
                 Associates = await _dbContext.Associates.OrderBy(a => a.FullName).ToListAsync(),
+                Projects = await _dbContext.Projects.OrderBy(p=>p.ProjectName).ToListAsync(),
                 LeaveRequests = await _dbContext.LeaveRequests
                     .Where(l => l.IsValid && (l.LeaveStatusId == (int)LeaveStatuses.Pending || l.LeaveStatusId == (int)LeaveStatuses.Submitted))
                     .Include(l => l.Associate)
@@ -52,11 +55,12 @@ namespace VenkataAllocationManagementSystem.Controllers
             var model = new LeaveManagementViewModel
             {
                 Associates = await _dbContext.Associates.OrderBy(a => a.FullName).ToListAsync(),
+                Projects = await _dbContext.Projects.OrderBy(p => p.ProjectName).ToListAsync(),
                 LeaveRequests = await _dbContext.LeaveRequests
-                    .Where(l => l.IsValid && (l.LeaveStatusId == (int)LeaveStatuses.Approved || l.LeaveStatusId == (int)LeaveStatuses.Rejected))
+                    .Where(l => l.IsValid && (l.LeaveStatusId == (int)LeaveStatuses.Approved || l.LeaveStatusId == (int)LeaveStatuses.Rejected || l.LeaveStatusId == (int)LeaveStatuses.Submitted))
                     .Include(l => l.Associate)
                     .OrderByDescending(l => l.StartDate)
-                    .ToListAsync()
+                    .ToListAsync(),
                 // ,
                 // LeaveRequest = new LeaveRequest
                 // {
@@ -67,9 +71,130 @@ namespace VenkataAllocationManagementSystem.Controllers
                 //     Status = "Pending",
                 //     LeaveRequestId = (int)LeaveStatuses.Pending
                 // }
+                MonthList = await _dbContext.LeaveRequests
+                    .Where(l => l.IsValid && (l.LeaveStatusId == (int)LeaveStatuses.Approved || l.LeaveStatusId == (int)LeaveStatuses.Rejected || l.LeaveStatusId == (int)LeaveStatuses.Submitted))
+                    .GroupBy(lr => new { lr.StartDate.Year, lr.StartDate.Month })
+                    .OrderBy(g => g.Key.Year)
+                    .ThenBy(g => g.Key.Month)
+                    .Select(g => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem 
+                    {
+                       Value = $"{g.Key.Month}-{g.Key.Year}", // internal value
+                       Text = $"{CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(g.Key.Month)}-{g.Key.Year}" // display text
+                    })
+                    .ToListAsync() 
             };
 
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LeaveRequestsHistory(LeaveManagementViewModel loadLeaveswithFilters)
+        {
+            // if (loadLeaveswithFilters.AssociateId != 0 || loadLeaveswithFilters.ProjectId != 0 || !string.IsNullOrEmpty(loadLeaveswithFilters.SelectedMonth))
+            // {
+            //     loadLeaveswithFilters.Associates = await _dbContext.Associates.OrderBy(a => a.FullName).ToListAsync();
+            //     loadLeaveswithFilters.Projects = await _dbContext.Projects.OrderBy(p => p.ProjectName).ToListAsync();
+            //     var query = await _dbContext.LeaveRequests;  
+
+            //     loadLeaveswithFilters.MonthList = query
+            //         .GroupBy(lr => new { lr.StartDate.Year, lr.StartDate.Month })
+            //         .OrderBy(g => g.Key.Year)
+            //         .ThenBy(g => g.Key.Month)
+            //         .Select(g => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem 
+            //         {
+            //            Value = $"{g.Key.Month}-{g.Key.Year}", // internal value
+            //            Text = $"{CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(g.Key.Month)}-{g.Key.Year}", // display text
+            //            Selected = (loadLeaveswithFilters.SelectedMonth == $"{g.Key.Month}-{g.Key.Year}")   
+            //         })
+            //         .ToList();                
+
+            //     // loadLeaveswithFilters.MonthOptions = loadLeaveswithFilters.LeaveRequests
+            //     //     .Select(lr => new { MonthYear = lr.StartDate.ToString("MMM-yyyy"), Date = lr.StartDate })
+            //     //     .GroupBy(x => x.MonthYear)
+            //     //     .OrderBy(g => g.Min(x => x.Date))
+            //     //     .Select(g => g.Key)
+            //     //     .ToList();
+
+            //     System.Diagnostics.EventLog.WriteEntry("Application",loadLeaveswithFilters.SelectedMonth, System.Diagnostics.EventLogEntryType.Information);    
+
+            //     // Apply month-year filter only if SelectedMonth is set
+            //     if (!string.IsNullOrEmpty(loadLeaveswithFilters.SelectedMonth))
+            //     {
+            //         var parts = loadLeaveswithFilters.SelectedMonth.Split('-');
+            //         var month = int.Parse(parts[0]);   // "Feb"
+            //         var year = int.Parse(parts[1]);
+
+            //         System.Diagnostics.EventLog.WriteEntry("Application",month + " - " + year, System.Diagnostics.EventLogEntryType.Information);    
+
+            //         // Convert month name to number
+            //         // var month = DateTime.ParseExact(monthName, "MMM", CultureInfo.InvariantCulture).Month;
+
+            //         query = query.Where(l => l.StartDate.Month == month && l.StartDate.Year == year);
+            //     }         
+
+            //     loadLeaveswithFilters.LeaveRequests = query
+            //         .Where(
+            //             l => l.IsValid 
+            //             && (l.AssociateId == loadLeaveswithFilters.AssociateId || l.AssociateId == 0) 
+            //             && (l.ProjectId == loadLeaveswithFilters.ProjectId || l.ProjectId == 0) 
+            //             && (l.LeaveStatusId == (int)LeaveStatuses.Approved || l.LeaveStatusId == (int)LeaveStatuses.Rejected)                        )
+            //         .Include(l => l.Associate)
+            //         .OrderByDescending(l => l.StartDate)
+            //         .ToListAsync();       
+
+            //     System.Diagnostics.EventLog.WriteEntry("Application", $"LeaveRequestsHistory POST: AssociateId={loadLeaveswithFilters.AssociateId}, ProjectId={loadLeaveswithFilters.ProjectId}, LeaveRequestsCount={loadLeaveswithFilters.LeaveRequests.Count()}, MonthListCount={loadLeaveswithFilters.MonthList.Count()}", System.Diagnostics.EventLogEntryType.Information);
+
+            // }       
+
+            // Base query
+            var query = _dbContext.LeaveRequests
+                .Where(l => l.IsValid
+                    && (loadLeaveswithFilters.AssociateId == 0 || l.AssociateId == loadLeaveswithFilters.AssociateId)
+                    && (loadLeaveswithFilters.ProjectId == 0 || l.ProjectId == loadLeaveswithFilters.ProjectId)
+                    && (l.LeaveStatusId == (int)LeaveStatuses.Approved || l.LeaveStatusId == (int)LeaveStatuses.Rejected || l.LeaveStatusId == (int)LeaveStatuses.Submitted)
+                );
+
+            // Apply Month-Year filter only if user selected one
+            if (!string.IsNullOrEmpty(loadLeaveswithFilters.SelectedMonth))
+            {
+                // Example SelectedMonth = "Feb-2026"
+                var parts = loadLeaveswithFilters.SelectedMonth.Split('-');
+                var month = int.Parse(parts[0]);   // "Feb"
+                var year = int.Parse(parts[1]);
+
+                query = query.Where(l => l.StartDate.Month == month && l.StartDate.Year == year);
+            }
+
+            // Execute query
+            loadLeaveswithFilters.LeaveRequests = await query
+                .Include(l => l.Associate)
+                .OrderByDescending(l => l.StartDate)
+                .ToListAsync();
+
+            // Populate dropdowns for filters
+            loadLeaveswithFilters.Associates = await _dbContext.Associates
+                .OrderBy(a => a.FullName)
+                .ToListAsync();
+
+            loadLeaveswithFilters.Projects = await _dbContext.Projects
+                .OrderBy(p => p.ProjectName)
+                .ToListAsync();
+
+            // Rebuild Month-Year dropdown
+            loadLeaveswithFilters.MonthList = await _dbContext.LeaveRequests
+                .GroupBy(l => new { l.StartDate.Year, l.StartDate.Month })
+                .OrderBy(g => g.Key.Year)
+                .ThenBy(g => g.Key.Month)
+                .Select(g => new SelectListItem
+                {
+                    Value = $"{g.Key.Month}-{g.Key.Year}", // internal value
+                    Text = $"{CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(g.Key.Month)}-{g.Key.Year}",
+                    Selected = (loadLeaveswithFilters.SelectedMonth == $"{CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(g.Key.Month)}-{g.Key.Year}")
+                })
+                .ToListAsync();     
+
+            return View(loadLeaveswithFilters);
         }
 
         [HttpPost]
@@ -101,6 +226,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             }
 
             model.Associates = await _dbContext.Associates.OrderBy(a => a.FullName).ToListAsync();
+            model.Projects = await _dbContext.Projects.OrderBy(p=>p.ProjectName).ToListAsync();
             model.LeaveRequests = await _dbContext.LeaveRequests
                 .Include(l => l.Associate)
                 .OrderByDescending(l => l.StartDate)
@@ -126,6 +252,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             var model = new LeaveManagementViewModel
             {
                 Associates = await _dbContext.Associates.OrderBy(a => a.FullName).ToListAsync(),
+                Projects = await _dbContext.Projects.OrderBy(p=>p.ProjectName).ToListAsync(),
                 LeaveRequest = leaveRequest,
                 LeaveRequests = await _dbContext.LeaveRequests
                     .Where(l => l.IsValid)
@@ -184,6 +311,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             }
 
             model.Associates = await _dbContext.Associates.OrderBy(a => a.FullName).ToListAsync();
+            model.Projects = await _dbContext.Projects.OrderBy(p=>p.ProjectName).ToListAsync();
             model.LeaveRequests = await _dbContext.LeaveRequests
                 .Where(l => l.IsValid)
                 .Include(l => l.Associate)

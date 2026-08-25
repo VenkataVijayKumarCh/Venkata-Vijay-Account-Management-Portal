@@ -40,5 +40,7 @@ namespace VenkataAllocationManagementSystem.Models
 
         public Associate? Associate { get; set; }
         public int LeaveStatusId { get; set; }
+
+        public int ProjectId { get; set; }
     }
 }

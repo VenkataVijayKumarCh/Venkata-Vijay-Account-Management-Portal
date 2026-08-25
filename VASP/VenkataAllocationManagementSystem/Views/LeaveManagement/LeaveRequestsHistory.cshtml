@@ -6,20 +6,77 @@
 
 @model LeaveManagementViewModel
 
+<div>
+       
+</div>
+
 <div class="container-fluid mt-4">
     <div class="row mb-4">
         <div class="col-md-12">
             <h2 class="mb-4">
-                <i class="bi bi-calendar-event"></i> Leave Requests History
+                <i class="bi bi-calendar-event"></i> Leave Requests History 
             </h2>
         </div>
     </div>
 
+    <!-- Project & Associate Selection and Load Button -->
+    <section>
+        <form method="post" asp-action="LeaveRequestsHistory">
+            @Html.AntiForgeryToken()
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <label for="Search" class="form-label mb-0" style="font-weight:bold">Search</label>
+                @* <div class="input-group"> *@
+                    @if (Model.Projects != null && Model.Projects.Any())
+                    {
+                        @Html.DropDownListFor(p => p.ProjectId, 
+                            new SelectList(Model.Projects, "ProjectId", "ProjectName"),
+                            "-- Select Project --",
+                            htmlAttributes: new { @class = "form-control", id = "ProjectId", style = "width: 250px;" })                
+                    }
+                    else
+                    {
+                        <span class="text-danger">No Projects available. Please create the Project first.</span>
+                    }                
+                    @if (Model.Associates != null && Model.Associates.Any())
+                    {
+                        @Html.DropDownListFor(p => p.AssociateId, 
+                            new SelectList(Model.Associates, "AssociateId", "FullName"),
+                            "-- Select Associate --",
+                            htmlAttributes: new { @class = "form-control", id = "AssociateId", style = "width: 250px;" })                
+                    }
+                    else
+                    {
+                        <span class="text-danger">No Associates available. Please create an associate first.</span>
+                    }
+                     @if (Model.MonthList != null && Model.MonthList.Any())
+                    {
+                        @Html.DropDownListFor(p => p.SelectedMonth, 
+                            new SelectList(Model.MonthList, "Value", "Text"),
+                            "-- Select Month --",
+                            htmlAttributes: new { @class = "form-control", id = "keyMonth", style = "width: 250px;" })                
+                    }
+                    else
+                    {
+                        <span class="text-danger">No Months available. Please create a month first.</span>
+                    }
+                    <button type="submit" class="btn btn-primary" id="btnLoadLeaveRequestsHistory" name="action" value="load" style="width: 250px;">
+                        Load Leave Requests
+                    </button>
+                @* </div> *@
+            </div>
+        </form>
+    </section>
+
+
+    
+
+
+
     <!-- Leave Requests List -->
     <div class="card shadow-sm">
         <div class="card-header bg-info text-white">
-            <h5 class="mb-0">Leave Requests History</h5>
-        </div>
+            <h5 class="mb-0">Leave Requests History (Associates : @Model.LeaveRequests!.DistinctBy(lr => lr.AssociateId).Count() & Number of Leaves (in Days): @Model.LeaveRequests!.Sum(lr => lr.RequestedDays))</h5>
+        </div>        
         <div class="card-body">
             @if (Model.LeaveRequests != null && Model.LeaveRequests.Any())
             {
@@ -41,7 +98,7 @@
                             @foreach (var leave in Model.LeaveRequests)
                             {
                                 <tr>
-                                    <td>@leave.Associate?.FullName</td>
+                                    <td style="vertical-align: middle;">@leave.Associate?.FullName</td>
                                     <td style="text-align: center; vertical-align: middle;">
                                         <span class="badge bg-secondary">@leave.LeaveType</span>
                                     </td>

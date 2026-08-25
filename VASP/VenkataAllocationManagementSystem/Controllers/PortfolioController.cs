@@ -419,7 +419,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             portfolioDashboardView.ProjectId = portfolioDashboardView.ProjectId != 0 ? portfolioDashboardView.ProjectId : 0;
             portfolioDashboardView.AssociateId = portfolioDashboardView.AssociateId != 0 ? portfolioDashboardView.AssociateId : 0;
             // portfolioDashboardView.TimesheetPeriods = await _dbContext.TimesheetPeriods.Where(tp => tp.IsActive).ToListAsync();
-            portfolioDashboardView.TimesheetPeriods = await _dbContext.TimesheetPeriods
+            portfolioDashboardView.TimesheetPeriods = await _dbContext.TimesheetPeriods.OrderBy(tp => tp.TimesheetPeriodId)
                             .Where(p => _dbContext.Timesheets
                                     .Select(t => t.TimesheetPeriodId)
                                     .Distinct()
