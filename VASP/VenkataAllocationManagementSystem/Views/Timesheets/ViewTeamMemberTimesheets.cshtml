@@ -162,7 +162,7 @@
             }
             else
             {
-                @foreach (var ts in Model.TimesheetsInfo!.Where(t => t.AssociateId != Model.CurrentAssociateId))
+                @foreach (var ts in Model.TimesheetsInfo!.OrderByDescending(t => t.TimesheetStartDate).Where(t => t.AssociateId != Model.CurrentAssociateId))
                 {
                     <tr>                        
                         @{

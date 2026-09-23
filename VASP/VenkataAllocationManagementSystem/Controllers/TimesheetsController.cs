@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using VenkataAllocationManagementSystem.Data;
 using VenkataAllocationManagementSystem.ViewModels;
@@ -111,7 +112,8 @@ namespace VenkataAllocationManagementSystem.Controllers
                         CreatedBy = t.CreatedBy,
                         AssociateId = t.AssociateId,
                         AssociateName = a.FullName,
-                        CurrentAssociateId = myAssociateId  // Add this line
+                        CurrentAssociateId = myAssociateId,  // Add this line
+                        BillabilityTypeId = t.BillabilityTypeId
                     }).ToListAsync();
 
             var timesheetsDetails = new TimesheetsViewModel
@@ -250,7 +252,8 @@ namespace VenkataAllocationManagementSystem.Controllers
                         TotalHours = t.TotalHours,
                         CreatedBy = t.CreatedBy,
                         AssociateId = t.AssociateId,
-                        AssociateName = a.FullName //, CurrentAssociateId = myAssociateId  // Add this line
+                        AssociateName = a.FullName, // CurrentAssociateId = myAssociateId  // Add this line
+                        BillabilityTypeId = t.BillabilityTypeId
                     }).ToListAsync();
 
             var timesheetsDetails = new TimesheetsViewModel
@@ -283,24 +286,42 @@ namespace VenkataAllocationManagementSystem.Controllers
                         TotalHours = t.TotalHours,
                         CreatedBy = t.CreatedBy,
                         AssociateId = t.AssociateId,
-                        AssociateName = a.FullName //, CurrentAssociateId = myAssociateId  // Add this line
+                        AssociateName = a.FullName, //, CurrentAssociateId = myAssociateId  // Add this line
+                        BillabilityTypeId = t.BillabilityTypeId,
+                        AssociateTimesheetRows = new List<AssociateTimesheetRow>
+                        {
+                            new AssociateTimesheetRow
+                            {
+                                AssociateId = t.AssociateId,
+                                BillabilityTypeId = t.BillabilityTypeId
+                            }
+                        }
                     }).ToListAsync();
+
+            var lineItems = await _dbContext.TimesheetLineItems
+                .Where(tli => tli.TimesheetId == timesheetId)
+                .OrderBy(tli => tli.WorkDate)
+                .ToListAsync();
+            SetEntryValues(lineItems);
 
             var timesheetsDetails = new TimesheetsViewModel
             {
                 TimesheetsInfo = timesheetsInfo,
-                TimesheetLineItems = _dbContext.TimesheetLineItems
-                                        .Where(tli => tli.TimesheetId == timesheetId)
-                                        .OrderBy(tli => tli.WorkDate)
-                                        .ToList(),
-                IsEditMode = true
+                TimesheetLineItems = lineItems,
+                IsEditMode = true,
+                BillabilityTypes = _dbContext.BillabilityTypes.ToList()
             };
+
+            System.Diagnostics.EventLog.WriteEntry("Application", "EditTimesheet GET called with BillabilityTypeId: " + timesheetsDetails.TimesheetsInfo[0].BillabilityTypeId.ToString());
+
             return View(timesheetsDetails);
         }
 
         [HttpPost]
         public async Task<IActionResult> EditTimesheet(TimesheetsViewModel modelUpdatets)
         {
+            System.Diagnostics.EventLog.WriteEntry("Application","EditTimesheet POST called with BillabilityTypeId: " + modelUpdatets.TimesheetsInfo[0].BillabilityTypeId.ToString());
+            NormalizeLineItems(modelUpdatets.TimesheetLineItems, ModelState);
             if (ModelState.IsValid)
             {
                 var timesheet = await _dbContext.Timesheets
@@ -313,6 +334,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                     timesheet.TimesheetStatusId = (int)TimesheetStatusEnum.Submitted;
                     timesheet.ModifiedBy = GetCurrentUserId();
                     timesheet.ModifiedOn = DateTime.Now;
+                    timesheet.BillabilityTypeId = modelUpdatets.TimesheetsInfo[0].BillabilityTypeId;
 
                     _dbContext.Timesheets.Update(timesheet);
 
@@ -324,7 +346,9 @@ namespace VenkataAllocationManagementSystem.Controllers
                         if (existingItem != null)
                         {
                             existingItem.HoursWorked = item.HoursWorked;
+                            existingItem.DayCode = item.DayCode;
                             existingItem.Description = modelUpdatets.TimesheetLineItems[0].Description;
+                            //existingItem.BillabilityTypeId = modelUpdatets.AssociateTimesheetRows[0].BillabilityTypeId;
                             _dbContext.TimesheetLineItems.Update(existingItem);
                         }
                     }
@@ -387,6 +411,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             }
 
             var projects = await _dbContext.Projects.ToListAsync();
+            var billabilityTypes = await _dbContext.BillabilityTypes.ToListAsync();
             // ViewBag.Projects = projects.Select(p => new { Value = p.ProjectId, Text = p.ProjectName }).ToList();
 
             var model = new TimesheetsViewModel
@@ -395,7 +420,9 @@ namespace VenkataAllocationManagementSystem.Controllers
                 TimesheetStartDate = GetStartDate(periodId),
                 TimesheetEndDate = GetEndDate(periodId),
                 TimesheetLineItems = GenerateEmptyTimesheetLineItems(periodId),
-                Projects = projects
+                Projects = projects,
+                BillabilityTypes = billabilityTypes,
+                BillabilityTypeId = (int)BillabilityTypesEnum.Billable
                 //,ProjectId = 13 //await _dbContext.Allocations.FirstOrDefaultAsync(al => al.AssociateId.Equals(GetCurrentUserId));
             };
             return View(model);
@@ -418,7 +445,8 @@ namespace VenkataAllocationManagementSystem.Controllers
                     Status = TimesheetStatusEnum.Submitted.ToString(), //"Submitted",
                     TimesheetStatusId = (int)TimesheetStatusEnum.Submitted,
                     CreatedBy = GetCurrentUserId(),
-                    CreatedOn = DateTime.Now
+                    CreatedOn = DateTime.Now, 
+                    BillabilityTypeId = model.BillabilityTypeId
                 };
 
                 _dbContext.Timesheets.Add(timesheet);
@@ -444,6 +472,7 @@ namespace VenkataAllocationManagementSystem.Controllers
         public async Task<IActionResult> CreateMultipleTimesheets()
         {
             var projects = await _dbContext.Projects.ToListAsync();
+            var billabilityTypes = await _dbContext.BillabilityTypes.ToListAsync();
             
             var timesheetPeriods = await _dbContext.TimesheetPeriods.Where(tp => tp.IsActive).ToListAsync();            
 
@@ -452,7 +481,9 @@ namespace VenkataAllocationManagementSystem.Controllers
                 TimesheetPeriodId = 0,
                 ProjectId = 0,
                 TimesheetPeriods = timesheetPeriods,
-                Projects = projects
+                Projects = projects,
+                BillabilityTypes = billabilityTypes,
+                IncludeResignationAssociates = false
             };
             return View(model);
         }
@@ -479,6 +510,13 @@ namespace VenkataAllocationManagementSystem.Controllers
 
             if (string.Equals(action, "submitAll", StringComparison.OrdinalIgnoreCase))
             {
+                    if (!NormalizeLineItems(
+                        model.AssociateTimesheetRows?.SelectMany(row => row.TimesheetLineItems ?? new List<TimesheetLineItem>()),
+                        ModelState))
+                    {
+                        return View(model);
+                    }
+
                 // Validate & save all timesheets
                 if (!ModelState.IsValid)
                 {
@@ -504,6 +542,7 @@ namespace VenkataAllocationManagementSystem.Controllers
 
             // System.Diagnostics.EventLog.WriteEntry("Application", "CreateMultipleTimesheets called with projectId:  " + model.ProjectId.ToString(), System.Diagnostics.EventLogEntryType.Information);
             var projects = await _dbContext.Projects.ToListAsync();
+            var billabilityTypes = await _dbContext.BillabilityTypes.ToListAsync();
 
             var timesheetPeriods = await _dbContext.TimesheetPeriods.Where(tp => tp.IsActive).ToListAsync();
             //System.Diagnostics.EventLog.WriteEntry("Application", "CreateMultipleTimesheets called with timesheetperiods:  " + timesheetPeriods.Count.ToString(), System.Diagnostics.EventLogEntryType.Information);
@@ -541,6 +580,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             model.Associates = associatesAllocated; // associates,
             //Associates = GetAllocatedAssociates(13), // Initially empty, will be populated via AJAX based on selected project
             model.TimesheetPeriods = timesheetPeriods;
+            model.BillabilityTypes = billabilityTypes;
             // model.AssociateTimesheetRows = new List<AssociateTimesheetRow>()
             // {
             //     new AssociateTimesheetRow()
@@ -557,7 +597,9 @@ namespace VenkataAllocationManagementSystem.Controllers
                 var associateRow = new AssociateTimesheetRow
                 {
                     AssociateId = associate.AssociateId,
-                    TimesheetLineItems = GenerateEmptyTimesheetLineItems(model.TimesheetPeriodId)
+                    TimesheetLineItems = await GetTimesheetLineItemsWithAbsencesAsync(
+                        model.TimesheetPeriodId, associate.AssociateId),
+                    BillabilityTypeId = (int)BillabilityTypesEnum.Billable
                 };
                 if (model.AssociateTimesheetRows == null)
                 {
@@ -584,7 +626,8 @@ namespace VenkataAllocationManagementSystem.Controllers
                     Status = TimesheetStatusEnum.Submitted.ToString(),
                     CreatedBy = GetCurrentUserId(),
                     CreatedOn = DateTime.Now,
-                    TimesheetStatusId = (int)TimesheetStatusEnum.Submitted
+                    TimesheetStatusId = (int)TimesheetStatusEnum.Submitted,
+                    BillabilityTypeId = associateRow.BillabilityTypeId
                 };
 
                 _dbContext.Timesheets.Add(timesheet);
@@ -594,6 +637,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                     item.TimesheetLineItemId = Guid.NewGuid();
                     item.TimesheetId = timesheet.TimesheetId;
                     item.Description = model.Description;
+                    //item.BillabilityTypeId = associateRow.BillabilityTypeId;
                     _dbContext.TimesheetLineItems.Add(item);
                 }
             }
@@ -667,6 +711,7 @@ namespace VenkataAllocationManagementSystem.Controllers
 
             var TimesheetLineItems = new List<TimesheetLineItem>();
             var currentDate = period.WeekStartDate;
+            var billabilityTypes = _dbContext.BillabilityTypes.ToList();
 
             while (currentDate <= period.WeekEndDate)
             {
@@ -674,13 +719,148 @@ namespace VenkataAllocationManagementSystem.Controllers
                 {
                     WorkDate = currentDate,
                     HoursWorked = 0,
-                    Description = string.Empty
+                    Description = string.Empty 
+                    // ,
+                    // BillabilityTypes = billabilityTypes,
+                    // BillabilityTypeId = billabilityTypes.FirstOrDefault()?.BillabilityTypeId ?? 1
                 });
 
                 currentDate = currentDate.AddDays(1);
             }
 
             return TimesheetLineItems;
+        }
+
+        private async Task<List<TimesheetLineItem>> GetTimesheetLineItemsWithAbsencesAsync(
+            int periodId, int associateId)
+        {
+            var lineItems = GenerateEmptyTimesheetLineItems(periodId);
+            var startDate = lineItems.First().WorkDate;
+            var endDate = lineItems.Last().WorkDate;
+
+            var leaveRequests = await _dbContext.LeaveRequests
+                .Where(l => l.AssociateId == associateId
+                    && l.LeaveStatusId == (int)LeaveStatuses.Approved
+                    && l.StartDate <= endDate
+                    && l.EndDate >= startDate)
+                .Select(l => new { l.StartDate, l.EndDate, l.IncludeWeekends })
+                .ToListAsync();
+
+            var holidayDates = await _dbContext.Holidays
+                .Where(h => h.HolidayDate >= startDate && h.HolidayDate <= endDate)
+                .Select(h => h.HolidayDate)
+                .ToListAsync();
+
+            foreach (var item in lineItems)
+            {
+                var isLeaveDay = leaveRequests.Any(l =>
+                    item.WorkDate >= l.StartDate && item.WorkDate <= l.EndDate &&
+                    (l.IncludeWeekends || (item.WorkDate.DayOfWeek != DayOfWeek.Saturday &&
+                        item.WorkDate.DayOfWeek != DayOfWeek.Sunday)));
+
+                var isWeekend = IsWeekend(item.WorkDate);
+                item.DayCode = isWeekend
+                    ? "W"
+                    : isLeaveDay
+                        ? "L"
+                        : holidayDates.Contains(item.WorkDate) ? "H" : null;
+                item.EntryValue = GetEntryValue(item);
+            }
+
+            return lineItems;
+        }
+
+        private static void SetEntryValues(IEnumerable<TimesheetLineItem> lineItems)
+        {
+            foreach (var item in lineItems)
+            {
+                item.EntryValue = GetEntryValue(item);
+            }
+        }
+
+        private static string GetEntryValue(TimesheetLineItem item)
+        {
+            if (IsWeekend(item.WorkDate) && item.HoursWorked <= 0)
+            {
+                return "W";
+            }
+
+            if (IsWeekend(item.WorkDate) && item.HoursWorked > 0)
+            {
+                return item.HoursWorked.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+            }
+
+            return item.DayCode is "H" or "L" or "W"
+                ? item.DayCode
+                : item.HoursWorked.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        private static bool IsWeekend(DateOnly date)
+        {
+            return date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
+        }
+
+        private static bool NormalizeLineItems(
+            IEnumerable<TimesheetLineItem>? lineItems, ModelStateDictionary modelState)
+        {
+            if (lineItems == null)
+            {
+                modelState.AddModelError("TimesheetLineItems", "Timesheet entries are missing.");
+                return false;
+            }
+
+            var isValid = true;
+            foreach (var item in lineItems)
+            {
+                var value = item.EntryValue?.Trim();
+                var isWeekend = IsWeekend(item.WorkDate);
+                if (string.IsNullOrEmpty(value))
+                {
+                    item.DayCode = isWeekend ? "W" : null;
+                    item.HoursWorked = 0;
+                    continue;
+                }
+
+                if (string.Equals(value, "H", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(value, "L", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (isWeekend)
+                    {
+                        modelState.AddModelError(
+                            "TimesheetLineItems",
+                            $"Weekend date {item.WorkDate:dd MMM yyyy} cannot be marked as H or L. Enter hours or W.");
+                        isValid = false;
+                        continue;
+                    }
+
+                    item.DayCode = value!.ToUpperInvariant();
+                    item.HoursWorked = 0;
+                    continue;
+                }
+
+                if ((decimal.TryParse(value, System.Globalization.NumberStyles.Number,
+                    System.Globalization.CultureInfo.CurrentCulture, out var hours) ||
+                    decimal.TryParse(value, System.Globalization.NumberStyles.Number,
+                    System.Globalization.CultureInfo.InvariantCulture, out hours)) &&
+                    hours >= 0 && hours <= 24)
+                {
+                    item.DayCode = hours > 0 ? "Hours" : isWeekend ? "W" : null;
+                    item.HoursWorked = hours;
+                    continue;
+                }
+
+                if (string.Equals(value, "W", StringComparison.OrdinalIgnoreCase) && isWeekend)
+                {
+                    item.DayCode = "W";
+                    item.HoursWorked = 0;
+                    continue;
+                }
+
+                modelState.AddModelError("TimesheetLineItems", $"'{item.EntryValue}' is not a valid hour value, H, or L.");
+                isValid = false;
+            }
+
+            return isValid;
         }
 
         private List<Associate> GetAllocatedAssociates(int projectId, bool includeResignationAssociates)
@@ -728,6 +908,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             var timesheetPeriods = await _dbContext.TimesheetPeriods.Where(tp => tp.IsActive).ToListAsync();
 
             var projects = await _dbContext.Projects.ToListAsync();
+            var billabilityTypes = await _dbContext.BillabilityTypes.ToListAsync();
             // ViewBag.Projects = projects.Select(p => new { Value = p.ProjectId, Text = p.ProjectName }).ToList();
             // System.Diagnostics.EventLog.WriteEntry("Application", "No of Timesheet Periods: " + timesheetPeriods.Count.ToString());
             // System.Diagnostics.EventLog.WriteEntry("Application", "No of Projects: " + projects.Count.ToString());
@@ -736,7 +917,9 @@ namespace VenkataAllocationManagementSystem.Controllers
                 TimesheetPeriodId = 0,
                 ProjectId = 0,
                 TimesheetPeriods = timesheetPeriods,
-                Projects = projects
+                Projects = projects,
+                BillabilityTypes = billabilityTypes,
+                BillabilityTypeId = (int)BillabilityTypesEnum.Billable
                 //,ProjectId = 13 //await _dbContext.Allocations.FirstOrDefaultAsync(al => al.AssociateId.Equals(GetCurrentUserId));
             };
             return View(model);
@@ -779,6 +962,11 @@ namespace VenkataAllocationManagementSystem.Controllers
                 // if (model.TimesheetLineItems != null && model.TimesheetLineItems.Count > 0)
                 if (string.Equals(action, "submitmyts", StringComparison.OrdinalIgnoreCase))
                 {
+                    if (!NormalizeLineItems(model.TimesheetLineItems, ModelState))
+                    {
+                        return View(model);
+                    }
+
                     // System.Diagnostics.EventLog.WriteEntry("Application", "Before Saving Timesheet");
                     var timesheet = new Timesheet
                     {
@@ -792,7 +980,8 @@ namespace VenkataAllocationManagementSystem.Controllers
                         Status = TimesheetStatusEnum.Submitted.ToString(),
                         CreatedBy = GetCurrentUserId(),
                         CreatedOn = DateTime.Now,
-                        TimesheetStatusId = (int)TimesheetStatusEnum.Submitted
+                        TimesheetStatusId = (int)TimesheetStatusEnum.Submitted,
+                        BillabilityTypeId = model.AssociateTimesheetRows[0].BillabilityTypeId
                     };
 
                     _dbContext.Timesheets.Add(timesheet);
@@ -812,10 +1001,12 @@ namespace VenkataAllocationManagementSystem.Controllers
                 }
                 else
                 {
+                    
                     // System.Diagnostics.EventLog.WriteEntry("Application", "Timesheet Reporting Period Id: " + model.TimesheetPeriodId.ToString());
                     var timesheetPeriods = await _dbContext.TimesheetPeriods.Where(tp => tp.IsActive).ToListAsync();
 
                     var projects = await _dbContext.Projects.ToListAsync();
+                    var billabilityTypes = await _dbContext.BillabilityTypes.ToListAsync();
 
                     model.TimesheetPeriodId = model.TimesheetPeriodId;
                     model.ProjectId = model.ProjectId;
@@ -823,7 +1014,31 @@ namespace VenkataAllocationManagementSystem.Controllers
                     model.TimesheetEndDate = GetEndDate(model.TimesheetPeriodId);
                     model.TimesheetPeriods = timesheetPeriods;
                     model.Projects = projects;
-                    model.TimesheetLineItems = GenerateEmptyTimesheetLineItems(model.TimesheetPeriodId);
+                    model.BillabilityTypes = billabilityTypes;
+                    model.BillabilityTypeId = 0;
+                    model.AssociateTimesheetRows = new List<AssociateTimesheetRow>
+                    {
+                        new AssociateTimesheetRow
+                        {
+                            AssociateId = GetCurrentUserId(),
+                            BillabilityTypeId = (int)BillabilityTypesEnum.Billable
+                        }
+                    };
+                    var timesheetExists = _dbContext.Timesheets.Any(ts =>
+                        ts.TimesheetPeriodId == model.TimesheetPeriodId &&
+                        ts.AssociateId == GetCurrentUserId());
+
+                    if (timesheetExists)
+                    {
+                        // Timesheet already exists for this period and user
+                        // it should display timesheet already exists message and redirect to view my timesheets page
+                        TempData["ErrorMessage"] = "Timesheet already exists for the selected period.";                        
+                    }
+                    else
+                    {
+                        model.TimesheetLineItems = await GetTimesheetLineItemsWithAbsencesAsync(
+                            model.TimesheetPeriodId, GetCurrentUserId());
+                    }
                     ModelState.Clear();  // Clear ModelState so new values show
                     return View(model);
                 }
@@ -832,7 +1047,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             return View(model);
         }
 
-        #region  Approve and Reject Timesheets
+        #region  ReOpen, Approve and Reject Timesheets
 
         public IActionResult ApproveTimesheet(Guid timesheetId, string origin="", int tsperiodId = 0, int tsassociateId = 0)
         {

@@ -18,6 +18,8 @@ namespace VenkataAllocationManagementSystem.Models
         [Required, Range(0.5, 365)]
         public decimal RequestedDays { get; set; }
 
+        public bool IncludeWeekends { get; set; }
+
         [Required, StringLength(50)]
         public string LeaveType { get; set; } = "Annual";
 

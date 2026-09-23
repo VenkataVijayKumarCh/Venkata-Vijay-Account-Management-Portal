@@ -142,6 +142,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUG9ydGZvbGlvXFBvcnRmb2xpb0Rhc2hib2FyZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/PrivilegeService/PrivilegeMatrix.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJpdmlsZWdlU2VydmljZVxQcml2aWxlZ2VNYXRyaXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/PrivilegeService/_PrivilegeMatrix.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJpdmlsZWdlU2VydmljZVxfUHJpdmlsZWdlTWF0cml4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Venkata Vijay Kumar Chakka/Venkata Personal/Venkata Vijay Account Management Portal/VASP/VenkataAllocationManagementSystem/Views/Projects/CreateProject.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcQ3JlYXRlUHJvamVjdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

@@ -11,9 +11,16 @@ namespace VenkataAllocationManagementSystem.Models
 
         public DateOnly WorkDate { get; set; }
         public decimal HoursWorked { get; set; }
+        public string? DayCode { get; set; }
+        [NotMapped]
+        public string? EntryValue { get; set; }
         public string? Description { get; set; }
 
         public Timesheet? Timesheet { get; set; }
+
+        //public int? BillabilityTypeId { get; set; } // FK    
+
+        //public List<BillabilityTypes>? BillabilityTypes { get; set; }    
 
         // public int AssociateId { get; set; }
 

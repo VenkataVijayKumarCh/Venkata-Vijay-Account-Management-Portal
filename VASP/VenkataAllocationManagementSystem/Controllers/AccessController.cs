@@ -64,13 +64,17 @@ public class AccessController : Controller
                     new Claim(ClaimTypes.GivenName, validUser.FirstName),
                     new Claim(ClaimTypes.Surname, validUser.LastName),
                     new Claim(ClaimTypes.Email, validUser.UserEmail),
-                    new Claim("UserId", validUser.UserId.ToString())                    
+                    new Claim("UserId", validUser.UserId.ToString()),
+                    new Claim("AssociateId", validUser.AssociateId.ToString())                    
                 };
 
+                var roleName = string.Empty; 
                 foreach (var role in userRoles)
                 {
                     claims.Add(new Claim(ClaimTypes.Role, role));
+                    roleName += role +  ",";
                 }
+                claims.Add(new Claim("RoleName", roleName.TrimEnd(',')));
 
                 var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var principal = new ClaimsPrincipal(identity);

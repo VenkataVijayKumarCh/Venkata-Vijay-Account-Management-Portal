@@ -32,6 +32,7 @@ namespace VenkataAllocationManagementSystem.Controllers
         }
 
         // GET: Accounts/Create
+        [PrivilegeAuthorize("Accounts", "Create")]
         public IActionResult CreateAccount()
         {
             return View();

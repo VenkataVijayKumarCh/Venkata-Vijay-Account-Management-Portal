@@ -1,0 +1,39 @@
+@model VenkataAllocationManagementSystem.ViewModels.PrivilegeMatrixViewModel
+
+<form asp-action="UpdateMatrix" method="post">
+    <input type="hidden" name="RoleId" value="@Model.RoleId" />
+
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>Privileges</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var module in Model.Modules)
+                {
+                    <tr>
+                        <td>@module.ModuleName</td>
+                        <td>
+                            @foreach (var privilege in Model.ModulePrivileges.Where(p => p.ModuleId == module.ModuleId))
+                            {
+                                var hasPrivilege = Model.RoleModulePrivileges.Any(rp => rp.ModulePrivilegeId == privilege.ModulePrivilegeId);
+                                <label>
+                                    <input type="checkbox"
+                                        name="SelectedPrivilegeIds"
+                                        value="@privilege.ModulePrivilegeId"
+                                        @(hasPrivilege ? "checked" : "") />
+                                    @privilege.PrivilegeName
+                                </label><br />
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>

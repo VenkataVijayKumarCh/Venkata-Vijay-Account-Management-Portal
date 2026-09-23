@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using VenkataAllocationManagementSystem.Models;
+using VenkataAllocationManagementSystem.Data.Migrations;
 
 namespace VenkataAllocationManagementSystem.Data
 {
@@ -43,6 +44,12 @@ namespace VenkataAllocationManagementSystem.Data
 
         public DbSet<Holiday> Holidays { get; set; }
 
+        public DbSet<Module> Modules { get; set; }
+        public DbSet<ModulePrivilege> ModulePrivileges { get; set; }
+        public DbSet<RoleModulePrivilege> RoleModulePrivileges { get; set; }
+
+
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -70,6 +77,29 @@ namespace VenkataAllocationManagementSystem.Data
             builder.Entity<TimesheetLineItem>()
                 .Property(tl => tl.HoursWorked)
                 .HasPrecision(5, 2);
+
+            // Unique constraint: RoleId + ModulePrivilegeId
+            builder.Entity<RoleModulePrivilege>()
+                .HasIndex(rmp => new { rmp.RoleId, rmp.ModulePrivilegeId })
+                .IsUnique();
+
+            //Relationships
+            // builder.Entity<RoleModulePrivilege>()
+            //     .HasOne(rmp => rmp.Roles)
+            //     .WithMany(r => r.RoleModulePrivileges)
+            //     .HasForeignKey(rmp => rmp.RoleId);
+
+            builder.Entity<RoleModulePrivilege>()
+                .HasOne(rmp => rmp.ModulePrivilege)
+                .WithMany(mp => mp.RoleModulePrivileges)
+                .HasForeignKey(rmp => rmp.ModulePrivilegeId);
+
+            // builder.Entity<ModulePrivilege>()
+            //     .HasOne(mp => mp.ModulePrivilegeId)
+            //     .WithMany(m => m.ModulePrivileges)
+            //     .HasForeignKey(mp => mp.ModuleId);
+
+            
 
             // Example: Configure relationships, constraints, etc.
             // builder.Entity<Project>()

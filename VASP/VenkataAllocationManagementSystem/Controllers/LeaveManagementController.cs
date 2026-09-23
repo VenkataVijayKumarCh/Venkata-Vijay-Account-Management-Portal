@@ -155,6 +155,27 @@ namespace VenkataAllocationManagementSystem.Controllers
                     && (l.LeaveStatusId == (int)LeaveStatuses.Approved || l.LeaveStatusId == (int)LeaveStatuses.Rejected || l.LeaveStatusId == (int)LeaveStatuses.Submitted)
                 );
 
+            // System.Diagnostics.EventLog.WriteEntry("Application", "Associate Id " + int.Parse(User.FindFirst("AssociateId")!.Value.ToString()));
+
+            // ✅ Role-based filtering
+            if (User.IsInRole("Associate"))
+            {
+                // Only show logged-in associate’s own data
+                var associateId = int.Parse(User.FindFirst("AssociateId")!.Value);
+                query = query.Where(l => l.AssociateId == associateId);
+            }
+            else if (User.IsInRole("Manager"))
+            {
+                // Example: restrict to manager’s project(s)
+                var managerProjectIds = await _dbContext.Projects
+                    //.Where(p => p.ManagerEmail == User.Identity!.Name)
+                    .Select(p => p.ProjectId)
+                    .ToListAsync();
+
+                query = query.Where(l => managerProjectIds.Contains(l.ProjectId));
+            }
+            // Admins see everything (no extra filter)
+
             // Apply Month-Year filter only if user selected one
             if (!string.IsNullOrEmpty(loadLeaveswithFilters.SelectedMonth))
             {
@@ -172,14 +193,46 @@ namespace VenkataAllocationManagementSystem.Controllers
                 .OrderByDescending(l => l.StartDate)
                 .ToListAsync();
 
-            // Populate dropdowns for filters
-            loadLeaveswithFilters.Associates = await _dbContext.Associates
-                .OrderBy(a => a.FullName)
-                .ToListAsync();
+            // Populate dropdowns
+            if (User.IsInRole("User"))
+            {
+                // Projects dropdown → only projects linked via Allocations
+                var associateId = int.Parse(User.FindFirst("UserId")!.Value);
+                loadLeaveswithFilters.Associates = await _dbContext.Associates
+                    .Where(a => a.AssociateId == associateId)
+                    .ToListAsync();
+                         
 
-            loadLeaveswithFilters.Projects = await _dbContext.Projects
-                .OrderBy(p => p.ProjectName)
-                .ToListAsync();
+                loadLeaveswithFilters.Projects = await _dbContext.Allocations
+                    .Where(al => al.AssociateId == associateId)
+                    .Join(_dbContext.Projects,
+                        al => al.ProjectId,
+                        p => p.ProjectId,
+                        (al, p) => new Project
+                        {
+                            ProjectId = p.ProjectId,
+                            ProjectName = p.ProjectName,
+                            ProjectDescription = p.ProjectDescription,
+                            AccountId = p.AccountId,
+                            StartDate = p.StartDate,
+                            EndDate = p.EndDate,
+                            IsActive = p.IsActive
+                        })
+                    .Distinct()
+                    .OrderBy(p => p.ProjectName)
+                    .ToListAsync();
+
+            }
+            else
+            {
+                loadLeaveswithFilters.Associates = await _dbContext.Associates
+                    .OrderBy(a => a.FullName)
+                    .ToListAsync();
+
+                loadLeaveswithFilters.Projects = await _dbContext.Projects
+                    .OrderBy(p => p.ProjectName)
+                    .ToListAsync();
+            }
 
             // Rebuild Month-Year dropdown
             loadLeaveswithFilters.MonthList = await _dbContext.LeaveRequests
@@ -213,7 +266,10 @@ namespace VenkataAllocationManagementSystem.Controllers
 
             if (model.LeaveRequest.RequestedDays <= 0)
             {
-                model.LeaveRequest.RequestedDays = CalculateDefaultRequestedDays(model.LeaveRequest.StartDate, model.LeaveRequest.EndDate);
+                model.LeaveRequest.RequestedDays = CalculateDefaultRequestedDays(
+                    model.LeaveRequest.StartDate,
+                    model.LeaveRequest.EndDate,
+                    model.LeaveRequest.IncludeWeekends);
             }
 
             if (ModelState.IsValid)
@@ -287,7 +343,10 @@ namespace VenkataAllocationManagementSystem.Controllers
 
             if (model.LeaveRequest.RequestedDays <= 0)
             {
-                model.LeaveRequest.RequestedDays = CalculateDefaultRequestedDays(model.LeaveRequest.StartDate, model.LeaveRequest.EndDate);
+                model.LeaveRequest.RequestedDays = CalculateDefaultRequestedDays(
+                    model.LeaveRequest.StartDate,
+                    model.LeaveRequest.EndDate,
+                    model.LeaveRequest.IncludeWeekends);
             }
 
             if (ModelState.IsValid)
@@ -297,6 +356,7 @@ namespace VenkataAllocationManagementSystem.Controllers
                 existingRequest.EndDate = model.LeaveRequest.EndDate;
                 existingRequest.LeaveType = model.LeaveRequest.LeaveType;
                 existingRequest.RequestedDays = model.LeaveRequest.RequestedDays;
+                existingRequest.IncludeWeekends = model.LeaveRequest.IncludeWeekends;
                 existingRequest.Notes = model.LeaveRequest.Notes;
                 existingRequest.RequestedOn = DateTime.Now;
                 existingRequest.LeaveStatusId = (int)LeaveStatuses.Pending; // Reset the LeaveStatusId to Pending on edit
@@ -487,7 +547,7 @@ namespace VenkataAllocationManagementSystem.Controllers
             return RedirectToAction(nameof(ManageHolidays));
         }
 
-        private decimal CalculateDefaultRequestedDays(DateOnly startDate, DateOnly endDate)
+        private decimal CalculateDefaultRequestedDays(DateOnly startDate, DateOnly endDate, bool includeWeekends)
         {
             if (endDate < startDate)
             {
@@ -497,7 +557,8 @@ namespace VenkataAllocationManagementSystem.Controllers
             decimal count = 0;
             for (var current = startDate; current <= endDate; current = current.AddDays(1))
             {
-                var isWeekend = current.DayOfWeek == DayOfWeek.Saturday || current.DayOfWeek == DayOfWeek.Sunday;
+                var isWeekend = !includeWeekends &&
+                    (current.DayOfWeek == DayOfWeek.Saturday || current.DayOfWeek == DayOfWeek.Sunday);
                 var isHoliday = _dbContext.Holidays.Any(h => h.HolidayDate == current);
                 if (!isWeekend && !isHoliday)
                 {

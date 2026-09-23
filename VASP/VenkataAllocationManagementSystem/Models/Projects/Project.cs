@@ -29,5 +29,6 @@ namespace VenkataAllocationManagementSystem.Models
         public DateOnly EndDate { get; set; }
 
         public string? PurchaseOrder { get; set; }
+        public int ProjectManagerId { get; set; }
     }
 }

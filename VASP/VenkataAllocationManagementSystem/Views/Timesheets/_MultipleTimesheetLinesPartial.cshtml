@@ -13,6 +13,7 @@ else
         <thead>
             <tr>
                 <th></th>
+                <th></th>
                 @for (int index = 0; index < Model.AssociateTimesheetRows![0].TimesheetLineItems!.Count; index++)
                 {
                     <th>
@@ -22,7 +23,8 @@ else
                 <th colspan="2"></th>
             </tr>
             <tr>
-                <th>Associate</th>                
+                <th>Associate</th>
+                <th>Billability</th>
                 @for (int i = 0; i < Model.AssociateTimesheetRows[0].TimesheetLineItems!.Count; i++)
                 {                    
                     <th>
@@ -78,11 +80,17 @@ else
                         @Html.ValidationMessageFor(m => m.AssociateTimesheetRows![index]!.AssociateId)
                         @Html.HiddenFor(m => m.AssociateTimesheetRows![index]!.AssociateId, new { @class = "form-control" })
                     </td>
+                    <td>
+                        @Html.DropDownListFor(m => m.AssociateTimesheetRows![index]!.BillabilityTypeId, 
+                            new SelectList(Model.BillabilityTypes, "BillabilityTypeId", "BillabilityTypeName"), 
+                            "Select Billability", new { @class = "form-control", @id = "ddlBillability" })
+                        @Html.ValidationMessageFor(m => m.AssociateTimesheetRows![index]!.BillabilityTypeId)
+                    </td>
                     @for (int iLineItems = 0; iLineItems < Model.AssociateTimesheetRows![index]!.TimesheetLineItems!.Count; iLineItems++)
                     {
                         @Html.HiddenFor(m => m.AssociateTimesheetRows![index]!.TimesheetLineItems![iLineItems].WorkDate)
                         <td>
-                            @Html.TextBoxFor(m => m.AssociateTimesheetRows![index]!.TimesheetLineItems![iLineItems].HoursWorked, new { @class = "form-control", type = "number", step = "0.25", min = "0", max = "24" })
+                            @Html.TextBoxFor(m => m.AssociateTimesheetRows![index]!.TimesheetLineItems![iLineItems].EntryValue, new { @class = "form-control", type = "text", inputmode = "decimal", placeholder = "Hours, H or L" })
                             @Html.ValidationMessageFor(m => m.AssociateTimesheetRows![index]!.TimesheetLineItems![iLineItems].HoursWorked)
                         </td>                    
                     }

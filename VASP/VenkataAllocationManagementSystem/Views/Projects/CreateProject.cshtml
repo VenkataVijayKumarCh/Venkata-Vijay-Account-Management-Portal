@@ -32,14 +32,29 @@
         </div>
     }
     <div class="form-group">
-        <label asp-for="Project.ProjectName"></label>
+        <label asp-for="Project.ProjectName">Project Name</label>
         <input asp-for="Project.ProjectName" class="form-control" />
         <span asp-validation-for="Project.ProjectName" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Project.ProjectDescription"></label>
+        <label asp-for="Project.ProjectDescription">Project Description</label>
         <input asp-for="Project.ProjectDescription" class="form-control" />
         <span asp-validation-for="Project.ProjectDescription" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Project.ProjectManagerId">Project Manager</label>
+        @if(@Model.Associates != null && @Model.Associates.Any())
+            {
+                @Html.DropDownListFor(p => p.Project!.ProjectManagerId, 
+                    new SelectList(@Model.Associates, "AssociateId", "FullName"),  
+                    "-- Select Associate --",
+                    htmlAttributes: new { @class = "form-control", id = "ddlAssociates"})
+            }
+            else
+            {
+                <span class="text-danger">No associates available. Please create an associate first.</span>
+            }
+            <span asp-validation-for="@Model.Project!.ProjectManagerId" class="text-danger"></span>
     </div>
     @* <div class="form-group form-check">
         <input asp-for="IsActive" class="form-check-input" />

@@ -53,13 +53,7 @@
                                     <li><a href="@Url.Action(action:"AssociateManagement", controller: "Associates")">Associates</a></li>
                                     <li><a href="@Url.Action(action:"AllocationManagement", controller: "Allocations")">Allocations</a></li>
                                 </ul>
-                            </li>
-                            @if(@User.IsInRole(role: "Admin"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Users" asp-action="UserManagement">User Administration</a>
-                                </li>
-                            }
+                            </li>                           
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Timesheets" asp-action="ViewMyTimesheets">Timesheets</a>
                                 <ul class="submenu">
@@ -82,6 +76,17 @@
                                     <li><a href="@Url.Action(action:"MLSummaryReport", controller: "Portfolio")">ML Summary Report</a></li>                                    
                                 </ul>
                             </li>
+                            // asp-controller="Users" asp-action="UserManagement"
+                             @if(@User.IsInRole(role: "Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" >User Administration</a>
+                                    <ul class="submenu">
+                                        <li><a href="@Url.Action(action:"UserManagement", controller: "Users")">User Management</a></li>
+                                        <li><a href="@Url.Action(action:"PrivilegeMatrix", controller: "PrivilegeService")">Privilege Matrix</a></li>
+                                    </ul>
+                                </li>
+                            }
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="UserProfile" asp-action="MyProfile">My Profile</a>
                             </li>

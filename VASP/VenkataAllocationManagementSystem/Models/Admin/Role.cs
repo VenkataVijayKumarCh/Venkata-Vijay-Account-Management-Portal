@@ -14,10 +14,11 @@ namespace VenkataAllocationManagementSystem.Models
         [Required, StringLength(500)]
         public bool IsActive { get; set; }
 
-        public DateOnly CreatedDate { get; set; } 
+        public DateOnly CreatedDate { get; set; }
+
+        public RoleModulePrivilege? RoleModulePrivileges { get; set;}
 
         // Navigation property for related users
         // public ICollection<User> Users { get; set; } = new List<User>();
-
     }
 }

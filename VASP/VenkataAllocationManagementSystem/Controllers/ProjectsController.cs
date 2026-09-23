@@ -63,10 +63,12 @@ namespace VenkataAllocationManagementSystem.Controllers
             var projectInfo = new ProjectManagementViewModel();
             var accountInfo = new ManagementDashboardViewModel
             {
-                Accounts = await _dbContext.Accounts.ToListAsync()
+                Accounts = await _dbContext.Accounts.ToListAsync(),
+                Associates = await _dbContext.Associates.ToListAsync()
             };
 
             projectInfo.Accounts = accountInfo.Accounts;
+            projectInfo.Associates = accountInfo.Associates;
 
             return View(projectInfo);
         }
@@ -137,6 +139,11 @@ namespace VenkataAllocationManagementSystem.Controllers
         public async Task<IActionResult> EditProject(int ProjectId)
         {
             var project = await _dbContext.Projects.FindAsync(ProjectId);
+            //var associates = await _dbContext.Associates.ToListAsync();
+            var associates = from a in _dbContext.Associates
+                                     join al in _dbContext.Allocations on a.AssociateId equals al.AssociateId
+                                     where al.ProjectId == ProjectId
+                                     select a;
             if (project == null)
             {
                 return NotFound();
@@ -147,28 +154,35 @@ namespace VenkataAllocationManagementSystem.Controllers
                 : null;
 
             ViewBag.AccountName = accountName;
-            return View(project);
+            var projectInfo = new ProjectManagementViewModel
+            {
+                Project = project,
+                Associates = associates
+            };
+            return View(projectInfo);
         }
 
-        public async Task<IActionResult> UpdateProject(int ProjectId, Project project)
+        public async Task<IActionResult> UpdateProject(ProjectManagementViewModel projectInfo)
         {
-            if (ProjectId != project.ProjectId)
-            {
-                return NotFound();
-            }
+            var project = projectInfo.Project;
+        
+            // if (ProjectId != project.ProjectId)
+            // {
+            //     return NotFound();
+            // }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _dbContext.Update(project);
+                    _dbContext.Projects.Update(project!);
                     await _dbContext.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Project updated successfully.";
                     return RedirectToAction(nameof(ProjectManagement));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _dbContext.Projects.AnyAsync(p => p.ProjectId == ProjectId))
+                    if (!await _dbContext.Projects.AnyAsync(p => p.ProjectId == projectInfo.Project!.ProjectId))
                     {
                         return NotFound();
                     }

@@ -63,7 +63,7 @@
 
             function updateTotalHours() {
                 let total = 0;
-                document.querySelectorAll('input[name$=".HoursWorked"]').forEach(function(input) {
+                document.querySelectorAll('input[name$=".EntryValue"]').forEach(function(input) {
                     let val = parseFloat(input.value);
                     if (!isNaN(val)) total += val;
                 });
@@ -73,7 +73,7 @@
 
             document.addEventListener("DOMContentLoaded", function () {
                 updateTotalHours();
-                document.querySelectorAll('input[name$=".HoursWorked"]').forEach(function(input) {
+                document.querySelectorAll('input[name$=".EntryValue"]').forEach(function(input) {
                     input.addEventListener('input', updateTotalHours);
                 });
             });

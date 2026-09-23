@@ -1,0 +1,31 @@
+@model IEnumerable<Role>
+
+<h2>Privilege Matrix</h2>
+
+<h4>Privilege Matrix screen will assist Admin to manage privileges across module to different kinds of Roles</h4>
+
+<div class="d-flex align-items-center gap-3 mb-4">
+    <label for="Search" class="form-label mb-0" style="font-weight:bold">Select appropriate Role</label>
+    <select id="roleDropdown" class="form-control">
+        <option value="">-- Select Role --</option>
+        @foreach (var role in Model)
+        {
+            <option value="@role.RoleId">@role.RoleName</option>
+        }
+    </select>
+</div>
+
+<div id="matrixContainer"></div>
+
+@section Scripts {
+    <script>
+        $("#roleDropdown").change(function () {
+            var roleId = $(this).val();
+            if (roleId) {
+                $.get("/PrivilegeService/GetMatrix?roleId=" + roleId, function (data) {
+                    $("#matrixContainer").html(data);
+                });
+            }
+        });
+    </script>
+}

@@ -30,8 +30,8 @@ body {
 }
 
 .centered-body {
-    width: 1500px;               /* Standard width for desktop apps */
-    height: 1150px;              /* Optional fixed height */
+    width: 1700px;               /* Standard width for desktop apps */
+    height: 1200px;              /* Optional fixed height */
     margin: 0 auto;             /* Horizontally center */
     position: relative;
     top: 50%;

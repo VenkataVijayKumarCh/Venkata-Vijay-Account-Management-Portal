@@ -22,5 +22,6 @@ namespace VenkataAllocationManagementSystem.ViewModels
         public IEnumerable<Associate>? Associates { get; set; }
         
         public IEnumerable<Allocation>? Allocations { get; set; }
+
     }
 }

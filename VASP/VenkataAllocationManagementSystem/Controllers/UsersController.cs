@@ -124,6 +124,7 @@ public class UsersController : Controller
                 // var existingUserInfo = _dbContext.Users.FindAsync(userInfo.User!.UserId);
                 
                 userInfo.User!.LastModifiedOn = DateTime.Now;
+                userInfo.User!.LastModifiedBy = User.Identity!.Name!;
 
                 _dbContext.Update(userInfo.User);
                 // _dbContext.Entry(userInfo.User).Property(u => u.Password).IsModified = false;

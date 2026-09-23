@@ -216,6 +216,18 @@
                             </div>
                         </div>
 
+                        <div class="form-check mb-3 @(isEditable ? "" : "readonly-section")">
+                            <input class="form-check-input" type="checkbox" id="LeaveRequest.IncludeWeekends"
+                                   name="LeaveRequest.IncludeWeekends" value="true"
+                                   @(Model.LeaveRequest?.IncludeWeekends == true ? "checked" : "")
+                                   @(isEditable ? "onchange=\"calculateDays()\"" : "disabled")>
+                            <input type="hidden" name="LeaveRequest.IncludeWeekends" value="false">
+                            <label class="form-check-label" for="LeaveRequest.IncludeWeekends">
+                                Include Saturdays and Sundays
+                            </label>
+                            <div class="form-text">Select this for associates who provide weekend support.</div>
+                        </div>
+
                         <div class="mb-3 @(isEditable ? "" : "readonly-section")">
                             <label class="form-label" for="LeaveRequest.Notes">Notes</label>
                             <textarea class="form-control form-control-sm" id="LeaveRequest.Notes" name="LeaveRequest.Notes" rows="2" @(isEditable ? "" : "disabled")>@Model.LeaveRequest?.Notes</textarea>
@@ -316,15 +328,21 @@
     function calculateDays() {
         const startInput = document.getElementById('LeaveRequest.StartDate').value;
         const endInput = document.getElementById('LeaveRequest.EndDate').value;
+        const includeWeekends = document.getElementById('LeaveRequest.IncludeWeekends').checked;
 
         if (startInput && endInput) {
-            const startDate = new Date(startInput);
-            const endDate = new Date(endInput);
+            const startDate = new Date(startInput + 'T00:00:00');
+            const endDate = new Date(endInput + 'T00:00:00');
 
             if (endDate >= startDate) {
-                const timeDiff = endDate - startDate;
-                const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) + 1;
-                document.getElementById('LeaveRequest.RequestedDays').value = daysDiff;
+                let days = 0;
+                for (let current = new Date(startDate); current <= endDate; current.setDate(current.getDate() + 1)) {
+                    const dayOfWeek = current.getDay();
+                    if (includeWeekends || (dayOfWeek !== 0 && dayOfWeek !== 6)) {
+                        days++;
+                    }
+                }
+                document.getElementById('LeaveRequest.RequestedDays').value = days;
             }
         }
     }

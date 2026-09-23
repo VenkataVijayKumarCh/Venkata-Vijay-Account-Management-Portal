@@ -41,5 +41,9 @@ namespace VenkataAllocationManagementSystem.Models
         
         public DateTime? LastModifiedOn { get; set; }
 
+        public string? LastModifiedBy { get; set; }
+
+        public int AssociateId {get; set; }
+
     }
 }

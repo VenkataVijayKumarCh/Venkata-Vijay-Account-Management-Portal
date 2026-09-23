@@ -48,6 +48,9 @@ namespace VenkataAllocationManagementSystem.ViewModels
         public List<TimesheetStatus>? TimesheetStatuses { get; set; }
         public int TimesheetStatusId { get; set; }
         // public string? TimesheetStatusName { get; set; }
+        public List<BillabilityTypes>? BillabilityTypes { get; set; }
+
+        public int? BillabilityTypeId { get; set; }
     }
 
     public class AssociateTimesheetRow
@@ -55,6 +58,8 @@ namespace VenkataAllocationManagementSystem.ViewModels
         public int AssociateId { get; set; }
 
         public List<TimesheetLineItem>? TimesheetLineItems { get; set; }
+
+        public int? BillabilityTypeId { get; set; }
     }
     
     // public class TimesheetGridViewModel

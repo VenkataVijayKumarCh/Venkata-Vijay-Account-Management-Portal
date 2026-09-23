@@ -1,7 +1,19 @@
 @model VenkataAllocationManagementSystem.ViewModels.TimesheetsViewModel
+@using System.ComponentModel.DataAnnotations
 
 @{
     ViewBag.Title = "View a Timesheet";
+
+    var billabilityTypeId = Model.TimesheetsInfo![0].BillabilityTypeId;
+    var billabilityText = "Unknown";
+    if (billabilityTypeId.HasValue && Enum.IsDefined(typeof(VenkataAllocationManagementSystem.Models.BillabilityTypesEnum), billabilityTypeId.Value))
+    {
+        var billabilityType = (VenkataAllocationManagementSystem.Models.BillabilityTypesEnum)billabilityTypeId.Value;
+        var enumMember = billabilityType.GetType().GetField(billabilityType.ToString());
+        billabilityText = enumMember?.GetCustomAttributes(typeof(DisplayAttribute), false)
+            .Cast<DisplayAttribute>()
+            .FirstOrDefault()?.GetName() ?? billabilityType.ToString();
+    }
 }
 <section>
     <p>This screen provides a summary of Timesheet for quick glance.</p>
@@ -48,6 +60,7 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
+                    <th></th>
                     @for (int index = 0; index < Model.TimesheetLineItems!.Count; index++)
                     {
                         <th>
@@ -57,6 +70,7 @@
                     <th>Total Hours</th>
                 </tr>
                 <tr>
+                    <th>Billability</th>
                     @for (int index = 0; index < Model.TimesheetLineItems!.Count; index++)
                     {
                         
@@ -69,12 +83,25 @@
                 </tr>
             </thead>
             <tbody>            
-                <tr> 
+                <tr>
+                    <td style="text-align:center;">
+                        @billabilityText
+                    </td>
                     @for (int index = 0; index < Model.TimesheetLineItems!.Count; index++)
                     {
                         @Html.HiddenFor(m => m.TimesheetLineItems![index].WorkDate)
                         <td style="text-align:center;">
-                            @Model.TimesheetLineItems![index].HoursWorked
+                            @if (!string.IsNullOrEmpty(Model.TimesheetLineItems![index].DayCode) &&
+                                (Model.TimesheetLineItems[index].DayCode == "L" ||
+                                 Model.TimesheetLineItems[index].DayCode == "H" ||
+                                 Model.TimesheetLineItems[index].DayCode == "W"))
+                            {
+                                @Model.TimesheetLineItems[index].DayCode
+                            }
+                            else
+                            {
+                                @Model.TimesheetLineItems[index].HoursWorked
+                            }
                         </td>                    
                     }
                     <td style="text-align:center;">
@@ -82,7 +109,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="8">
+                    <td colspan="9">
                         <b>Description: </b>@Model.TimesheetLineItems![0].Description
                     </td>
                 </tr>
