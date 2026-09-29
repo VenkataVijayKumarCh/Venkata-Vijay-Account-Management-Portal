@@ -599,7 +599,14 @@ namespace VenkataAllocationManagementSystem.Controllers
                     AssociateId = associate.AssociateId,
                     TimesheetLineItems = await GetTimesheetLineItemsWithAbsencesAsync(
                         model.TimesheetPeriodId, associate.AssociateId),
-                    BillabilityTypeId = (int)BillabilityTypesEnum.Billable
+                    BillabilityTypeId = await _dbContext.Allocations
+                        .Where(allocation => allocation.AssociateId == associate.AssociateId
+                            && allocation.ProjectId == model.ProjectId
+                            && (model.IncludeResignationAssociates || allocation.IsActive))
+                        .OrderByDescending(allocation => allocation.IsActive)
+                        .ThenByDescending(allocation => allocation.StartDate)
+                        .Select(allocation => (int?)allocation.BillabilityTypeId)
+                        .FirstOrDefaultAsync() ?? (int)BillabilityTypesEnum.Billable
                 };
                 if (model.AssociateTimesheetRows == null)
                 {
@@ -1016,12 +1023,19 @@ namespace VenkataAllocationManagementSystem.Controllers
                     model.Projects = projects;
                     model.BillabilityTypes = billabilityTypes;
                     model.BillabilityTypeId = 0;
+                    var associateId = GetCurrentUserId();
                     model.AssociateTimesheetRows = new List<AssociateTimesheetRow>
                     {
                         new AssociateTimesheetRow
                         {
-                            AssociateId = GetCurrentUserId(),
-                            BillabilityTypeId = (int)BillabilityTypesEnum.Billable
+                            AssociateId = associateId,
+                            BillabilityTypeId = await _dbContext.Allocations
+                                .Where(allocation => allocation.AssociateId == associateId
+                                    && allocation.ProjectId == model.ProjectId
+                                    && allocation.IsActive)
+                                .OrderByDescending(allocation => allocation.StartDate)
+                                .Select(allocation => (int?)allocation.BillabilityTypeId)
+                                .FirstOrDefaultAsync() ?? (int)BillabilityTypesEnum.Billable
                         }
                     };
                     var timesheetExists = _dbContext.Timesheets.Any(ts =>

@@ -90,13 +90,19 @@
                     @for (int index = 0; index < Model.TimesheetLineItems!.Count; index++)
                     {
                         @Html.HiddenFor(m => m.TimesheetLineItems![index].WorkDate)
-                        <td style="text-align:center;">
-                            @if (!string.IsNullOrEmpty(Model.TimesheetLineItems![index].DayCode) &&
-                                (Model.TimesheetLineItems[index].DayCode == "L" ||
-                                 Model.TimesheetLineItems[index].DayCode == "H" ||
-                                 Model.TimesheetLineItems[index].DayCode == "W"))
+                        var dayCode = Model.TimesheetLineItems[index].DayCode;
+                        var statusClass = dayCode switch
+                        {
+                            "H" => "timesheet-status-holiday",
+                            "L" => "timesheet-status-leave",
+                            "W" => "timesheet-status-weekend",
+                            _ => string.Empty
+                        };
+                        <td class="timesheet-status-cell @statusClass">
+                            @if (!string.IsNullOrEmpty(dayCode) &&
+                                (dayCode == "L" || dayCode == "H" || dayCode == "W"))
                             {
-                                @Model.TimesheetLineItems[index].DayCode
+                                @dayCode
                             }
                             else
                             {
@@ -126,3 +132,18 @@
     }
     <a asp-action="ViewMyTimesheets" asp-controller="Timesheets" class="btn btn-secondary">Cancel</a>
 </div>
+<fieldset>
+    <legend style="font-size:18px;color:#8d71f1;font-weight:bold;">Important Notes:</legend>
+    <div class="info" style="padding:5px 0px 5px 0px;">
+        @* <p> *@
+            @* <strong>Notes:</strong>  *@
+            <ul>
+                <li>Timesheet can be approved or rejected only when the status is <strong>Submitted</strong>.</li>
+                <li>Once a Timesheet is approved or rejected, it cannot be modified.</li>
+                <li>Based on the Holiday configuration in the system, all the corresponding week days will be marked as <strong>'H'</strong> accordingly unless associate has explicitly work log hours.</li>
+                <li>Based on the Leaves applied in the system, all the corresponding week days will be marked as <strong>'L'</strong> accordingly unless associate has explicitly work log hours.</li>
+                <li>Based on the Calendar, all the corresponding weekends will be marked as <strong>'W'</strong> accordingly unless associate has explicitly work log hours.</li>
+            </ul>
+        @* </p> *@
+    </div>
+</fieldset>

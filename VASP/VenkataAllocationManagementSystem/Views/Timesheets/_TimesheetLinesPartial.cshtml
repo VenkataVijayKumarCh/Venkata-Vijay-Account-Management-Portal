@@ -37,11 +37,22 @@ else
         <tbody>                  
             <tr>
                 <td style="align:center;">     
-                    @Html.DropDownListFor(m => m.TimesheetsInfo[0].BillabilityTypeId,
-                            new SelectList(Model.BillabilityTypes, "BillabilityTypeId", "BillabilityTypeName",
-                                Model.TimesheetsInfo[0].BillabilityTypeId),
-                            "Select Billability", new { @class = "form-control", @id = "ddlBillability" })
-                    @Html.ValidationMessageFor(m => m.TimesheetsInfo[0].BillabilityTypeId)
+                    @if (Model.IsEditMode)
+                    {
+                        @Html.DropDownListFor(m => m.TimesheetsInfo![0].BillabilityTypeId,
+                                new SelectList(Model.BillabilityTypes, "BillabilityTypeId", "BillabilityTypeName",
+                                    Model.TimesheetsInfo[0].BillabilityTypeId),
+                                "Select Billability", new { @class = "form-control", @id = "ddlBillability" })
+                        @Html.ValidationMessageFor(m => m.TimesheetsInfo![0].BillabilityTypeId)
+                    }
+                    else
+                    {
+                        @Html.DropDownListFor(m => m.AssociateTimesheetRows![0].BillabilityTypeId,
+                                new SelectList(Model.BillabilityTypes, "BillabilityTypeId", "BillabilityTypeName",
+                                    Model.AssociateTimesheetRows![0].BillabilityTypeId),
+                                "Select Billability", new { @class = "form-control", @id = "ddlBillability" })
+                        @Html.ValidationMessageFor(m => m.AssociateTimesheetRows![0].BillabilityTypeId)
+                    }
                 </td>
                     
                 

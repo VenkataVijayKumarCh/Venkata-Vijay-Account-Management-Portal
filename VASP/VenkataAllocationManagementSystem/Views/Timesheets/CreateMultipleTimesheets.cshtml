@@ -136,8 +136,8 @@
                 // Compute total for a single row
                 function computeRowTotal(row) {
                     if (!row) return;
-                    // find inputs that represent hours (name contains "Hours") but exclude any "Total" inputs
-                    const hourInputs = Array.from(row.querySelectorAll('input[name*="Hours"]'))
+                    // EntryValue is used by the current timesheet form; keep HoursWorked for legacy forms.
+                    const hourInputs = Array.from(row.querySelectorAll('input[name$=".EntryValue"], input[name$=".HoursWorked"]'))
                         .filter(i => !/Total/i.test(i.name));
                     let total = 0;
                     hourInputs.forEach(function (input) {
@@ -167,8 +167,7 @@
                     table.addEventListener('input', function (e) {
                         const input = e.target;
                         if (!input || !input.name) return;
-                        // Only react to hour inputs (name contains 'Hours')
-                        if (input.name.indexOf('Hours') === -1) return;
+                        if (!/\.(EntryValue|HoursWorked)$/.test(input.name)) return;
                         const row = input.closest('tr');
                         computeRowTotal(row);
                     });

@@ -56,6 +56,27 @@ th {
     vertical-align: middle;
 }
 
+.timesheet-status-cell {
+  font-weight: 600;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.timesheet-status-holiday {
+  background-color: #1c6136;
+  color: #1e3a8a;
+}
+
+.timesheet-status-leave {
+  background-color: #fec7ed;
+  color: #78350f;
+}
+
+.timesheet-status-weekend {
+  background-color: #9879df;
+  color: #334155;
+}
+
 .center {
   margin: auto;
   width: 50%;
